@@ -6,13 +6,42 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from qiime2.plugin import (Plugin, Int, Float, Range, Metadata, Str, Bool,
-                           Choices, MetadataColumn, Categorical, List,
-                           Citations, TypeMatch, TypeMap, Collection)
+from qiime2.plugin import (Plugin, Int, Range, Collection,
+                           Citations)
+from q2_types.feature_table import (
+    FeatureTable, Frequency
+)
 
 import q2_boots
 Citations = Citations.load('citations.bub', package='q2_boots')
 plugin = Plugin(
     name='boots',
-    version=q2_boots.__version__
+    version=q2_boots.__version__,
+    package='q2_boots',
+    short_description='placeholder',
+    description='placeholder'
+)
+
+plugin.methods.register_function(
+    function=q2_boots._bootstrap_iteration,
+    inputs={'table': FeatureTable[Frequency]},
+    parameters={'sampling_depth': Int % Range(1, None)},
+    outputs={'subsampled_tables': FeatureTable[Frequency]},
+    input_descriptions={},
+    parameter_descriptions={},
+    output_descriptions={},
+    name={},
+    description=''
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.bootstrap,
+    inputs={'table': FeatureTable[Frequency]},
+    parameters={'sampling_depth': Int % Range(1, None),
+                'n': Int % Range(1, None)},
+    outputs={'bootstrapped_tables': Collection[FeatureTable[Frequency]]},
+    input_descriptions={},
+    parameter_descriptions={},
+    output_descriptions={},
+    description=''
 )
