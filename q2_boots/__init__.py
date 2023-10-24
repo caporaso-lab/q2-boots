@@ -7,5 +7,9 @@
 # ----------------------------------------------------------------------------
 
 from ._normalize import _bootstrap_iteration, bootstrap
+from ._version import get_versions
 
 __all__ = ['_bootstrap_iteration', 'bootstrap']
+
+__version__ = get_versions()['version']
+del get_versions

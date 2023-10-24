@@ -13,10 +13,11 @@ from q2_types.feature_table import (
 )
 
 import q2_boots
-Citations = Citations.load('citations.bub', package='q2_boots')
+Citations = Citations.load('citations.bib', package='q2_boots')
 plugin = Plugin(
     name='boots',
     version=q2_boots.__version__,
+    website='https://github.com/qiime2/q2-boots',
     package='q2_boots',
     short_description='placeholder',
     description='placeholder'
@@ -30,7 +31,7 @@ plugin.methods.register_function(
     input_descriptions={},
     parameter_descriptions={},
     output_descriptions={},
-    name={},
+    name='Bootstrap Iteration',
     description=''
 )
 
@@ -43,5 +44,6 @@ plugin.pipelines.register_function(
     input_descriptions={},
     parameter_descriptions={},
     output_descriptions={},
+    name='Bootstrap',
     description=''
 )

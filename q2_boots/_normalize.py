@@ -24,7 +24,7 @@ def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
     return table
 
 
-def bootstrap(ctx, table, sampling_depth, n: int = 1):
+def bootstrap(ctx, table, sampling_depth, n=1):
 
     _iteration = ctx.get_action('boots', '_bootstrap_iteration')
 
