@@ -27,12 +27,18 @@ plugin.methods.register_function(
     function=q2_boots._bootstrap_iteration,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None)},
-    outputs={'subsampled_tables': FeatureTable[Frequency]},
-    input_descriptions={},
-    parameter_descriptions={},
-    output_descriptions={},
+    outputs={'subsampled_table': FeatureTable[Frequency]},
+    input_descriptions={'table': 'The table to be subsampled'},
+    parameter_descriptions={
+        'sampling_depth': ('The total frequency that each sample should be '
+                           'subsampled to. Samples where the sum of frequencies '
+                           'is less than the sampling depth will be not be '
+                           'included in the resulting table.')},
+    output_descriptions={'subsampled_table': 'The table that reaches the threshold '
+                         'specified by sampling depth'},
     name='Bootstrap Iteration',
-    description=''
+    description='This private function is the logic for each iteration of '
+                'bootstrap'
 )
 
 plugin.pipelines.register_function(
@@ -41,9 +47,20 @@ plugin.pipelines.register_function(
     parameters={'sampling_depth': Int % Range(1, None),
                 'n': Int % Range(1, None)},
     outputs={'bootstrapped_tables': Collection[FeatureTable[Frequency]]},
-    input_descriptions={},
-    parameter_descriptions={},
-    output_descriptions={},
+    input_descriptions={'table': 'The table to be subsampled'},
+    parameter_descriptions={
+        'sampling_depth': ('The total frequency that each sample should be '
+                           'subsampled to. Samples where the sum of frequencies '
+                           'is less than the sampling depth will be not be '
+                           'included in the resulting table.'),
+        'n': 'The number of times to subsample the input table.'
+    },
+    output_descriptions={
+        'subsampled_table': 'A collection of n tables normalized to the specified '
+                            'sampling depth'
+    },
     name='Bootstrap',
-    description=''
+    description='This pipeline is a repeated subsampling of a specified input table. '
+                'N tables are produced normalized so the sum of each sample\'s '
+                'frequency is equal to the sampling depth.'
 )
