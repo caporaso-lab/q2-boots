@@ -7,12 +7,15 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations, Str)
+                           Citations, Str, Choices)
 from q2_types.feature_table import (
     FeatureTable, Frequency
 )
+from q2_types.sample_data import AlphaDiversity, SampleData
 
 from q2_types.tree import Phylogeny, Rooted
+
+from q2_diversity_lib.alpha import METRICS
 
 import q2_boots
 Citations = Citations.load('citations.bib', package='q2_boots')
@@ -71,13 +74,18 @@ plugin.pipelines.register_function(
     function=q2_boots.alpha_bootstrap,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str,
+                'metric': Str % Choices(METRICS['NONPHYLO']['IMPL'] |
+                                        METRICS['NONPHYLO']['UNIMPL']),
                 'n': Int % Range(1, None)},
-    outputs={'diversified_tables': Collection[FeatureTable[Frequency]]},
+    outputs={'sample_data': Collection[FeatureTable[Frequency]]},
     input_descriptions={'table': 'The table to be diversified'},
     parameter_descriptions={
-        'sampling_depth': '',
-        'n': ''
+        'sampling_depth': ('The total frequency that each sample should be '
+                           'subsampled to. Samples where the sum of frequencies '
+                           'is less than the sampling depth will be not be '
+                           'included in the resulting table.'),
+        'metric': '',
+        'n': 'The number of times to subsample the input table.'
     },
     output_descriptions={
         'diversified_tables': '',
@@ -91,9 +99,16 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str,
+                'metric': Str % Choices(METRICS['NONPHYLO']['IMPL'] |
+                                        METRICS['NONPHYLO']['UNIMPL']),
                 'n': Int % Range(1, None)},
-    outputs={'diversified_tables': Collection[FeatureTable[Frequency]]},
+    input_descriptions={'table': '',
+                        'phylogeny': ''},
+    parameter_descriptions={'sampling_depth': '',
+                            'metric': '',
+                            'n': ''},
+    outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
+    output_descriptions={'sample_data': ''},
     name='Alpha Phylogenetic Bootstrap',
     description=''
 )

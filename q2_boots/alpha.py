@@ -10,7 +10,7 @@
 def alpha_bootstrap(ctx, table, sampling_depth, metric, n=1):
 
     _bootstrap = ctx.get_action("boots", "bootstrap")
-    _alpha = ctx.get_action("divserity_lib", "alpha_passthrough")
+    _alpha = ctx.get_action("divserity", "alpha")
 
     tables = _bootstrap(ctx, table, sampling_depth, n)
     diversified_tables = []
