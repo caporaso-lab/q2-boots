@@ -7,10 +7,12 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations)
+                           Citations, Str)
 from q2_types.feature_table import (
     FeatureTable, Frequency
 )
+
+from q2_types.tree import Phylogeny, Rooted
 
 import q2_boots
 Citations = Citations.load('citations.bib', package='q2_boots')
@@ -46,7 +48,7 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'n': Int % Range(1, None)},
-    outputs={'bootstrapped_tables': Collection[FeatureTable[Frequency]]},
+    outputs={'subsampled_tables': Collection[FeatureTable[Frequency]]},
     input_descriptions={'table': 'The table to be subsampled'},
     parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
@@ -56,11 +58,42 @@ plugin.pipelines.register_function(
         'n': 'The number of times to subsample the input table.'
     },
     output_descriptions={
-        'subsampled_table': 'A collection of n tables normalized to the specified '
-                            'sampling depth'
+        'subsampled_tables': 'A collection of n tables normalized to the specified '
+                             'sampling depth'
     },
     name='Bootstrap',
     description='This pipeline is a repeated subsampling of a specified input table. '
                 'N tables are produced normalized so the sum of each sample\'s '
                 'frequency is equal to the sampling depth.'
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.alpha_bootstrap,
+    inputs={'table': FeatureTable[Frequency]},
+    parameters={'sampling_depth': Int % Range(1, None),
+                'metric': Str,
+                'n': Int % Range(1, None)},
+    outputs={'diversified_tables': Collection[FeatureTable[Frequency]]},
+    input_descriptions={'table': 'The table to be diversified'},
+    parameter_descriptions={
+        'sampling_depth': '',
+        'n': ''
+    },
+    output_descriptions={
+        'diversified_tables': '',
+    },
+    name='Alpha Bootstrap',
+    description=''
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.alpha_phylogenetic_bootstrap,
+    inputs={'table': FeatureTable[Frequency],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'sampling_depth': Int % Range(1, None),
+                'metric': Str,
+                'n': Int % Range(1, None)},
+    outputs={'diversified_tables': Collection[FeatureTable[Frequency]]},
+    name='Alpha Phylogenetic Bootstrap',
+    description=''
 )

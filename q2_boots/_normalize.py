@@ -32,3 +32,5 @@ def bootstrap(ctx, table, sampling_depth, n=1):
 
     for i in range(n):
         tables.append(_iteration(table, sampling_depth))
+
+    return tables

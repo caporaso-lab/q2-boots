@@ -7,9 +7,11 @@
 # ----------------------------------------------------------------------------
 
 from ._normalize import _bootstrap_iteration, bootstrap
+from .alpha import alpha_bootstrap, alpha_phylogenetic_bootstrap
 from ._version import get_versions
 
-__all__ = ['_bootstrap_iteration', 'bootstrap']
+__all__ = ['_bootstrap_iteration', 'bootstrap',
+           'alpha_bootstrap', 'alpha_phylogenetic_bootstrap']
 
 __version__ = get_versions()['version']
 del get_versions
