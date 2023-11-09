@@ -88,7 +88,7 @@ plugin.pipelines.register_function(
         'n': 'The number of times to subsample the input table.'
     },
     output_descriptions={
-        'diversified_tables': '',
+        'sample_data': '',
     },
     name='Alpha Bootstrap',
     description=''
