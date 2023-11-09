@@ -52,6 +52,5 @@ def alpha_bootstrap_representative(ctx, table, sampling_depth, phylogeny, metric
         representative_sample_data = representative_sample_data.median(axis=1)
     elif average_method == "mean":
         representative_sample_data = representative_sample_data.mean(axis=1)
-    
-    return representative_sample_data
 
+    return representative_sample_data
