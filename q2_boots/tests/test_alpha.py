@@ -31,4 +31,18 @@ class TestAlphaPhylogeneticBootstrap(TestPluginBase):
             'alpha_phylogenetic_bootstrap']
 
     def test_basic(self):
+
+        pass
+
+
+class TestAlphaBootstrapRepresentative(TestPluginBase):
+
+    package = 'q2_boots'
+
+    def setUp(self):
+        super().setUp()
+        self.alpha_bootstrap_representative = self.plugin.pipelines[
+            'alpha_bootstrap_representative']
+
+    def test_basic(self):
         pass

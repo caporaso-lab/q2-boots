@@ -38,13 +38,19 @@ def alpha_phylogenetic_bootstrap(ctx, table, sampling_depth, phylogeny, metric, 
     return diversified_tables
 
 
-def alpha_bootstrap_representative(ctx, table, sampling_depth, phylogeny, metric, n=1,
+def alpha_bootstrap_representative(ctx, table, sampling_depth, metric, phylogeny=None,
+                                   n=1,
                                    average_method='median'):
 
     _alpha_bootstrap = ctx.get_actions("boots", "alpha_bootstrap")
+    _alpha_phylo_bootstrap = ctx.get_actions("boots", "alpha_phylogenetic_bootstrap")
 
-    sample_data = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
-                                   metric=metric, n=n)
+    if phylogeny is not None:
+        sample_data = _alpha_phylo_bootstrap(table=table, sampling_depth=sampling_depth,
+                                             metric=metric, phylogeny=phylogeny, n=n)
+    else:
+        sample_data = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
+                                       metric=metric, n=n)
 
     representative_sample_data = pd.DataFrame(sample_data)
 
