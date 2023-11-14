@@ -34,14 +34,8 @@ def alpha_bootstrap_representative(ctx, table, sampling_depth, metric, phylogeny
                                    average_method='median'):
 
     _alpha_bootstrap = ctx.get_actions("boots", "alpha_bootstrap")
-    _alpha_phylo_bootstrap = ctx.get_actions("boots", "alpha_phylogenetic_bootstrap")
-
-    if phylogeny is not None:
-        sample_data = _alpha_phylo_bootstrap(table=table, sampling_depth=sampling_depth,
-                                             metric=metric, phylogeny=phylogeny, n=n)
-    else:
-        sample_data = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
-                                       metric=metric, n=n)
+    sample_data = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
+                                   phylogeny=phylogeny, metric=metric, n=n)
 
     representative_sample_data = pd.DataFrame(sample_data)
 
@@ -49,5 +43,7 @@ def alpha_bootstrap_representative(ctx, table, sampling_depth, metric, phylogeny
         representative_sample_data = representative_sample_data.median(axis=1)
     elif average_method == "mean":
         representative_sample_data = representative_sample_data.mean(axis=1)
+    elif average_method == 'mode':
+        representative_sample_data = representative_sample_data.mode(axis=1)
 
     return representative_sample_data

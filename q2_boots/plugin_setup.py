@@ -95,3 +95,30 @@ plugin.pipelines.register_function(
     name='Alpha Bootstrap',
     description=''
 )
+
+plugin.pipelines.register_function(
+    function=q2_boots.alpha_bootstrap_representative,
+    inputs={'table': FeatureTable[Frequency],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'sampling_depth': Int % Range(1, None),
+                'metric': Str % Choices(METRICS['NONPHYLO']['IMPL'] |
+                                        METRICS['NONPHYLO']['UNIMPL']),
+                'n': Int % Range(1, None),
+                'average_method': Str % Choices('median' | 'mean' | 'mode')},
+    outputs={'sample_data': SampleData[AlphaDiversity]},
+    input_descriptions={'table': 'The table to be diversified',
+                        'phylogeny': ''},
+    parameter_descriptions={
+        'sampling_depth': ('The total frequency that each sample should be '
+                           'subsampled to. Samples where the sum of frequencies '
+                           'is less than the sampling depth will be not be '
+                           'included in the resulting table.'),
+        'metric': '',
+        'n': 'The number of times to subsample the input table.'
+    },
+    output_descriptions={
+        'sample_data': '',
+    },
+    name='Alpha Bootstrap',
+    description=''
+)
