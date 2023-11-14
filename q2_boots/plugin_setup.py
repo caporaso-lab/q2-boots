@@ -119,6 +119,6 @@ plugin.pipelines.register_function(
     output_descriptions={
         'sample_data': '',
     },
-    name='Alpha Bootstrap',
+    name='Alpha Bootstrap Representative',
     description=''
 )
