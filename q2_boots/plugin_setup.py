@@ -72,13 +72,15 @@ plugin.pipelines.register_function(
 
 plugin.pipelines.register_function(
     function=q2_boots.alpha_bootstrap,
-    inputs={'table': FeatureTable[Frequency]},
+    inputs={'table': FeatureTable[Frequency],
+            'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'metric': Str % Choices(METRICS['NONPHYLO']['IMPL'] |
                                         METRICS['NONPHYLO']['UNIMPL']),
                 'n': Int % Range(1, None)},
-    outputs={'sample_data': Collection[FeatureTable[Frequency]]},
-    input_descriptions={'table': 'The table to be diversified'},
+    outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
+    input_descriptions={'table': 'The table to be diversified',
+                        'phylogeny': ''},
     parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
                            'subsampled to. Samples where the sum of frequencies '
@@ -91,24 +93,5 @@ plugin.pipelines.register_function(
         'sample_data': '',
     },
     name='Alpha Bootstrap',
-    description=''
-)
-
-plugin.pipelines.register_function(
-    function=q2_boots.alpha_phylogenetic_bootstrap,
-    inputs={'table': FeatureTable[Frequency],
-            'phylogeny': Phylogeny[Rooted]},
-    parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str % Choices(METRICS['NONPHYLO']['IMPL'] |
-                                        METRICS['NONPHYLO']['UNIMPL']),
-                'n': Int % Range(1, None)},
-    input_descriptions={'table': '',
-                        'phylogeny': ''},
-    parameter_descriptions={'sampling_depth': '',
-                            'metric': '',
-                            'n': ''},
-    outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
-    output_descriptions={'sample_data': ''},
-    name='Alpha Phylogenetic Bootstrap',
     description=''
 )

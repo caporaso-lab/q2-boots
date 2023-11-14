@@ -9,31 +9,22 @@
 import pandas as pd
 
 
-def alpha_bootstrap(ctx, table, sampling_depth, metric, n=1):
+def alpha_bootstrap(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
 
     _bootstrap = ctx.get_action("boots", "bootstrap")
     _alpha = ctx.get_action("divserity", "alpha")
-
-    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n)
-    diversified_tables = []
-
-    for table in tables:
-        diversified_tables.append(_alpha(table, metric))
-
-    return diversified_tables
-
-
-def alpha_phylogenetic_bootstrap(ctx, table, sampling_depth, phylogeny, metric, n=1):
-
-    _bootstrap = ctx.get_action("boots", "bootstrap")
     _alpha_phylogenetic = ctx.get_action("diversity", "alpha_phylogenetic")
 
     tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n)
     diversified_tables = []
 
     for table in tables:
-        diversified_tables.append(_alpha_phylogenetic(table=table, phylogeny=phylogeny,
-                                                      metric=metric))
+        if phylogeny is not None:
+            diversified_tables.append(_alpha_phylogenetic(
+                table=table, metric=metric, phylogeny=phylogeny))
+        else:
+            diversified_tables.append(_alpha(
+                table=table, metric=metric))
 
     return diversified_tables
 
