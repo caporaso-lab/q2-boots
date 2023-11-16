@@ -15,7 +15,7 @@ from q2_types.sample_data import AlphaDiversity, SampleData
 
 from q2_types.tree import Phylogeny, Rooted
 
-from q2_diversity_lib.alpha import METRICS
+from q2_diversity_lib.alpha import METRICS as alpha_metrics
 
 import q2_boots
 Citations = Citations.load('citations.bib', package='q2_boots')
@@ -75,8 +75,10 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str % Choices(METRICS['NONPHYLO']['IMPL'] |
-                                        METRICS['NONPHYLO']['UNIMPL']),
+                'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
+                                        alpha_metrics['NONPHYLO']['UNIMPL'],
+                                        alpha_metrics['PHYLO']['IMPL'],
+                                        alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None)},
     outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
     input_descriptions={'table': 'The table to be diversified',
@@ -101,10 +103,12 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str % Choices(METRICS['NONPHYLO']['IMPL'] |
-                                        METRICS['NONPHYLO']['UNIMPL']),
+                'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
+                                        alpha_metrics['NONPHYLO']['UNIMPL'],
+                                        alpha_metrics['PHYLO']['IMPL'],
+                                        alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
-                'average_method': Str % Choices('median' | 'mean' | 'mode')},
+                'average_method': Str % Choices(['median' , 'mean' , 'mode'])},
     outputs={'sample_data': SampleData[AlphaDiversity]},
     input_descriptions={'table': 'The table to be diversified',
                         'phylogeny': ''},

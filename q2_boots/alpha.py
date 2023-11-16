@@ -8,8 +8,16 @@
 
 import pandas as pd
 
+from q2_diversity_lib.alpha import METRICS
+
 
 def alpha_bootstrap(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
+
+    if phylogeny is not None and metric in METRICS['NONPHYLO']:
+        raise ValueError('You must use a phylogenic metric')
+
+    elif phylogeny is None and metric in METRICS['PHYLO']:
+        raise ValueError('You must use a non-phylogenic metric')
 
     _bootstrap = ctx.get_action("boots", "bootstrap")
     _alpha = ctx.get_action("divserity", "alpha")
@@ -30,8 +38,14 @@ def alpha_bootstrap(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
 
 
 def alpha_bootstrap_representative(ctx, table, sampling_depth, metric, phylogeny=None,
-                                   n=1,
-                                   average_method='median'):
+                                   n=1, average_method='median'):
+
+    if phylogeny is not None and metric in METRICS['NONPHYLO']:
+        raise ValueError('You must use a phylogenic metric when phylogeny is included.')
+
+    elif phylogeny is None and metric in METRICS['PHYLO']:
+        raise ValueError('You must use a non-phylogenic metric when no phylogeny is' +
+                         'included.')
 
     _alpha_bootstrap = ctx.get_actions("boots", "alpha_bootstrap")
     sample_data = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
