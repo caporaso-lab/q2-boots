@@ -7,17 +7,34 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations, Str, Choices)
+                           Citations, Str, Choices, Bool, Float)
 from q2_types.feature_table import (
-    FeatureTable, Frequency
+    FeatureTable, Frequency, RelativeFrequency, PresenceAbsence
 )
 from q2_types.sample_data import AlphaDiversity, SampleData
 
 from q2_types.tree import Phylogeny, Rooted
 
 from q2_diversity_lib.alpha import METRICS as alpha_metrics
+from q2_diversity_lib.beta import METRICS as beta_metrics
+from q2_types.distance_matrix import DistanceMatrix
 
 import q2_boots
+
+n_jobs_description = (
+    'The number of concurrent jobs to use in performing this calculation. '
+    'May not exceed the number of available physical cores. If n_jobs = '
+    '\'auto\', one job will be launched for each identified CPU core on the '
+    'host.'
+)
+
+threads_description = (
+    'The number of CPU threads to use in performing this calculation. '
+    'May not exceed the number of available physical cores. If threads = '
+    '\'auto\', one thread will be created for each identified CPU core on the '
+    'host.'
+)
+
 Citations = Citations.load('citations.bib', package='q2_boots')
 plugin = Plugin(
     name='boots',
@@ -30,9 +47,11 @@ plugin = Plugin(
 
 plugin.methods.register_function(
     function=q2_boots._bootstrap_iteration,
-    inputs={'table': FeatureTable[Frequency]},
+    inputs={'table': FeatureTable[Frequency | RelativeFrequency |
+                                  PresenceAbsence]},
     parameters={'sampling_depth': Int % Range(1, None)},
-    outputs={'subsampled_table': FeatureTable[Frequency]},
+    outputs={'subsampled_table': FeatureTable[Frequency | RelativeFrequency |
+                                              PresenceAbsence]},
     input_descriptions={'table': 'The table to be subsampled'},
     parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
@@ -51,7 +70,9 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'n': Int % Range(1, None)},
-    outputs={'subsampled_tables': Collection[FeatureTable[Frequency]]},
+    outputs={'subsampled_tables': Collection[FeatureTable[Frequency |
+                                                          RelativeFrequency |
+                                                          PresenceAbsence]]},
     input_descriptions={'table': 'The table to be subsampled'},
     parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
@@ -72,12 +93,12 @@ plugin.pipelines.register_function(
 
 plugin.pipelines.register_function(
     function=q2_boots.alpha_bootstrap,
-    inputs={'table': FeatureTable[Frequency],
+    inputs={'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
-                                        alpha_metrics['NONPHYLO']['UNIMPL'],
-                                        alpha_metrics['PHYLO']['IMPL'],
+                                        alpha_metrics['NONPHYLO']['UNIMPL'] |
+                                        alpha_metrics['PHYLO']['IMPL'] |
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None)},
     outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
@@ -100,12 +121,12 @@ plugin.pipelines.register_function(
 
 plugin.pipelines.register_function(
     function=q2_boots.alpha_bootstrap_representative,
-    inputs={'table': FeatureTable[Frequency],
+    inputs={'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
-                                        alpha_metrics['NONPHYLO']['UNIMPL'],
-                                        alpha_metrics['PHYLO']['IMPL'],
+                                        alpha_metrics['NONPHYLO']['UNIMPL'] |
+                                        alpha_metrics['PHYLO']['IMPL'] |
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
                 'average_method': Str % Choices(['median' , 'mean' , 'mode'])},
@@ -125,4 +146,79 @@ plugin.pipelines.register_function(
     },
     name='Alpha Bootstrap Representative',
     description=''
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.beta_bootstrap,
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
+    parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
+                                        beta_metrics['NONPHYLO']['UNIMPL']),
+                'pseudocount': Int % Range(1, None),
+                'n_jobs': Int % Range(1, None) | Str % Choices(['auto']),
+                'n': Int % Range(1, None),
+                'sampling_depth': Int % Range(1, None)},
+    outputs=[('distance_matrix', DistanceMatrix)],
+    input_descriptions={
+        'table': ('The feature table containing the samples over which beta '
+                  'diversity should be computed.')
+    },
+    parameter_descriptions={
+        'metric': 'The beta diversity metric to be computed.',
+        'pseudocount': ('A pseudocount to handle zeros for compositional '
+                        'metrics.  This is ignored for other metrics.'),
+        'n_jobs': n_jobs_description
+    },
+    output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
+    name='Beta diversity',
+    description=("Computes a user-specified beta diversity metric for all "
+                 "pairs of samples in a feature table.")
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.beta_bootstrap_phylogenetic,
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'metric': Str % Choices(beta_metrics['PHYLO']['IMPL'] |
+                                        beta_metrics['PHYLO']['UNIMPL']),
+                'threads': Int % Range(1, None) | Str % Choices(['auto']),
+                'variance_adjusted': Bool,
+                'alpha': Float % Range(0, 1, inclusive_end=True),
+                'bypass_tips': Bool,
+                'n': Int % Range(1, None),
+                'sampling_depth': Int % Range(1, None)},
+    outputs=[('distance_matrix', DistanceMatrix)],
+    input_descriptions={
+        'table': ('The feature table containing the samples over which beta '
+                  'diversity should be computed.'),
+        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
+                      'correspond to the feature identifiers in the table. '
+                      'This tree can contain tip ids that are not present in '
+                      'the table, but all feature ids in the table must be '
+                      'present in this tree.')
+    },
+    parameter_descriptions={
+        'metric': 'The beta diversity metric to be computed.',
+        'threads': threads_description,
+        'variance_adjusted': ('Perform variance adjustment based on Chang et '
+                              'al. BMC Bioinformatics 2011. Weights distances '
+                              'based on the proportion of the relative '
+                              'abundance represented between the samples at a'
+                              ' given node under evaluation.'),
+        'alpha': ('This parameter is only used when the choice of metric is '
+                  'generalized_unifrac. The value of alpha controls importance'
+                  ' of sample proportions. 1.0 is weighted normalized UniFrac.'
+                  ' 0.0 is close to unweighted UniFrac, but only if the sample'
+                  ' proportions are dichotomized.'),
+        'bypass_tips': ('In a bifurcating tree, the tips make up about 50% of '
+                        'the nodes in a tree. By ignoring them, specificity '
+                        'can be traded for reduced compute time. This has the'
+                        ' effect of collapsing the phylogeny, and is analogous'
+                        ' (in concept) to moving from 99% to 97% OTUs')
+    },
+    output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
+    name='Beta diversity (phylogenetic)',
+    description=("Computes a user-specified phylogenetic beta diversity metric"
+                 " for all pairs of samples in a feature table.")
 )
