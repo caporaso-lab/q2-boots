@@ -35,6 +35,12 @@ threads_description = (
     'host.'
 )
 
+phylogeny_description = (
+    'Phylogenetic tree containing tip identifiers that correspond to the feature '
+    'identifiers in the table. This tree can contain tip ids that are not present '
+    'in the table, but all feature ids must be present in this tree.'
+)
+
 Citations = Citations.load('citations.bib', package='q2_boots')
 plugin = Plugin(
     name='boots',
@@ -103,7 +109,7 @@ plugin.pipelines.register_function(
                 'n': Int % Range(1, None)},
     outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
     input_descriptions={'table': 'The table to be diversified',
-                        'phylogeny': ''},
+                        'phylogeny': phylogeny_description},
     parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
                            'subsampled to. Samples where the sum of frequencies '
@@ -116,7 +122,8 @@ plugin.pipelines.register_function(
         'sample_data': '',
     },
     name='Alpha Bootstrap',
-    description=''
+    description='Subsamples the input table multiple times and provides those in a ' +
+                'collection of feature tables of the same type as an input.'
 )
 
 plugin.pipelines.register_function(
@@ -132,7 +139,7 @@ plugin.pipelines.register_function(
                 'average_method': Str % Choices(['median' , 'mean' , 'mode'])},
     outputs={'sample_data': SampleData[AlphaDiversity]},
     input_descriptions={'table': 'The table to be diversified',
-                        'phylogeny': ''},
+                        'phylogeny': phylogeny_description},
     parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
                            'subsampled to. Samples where the sum of frequencies '
@@ -192,11 +199,7 @@ plugin.pipelines.register_function(
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
                   'diversity should be computed.'),
-        'phylogeny': ('Phylogenetic tree containing tip identifiers that '
-                      'correspond to the feature identifiers in the table. '
-                      'This tree can contain tip ids that are not present in '
-                      'the table, but all feature ids in the table must be '
-                      'present in this tree.')
+        'phylogeny': phylogeny_description,
     },
     parameter_descriptions={
         'metric': 'The beta diversity metric to be computed.',
