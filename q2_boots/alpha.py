@@ -11,7 +11,7 @@ import pandas as pd
 from q2_diversity_lib.alpha import METRICS
 
 
-def alpha_bootstrap(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
+def alpha(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
 
     if phylogeny is not None and metric in METRICS['NONPHYLO']:
         raise ValueError('You must use a phylogenic metric')
@@ -37,8 +37,8 @@ def alpha_bootstrap(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
     return diversified_tables
 
 
-def alpha_bootstrap_representative(ctx, table, sampling_depth, metric, phylogeny=None,
-                                   n=1, average_method='median'):
+def alpha_representative(ctx, table, sampling_depth, metric, phylogeny=None,
+                         n=1, average_method='median'):
 
     if phylogeny is not None and metric in METRICS['NONPHYLO']:
         raise ValueError('You must use a phylogenic metric when phylogeny is included.')

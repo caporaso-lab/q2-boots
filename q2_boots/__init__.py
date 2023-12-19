@@ -7,16 +7,23 @@
 # ----------------------------------------------------------------------------
 
 from ._normalize import _bootstrap_iteration, bootstrap
-from .alpha import (alpha_bootstrap,
-                    alpha_bootstrap_representative)
+from .alpha import (alpha,
+                    alpha_representative)
 from ._version import get_versions
-from .beta import (beta_bootstrap, beta_bootstrap_phylogenetic)
+from .beta import (beta, beta_phylogenetic, beta_phylogenetic_representative,
+                   beta_representative)
+from .core_metrics import (core_metrics, core_metrics_phylogenic)
 
 __all__ = ['_bootstrap_iteration', 'bootstrap',
-           'alpha_bootstrap',
-           'alpha_bootstrap_representative',
-           'beta_bootstrap',
-           'beta_bootstrap_phylogenetic']
+           'alpha',
+           'alpha_representative',
+           'beta',
+           'beta_phylogenetic',
+           'beta_phylogenetic_representative',
+           'beta_representative',
+           'core_metrics_alpha_bootstrap',
+           'core_metrics',
+           'core_metrics_phylogenic']
 
 __version__ = get_versions()['version']
 del get_versions

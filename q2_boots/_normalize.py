@@ -26,11 +26,12 @@ def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
 
 def bootstrap(ctx, table, sampling_depth, n=1):
 
-    _iteration = ctx.get_action('boots', '_bootstrap_iteration')
+    _iteration = ctx.get_action('feature_table', 'rarefy')
 
     tables = []
 
     for i in range(n):
-        tables.append(_iteration(table, sampling_depth))
+        tables.append(_iteration(table=table, sampling_depth=sampling_depth,
+                                 with_replacement=True))
 
     return tables

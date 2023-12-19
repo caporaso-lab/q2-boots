@@ -98,7 +98,7 @@ plugin.pipelines.register_function(
 )
 
 plugin.pipelines.register_function(
-    function=q2_boots.alpha_bootstrap,
+    function=q2_boots.alpha,
     inputs={'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
@@ -127,7 +127,7 @@ plugin.pipelines.register_function(
 )
 
 plugin.pipelines.register_function(
-    function=q2_boots.alpha_bootstrap_representative,
+    function=q2_boots.alpha_representative,
     inputs={'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
     parameters={'sampling_depth': Int % Range(1, None),
@@ -156,7 +156,7 @@ plugin.pipelines.register_function(
 )
 
 plugin.pipelines.register_function(
-    function=q2_boots.beta_bootstrap,
+    function=q2_boots.beta,
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
     parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
@@ -183,7 +183,7 @@ plugin.pipelines.register_function(
 )
 
 plugin.pipelines.register_function(
-    function=q2_boots.beta_bootstrap_phylogenetic,
+    function=q2_boots.beta_phylogenetic,
     inputs={'table':
             FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
             'phylogeny': Phylogeny[Rooted]},
@@ -224,4 +224,24 @@ plugin.pipelines.register_function(
     name='Beta diversity (phylogenetic)',
     description=("Computes a user-specified phylogenetic beta diversity metric"
                  " for all pairs of samples in a feature table.")
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.core_metrics,
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'sampling_depth': Int % Range(1, None),
+                'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
+                                        alpha_metrics['NONPHYLO']['UNIMPL'] |
+                                        alpha_metrics['PHYLO']['IMPL'] |
+                                        alpha_metrics['PHYLO']['UNIMPL']),
+                'n': Int % Range(1, None),
+                'average_method': Str % Choices(['median' , 'mean' , 'mode'])},
+    outputs={},
+    input_descriptions={},
+    parameter_descriptions={},
+    output_descriptions={},
+    name={},
+    description={}
 )
