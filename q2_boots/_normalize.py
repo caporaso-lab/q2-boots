@@ -24,7 +24,7 @@ def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
     return table
 
 
-def bootstrap(ctx, table, sampling_depth, n=1):
+def resample(ctx, table, sampling_depth, n=1):
 
     _iteration = ctx.get_action('feature_table', 'rarefy')
 

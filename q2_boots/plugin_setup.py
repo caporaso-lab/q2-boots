@@ -72,7 +72,7 @@ plugin.methods.register_function(
 )
 
 plugin.pipelines.register_function(
-    function=q2_boots.bootstrap,
+    function=q2_boots.resample,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'n': Int % Range(1, None)},
