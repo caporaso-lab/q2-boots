@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from hdmedians import medoid
+import pandas as pd
 
 
 def beta(ctx, table, metric, sampling_depth, pseudocount=1, n_jobs=1, n=1):
@@ -71,9 +72,9 @@ def beta_representative(ctx, table, metric, sampling_depth, pseudocount=1,
     if representative == 'medoid':
         return medoid(matrices)
     elif representative == 'non-metric-mean':
-        return None
+        return per_cell_average(matrices, 'mean')
     elif representative == 'non-metric-median':
-        return None
+        return per_cell_average(matrices, 'median')
 
 
 def beta_phylogenetic_representative(ctx,
@@ -103,6 +104,27 @@ def beta_phylogenetic_representative(ctx,
     if representative == 'medoid':
         return medoid(matrices)
     elif representative == 'non-metric-mean':
-        return None
+        return per_cell_average(matrices, 'mean')
     elif representative == 'non-metric-median':
-        return None
+        return per_cell_average(matrices, 'median')
+
+
+def per_cell_average(a, representation):
+    w, h = a[0].shape
+
+    mtx = []
+
+    for row in range(w):
+        row = []
+        for col in range(h):
+            cell = pd.Series(x[w][h] for x in a)
+
+            if representation == 'median':
+                row.append(cell.median())
+
+            elif representation == 'mean':
+                row.append(cell.mean())
+
+        mtx.append(row)
+
+    return pd.DataFrame(mtx)
