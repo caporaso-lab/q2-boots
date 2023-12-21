@@ -114,17 +114,17 @@ def per_cell_average(a, representation):
 
     mtx = []
 
-    for row in range(w):
-        row = []
-        for col in range(h):
-            cell = pd.Series(x[w][h] for x in a)
+    for col in range(w):
+        c_row = []
+        for row in range(h):
+            cell = pd.Series([x[row][col] for x in a])
 
             if representation == 'median':
-                row.append(cell.median())
+                c_row.append(cell.median())
 
             elif representation == 'mean':
-                row.append(cell.mean())
+                c_row.append(cell.mean())
 
-        mtx.append(row)
+        mtx.append(c_row.copy())
 
     return pd.DataFrame(mtx)
