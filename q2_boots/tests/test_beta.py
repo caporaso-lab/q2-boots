@@ -15,24 +15,38 @@ class TestBeta(TestCase):
 
     def test_per_cell_median(self):
 
-        a = pd.DataFrame([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
-        b = pd.DataFrame([[2, 2, 2], [2, 2, 2], [2, 2, 2]])
-        c = pd.DataFrame([[3, 3, 3], [3, 3, 3], [3, 3, 3]])
+        a = pd.DataFrame([[1, 1, 1],
+                          [1, 1, 1],
+                          [1, 1, 1]])
+        b = pd.DataFrame([[2, 2, 2],
+                          [2, 2, 2],
+                          [2, 2, 2]])
+        c = pd.DataFrame([[3, 3, 3],
+                          [3, 3, 3],
+                          [3, 3, 3]])
 
-        lst = [a, b, c]
-        result = per_cell_average(lst, 'median')
-        exp = pd.DataFrame([[2.0, 2.0, 2.0], [2.0, 2.0, 2.0], [2.0, 2.0, 2.0]])
+        result = per_cell_average([a, b, c], 'median')
+        exp = pd.DataFrame([[2.0, 2.0, 2.0],
+                            [2.0, 2.0, 2.0],
+                            [2.0, 2.0, 2.0]])
 
         pd.testing.assert_frame_equal(exp, result)
 
     def test_per_cell_mean(self):
-        a = pd.DataFrame([[1, 0, 1], [1, 0, 1], [1, 0, 1]])
-        b = pd.DataFrame([[2, 2, 2], [2, 2, 2], [2, 2, 2]])
-        c = pd.DataFrame([[3, 1, 3], [3, 1, 3], [3, 1, 3]])
+        a = pd.DataFrame([[1, 0, 1],
+                          [1, 0, 1],
+                          [1, 0, 1]])
+        b = pd.DataFrame([[2, 2, 2],
+                          [2, 2, 2],
+                          [2, 2, 2]])
+        c = pd.DataFrame([[3, 1, 3],
+                          [3, 1, 3],
+                          [3, 1, 3]])
 
-        lst = [a, b, c]
-        result = per_cell_average(lst, 'mean')
-        exp = pd.DataFrame([[2.0, 1.0, 2.0], [2.0, 1.0, 2.0], [2.0, 1.0, 2.0]])
+        result = per_cell_average([a, b, c], 'mean')
+        exp = pd.DataFrame([[2.0, 1.0, 2.0],
+                            [2.0, 1.0, 2.0],
+                            [2.0, 1.0, 2.0]])
 
         pd.testing.assert_frame_equal(exp, result)
 
