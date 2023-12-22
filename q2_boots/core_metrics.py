@@ -6,9 +6,13 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+from hdmedians import medoid
+from q2_boots.beta import per_cell_average
+
+
 def core_metrics(ctx, table, sampling_depth, metric, metadata,
                  n_jobs, phylogeny=None, n=1, alpha_method='median',
-                 beta_method='medoid'):
+                 beta_method='medoid', with_replacement=True):
 
     bootstrap = ctx.get_action('boots', 'bootstrap')
     observed_features = ctx.get_action("diversity_lib", "observed_features")
@@ -22,7 +26,7 @@ def core_metrics(ctx, table, sampling_depth, metric, metadata,
     results = []
     bootstrapped_tables = bootstrap(table=table,
                                     sampling_depth=sampling_depth,
-                                    n=n)
+                                    n=n, with_replacement=with_replacement)
 
     for m in (observed_features, shannon, pielou_e):
         results += alpha_representative(m, bootstrapped_tables, alpha_method)
@@ -46,7 +50,14 @@ def core_metrics(ctx, table, sampling_depth, metric, metadata,
 
 
 def beta_representative(func, tables, method):
-    pass
+    metric = []
+    for table in tables:
+        metric.append(func(table))
+
+    if method == 'medoid':
+        return medoid(metric)
+
+    return per_cell_average(metric, representation=method)
 
 
 def alpha_representative(func, tables, method):
