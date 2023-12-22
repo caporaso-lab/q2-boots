@@ -7,9 +7,10 @@
 # ----------------------------------------------------------------------------
 
 def core_metrics(ctx, table, sampling_depth, metric, metadata,
-                 n_jobs, phylogeny=None, n=1, average_method='median'):
+                 n_jobs, phylogeny=None, n=1, alpha_method='median',
+                 beta_method='medoid'):
 
-    represent = ctx.get_action("boots", "alpha_bootstrap_representative")
+    bootstrap = ctx.get_action('boots', 'bootstrap')
     observed_features = ctx.get_action("diversity_lib", "observed_features")
     pielou_e = ctx.get_action('diversity_lib', 'pielou_evenness')
     shannon = ctx.get_action('diversity_lib', 'shannon_entropy')
@@ -19,18 +20,16 @@ def core_metrics(ctx, table, sampling_depth, metric, metadata,
     emperor_plot = ctx.get_action('emperor', 'plot')
 
     results = []
-    bootstrapped_table, = represent(table=table, sampling_depth=sampling_depth,
-                                    phylogeny=phylogeny, metric=metric, n=n,
-                                    average_method=average_method)
-
-    results.append(bootstrapped_table)
+    bootstrapped_tables = bootstrap(table=table,
+                                    sampling_depth=sampling_depth,
+                                    n=n)
 
     for m in (observed_features, shannon, pielou_e):
-        results += m(table=bootstrapped_table)
+        results += alpha_representative(m, bootstrapped_tables, alpha_method)
 
     dms = []
     for m in (jaccard, braycurtis):
-        beta_results = m(table=bootstrapped_table, n_jobs=n_jobs)
+        beta_results = beta_representative(m, bootstrapped_tables, beta_method)
         results += beta_results
         dms += beta_results
 
@@ -46,5 +45,9 @@ def core_metrics(ctx, table, sampling_depth, metric, metadata,
     return tuple(results)
 
 
-def core_metrics_phylogenic():
+def beta_representative(func, tables, method):
+    pass
+
+
+def alpha_representative(func, tables, method):
     pass
