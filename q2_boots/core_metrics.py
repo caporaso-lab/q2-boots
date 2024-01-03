@@ -8,13 +8,14 @@
 
 from hdmedians import medoid
 from q2_boots.beta import per_cell_average
+import pandas as pd
 
 
 def core_metrics(ctx, table, sampling_depth, metric, metadata,
                  n_jobs, phylogeny=None, n=1, alpha_method='median',
                  beta_method='medoid', with_replacement=True):
 
-    bootstrap = ctx.get_action('boots', 'bootstrap')
+    bootstrap = ctx.get_action('boots', 'resample')
     observed_features = ctx.get_action("diversity_lib", "observed_features")
     pielou_e = ctx.get_action('diversity_lib', 'pielou_evenness')
     shannon = ctx.get_action('diversity_lib', 'shannon_entropy')
@@ -61,4 +62,12 @@ def beta_representative(func, tables, method):
 
 
 def alpha_representative(func, tables, method):
-    pass
+
+    alpha = pd.DataFrame()
+    for table in tables:
+        alpha.append(func(table=table))
+
+    if method == 'median':
+        return alpha.median()
+    elif method == 'mean':
+        return alpha.mean()

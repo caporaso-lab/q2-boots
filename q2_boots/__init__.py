@@ -12,7 +12,7 @@ from .alpha import (alpha,
 from ._version import get_versions
 from .beta import (beta, beta_phylogenetic, beta_phylogenetic_representative,
                    beta_representative)
-from .core_metrics import (core_metrics, core_metrics_phylogenic)
+from .core_metrics import (core_metrics)
 
 __all__ = ['_bootstrap_iteration', 'resample',
            'alpha',
@@ -22,8 +22,7 @@ __all__ = ['_bootstrap_iteration', 'resample',
            'beta_phylogenetic_representative',
            'beta_representative',
            'core_metrics_alpha_bootstrap',
-           'core_metrics',
-           'core_metrics_phylogenic']
+           'core_metrics']
 
 __version__ = get_versions()['version']
 del get_versions

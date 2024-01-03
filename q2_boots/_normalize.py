@@ -24,7 +24,7 @@ def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
     return table
 
 
-def resample(ctx, table, sampling_depth, n=1):
+def resample(ctx, table, sampling_depth, n=1, with_replacement=True):
 
     _iteration = ctx.get_action('feature_table', 'rarefy')
 
@@ -32,6 +32,6 @@ def resample(ctx, table, sampling_depth, n=1):
 
     for i in range(n):
         tables.append(_iteration(table=table, sampling_depth=sampling_depth,
-                                 with_replacement=True))
+                                 with_replacement=with_replacement))
 
     return tables

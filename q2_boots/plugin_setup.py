@@ -51,41 +51,21 @@ plugin = Plugin(
     description='placeholder'
 )
 
-plugin.methods.register_function(
-    function=q2_boots._bootstrap_iteration,
-    inputs={'table': FeatureTable[Frequency | RelativeFrequency |
-                                  PresenceAbsence]},
-    parameters={'sampling_depth': Int % Range(1, None)},
-    outputs={'subsampled_table': FeatureTable[Frequency | RelativeFrequency |
-                                              PresenceAbsence]},
-    input_descriptions={'table': 'The table to be subsampled'},
-    parameter_descriptions={
-        'sampling_depth': ('The total frequency that each sample should be '
-                           'subsampled to. Samples where the sum of frequencies '
-                           'is less than the sampling depth will be not be '
-                           'included in the resulting table.')},
-    output_descriptions={'subsampled_table': 'The table that reaches the threshold '
-                         'specified by sampling depth'},
-    name='Bootstrap Iteration',
-    description='This private function is the logic for each iteration of '
-                'bootstrap'
-)
-
 plugin.pipelines.register_function(
     function=q2_boots.resample,
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None),
-                'n': Int % Range(1, None)},
-    outputs={'subsampled_tables': Collection[FeatureTable[Frequency |
-                                                          RelativeFrequency |
-                                                          PresenceAbsence]]},
+                'n': Int % Range(1, None),
+                'with_replacement': Bool},
+    outputs={'subsampled_tables': Collection[FeatureTable[Frequency]]},
     input_descriptions={'table': 'The table to be subsampled'},
     parameter_descriptions={
         'sampling_depth': ('The total frequency that each sample should be '
                            'subsampled to. Samples where the sum of frequencies '
                            'is less than the sampling depth will be not be '
                            'included in the resulting table.'),
-        'n': 'The number of times to subsample the input table.'
+        'n': 'The number of times to subsample the input table.',
+        'with_replacement': ''
     },
     output_descriptions={
         'subsampled_tables': 'A collection of n tables normalized to the specified '
@@ -226,22 +206,22 @@ plugin.pipelines.register_function(
                  " for all pairs of samples in a feature table.")
 )
 
-plugin.pipelines.register_function(
-    function=q2_boots.core_metrics,
-    inputs={'table':
-            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
-            'phylogeny': Phylogeny[Rooted]},
-    parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
-                                        alpha_metrics['NONPHYLO']['UNIMPL'] |
-                                        alpha_metrics['PHYLO']['IMPL'] |
-                                        alpha_metrics['PHYLO']['UNIMPL']),
-                'n': Int % Range(1, None),
-                'average_method': Str % Choices(['median' , 'mean' , 'mode'])},
-    outputs={},
-    input_descriptions={},
-    parameter_descriptions={},
-    output_descriptions={},
-    name={},
-    description={}
-)
+# plugin.pipelines.register_function(
+#    function=q2_boots.core_metrics,
+#    inputs={'table':
+#            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
+#            'phylogeny': Phylogeny[Rooted]},
+#    parameters={'sampling_depth': Int % Range(1, None),
+#                'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
+#                                        alpha_metrics['NONPHYLO']['UNIMPL'] |
+#                                        alpha_metrics['PHYLO']['IMPL'] |
+#                                        alpha_metrics['PHYLO']['UNIMPL']),
+#                'n': Int % Range(1, None),
+#                'average_method': Str % Choices(['median' , 'mean' , 'mode'])},
+#    outputs={},
+#    input_descriptions={},
+#    parameter_descriptions={},
+#    output_descriptions={},
+#    name={},
+#    description={}
+# )

@@ -9,6 +9,7 @@
 from unittest import TestCase, main
 import pandas as pd
 from q2_boots.beta import per_cell_average
+from hdmedians import medoid
 
 
 class TestBeta(TestCase):
@@ -49,6 +50,20 @@ class TestBeta(TestCase):
                             [2.0, 1.0, 2.0]])
 
         pd.testing.assert_frame_equal(exp, result)
+
+    def test_medoid(self):
+        a = pd.DataFrame([[1, 0, 1],
+                          [1, 0, 1],
+                          [1, 0, 1]])
+        b = pd.DataFrame([[2, 2, 2],
+                          [2, 2, 2],
+                          [2, 2, 2]])
+        c = pd.DataFrame([[3, 1, 3],
+                          [3, 1, 3],
+                          [3, 1, 3]])
+
+        result = medoid([a, b, c])
+        print(result)
 
 
 if __name__ == "__main__":
