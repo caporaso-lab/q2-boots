@@ -11,7 +11,8 @@ from .alpha import (alpha,
                     alpha_representative)
 from ._version import get_versions
 from .beta import (beta, beta_phylogenetic, beta_phylogenetic_representative,
-                   beta_representative)
+                   beta_representative,
+                   get_medoid)
 from .core_metrics import (core_metrics)
 
 __all__ = ['_bootstrap_iteration', 'resample',
@@ -22,7 +23,8 @@ __all__ = ['_bootstrap_iteration', 'resample',
            'beta_phylogenetic_representative',
            'beta_representative',
            'core_metrics_alpha_bootstrap',
-           'core_metrics']
+           'core_metrics',
+           'get_medoid']
 
 __version__ = get_versions()['version']
 del get_versions
