@@ -95,11 +95,11 @@ plugin.pipelines.register_function(
                            'subsampled to. Samples where the sum of frequencies '
                            'is less than the sampling depth will be not be '
                            'included in the resulting table.'),
-        'metric': '',
+        'metric': 'The alpha diversity metric to be computed.',
         'n': 'The number of times to subsample the input table.'
     },
     output_descriptions={
-        'sample_data': '',
+        'sample_data': 'A collection of Alpha Divsersity Sample Data',
     },
     name='Alpha Bootstrap',
     description='Subsamples the input table multiple times and provides those in a ' +
@@ -125,11 +125,11 @@ plugin.pipelines.register_function(
                            'subsampled to. Samples where the sum of frequencies '
                            'is less than the sampling depth will be not be '
                            'included in the resulting table.'),
-        'metric': '',
+        'metric': 'The alpha diversity metric to be computed.',
         'n': 'The number of times to subsample the input table.'
     },
     output_descriptions={
-        'sample_data': '',
+        'sample_data': 'Vector containing per-sample alpha diversities.',
     },
     name='Alpha Bootstrap Representative',
     description=''

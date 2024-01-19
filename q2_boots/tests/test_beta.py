@@ -62,7 +62,6 @@ class TestBeta(TestCase):
                           [3, 1, 3]])
 
         result = get_medoid([a, b, c])
-
         pd.testing.assert_frame_equal(result, b)
 
 
