@@ -11,7 +11,8 @@ import pandas as pd
 from q2_diversity_lib.alpha import METRICS
 
 
-def alpha(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
+def alpha(ctx, table, sampling_depth, metric, phylogeny=None, n=1,
+          random_seed=None):
 
     if phylogeny is not None and metric in METRICS['NONPHYLO']:
         raise ValueError('You must use a phylogenic metric')
@@ -19,11 +20,12 @@ def alpha(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
     elif phylogeny is None and metric in METRICS['PHYLO']:
         raise ValueError('You must use a non-phylogenic metric')
 
-    _bootstrap = ctx.get_action("boots", "bootstrap")
+    _bootstrap = ctx.get_action("boots", "resample")
     _alpha = ctx.get_action("divserity", "alpha")
     _alpha_phylogenetic = ctx.get_action("diversity", "alpha_phylogenetic")
 
-    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n)
+    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n,
+                        random_seed=random_seed)
     diversified_tables = []
 
     for table in tables:
@@ -38,7 +40,7 @@ def alpha(ctx, table, sampling_depth, metric, phylogeny=None, n=1):
 
 
 def alpha_representative(ctx, table, sampling_depth, metric, phylogeny=None,
-                         n=1, average_method='median'):
+                         n=1, average_method='median', random_seed=None):
 
     if phylogeny is not None and metric in METRICS['NONPHYLO']:
         raise ValueError('You must use a phylogenic metric when phylogeny is included.')
@@ -49,7 +51,8 @@ def alpha_representative(ctx, table, sampling_depth, metric, phylogeny=None,
 
     _alpha_bootstrap = ctx.get_actions("boots", "alpha_bootstrap")
     sample_data = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
-                                   phylogeny=phylogeny, metric=metric, n=n)
+                                   phylogeny=phylogeny, metric=metric, n=n,
+                                   random_seed=random_seed)
 
     representative_sample_data = pd.DataFrame(sample_data)
 

@@ -41,6 +41,11 @@ phylogeny_description = (
     'in the table, but all feature ids must be present in this tree.'
 )
 
+random_seed_description = (
+    'A seed to allow multiple runs to have the same outcome if the same seed is '
+    'included'
+)
+
 Citations = Citations.load('citations.bib', package='q2_boots')
 plugin = Plugin(
     name='boots',
@@ -56,7 +61,8 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'n': Int % Range(1, None),
-                'with_replacement': Bool},
+                'with_replacement': Bool,
+                'random_seed': Int},
     outputs={'subsampled_tables': Collection[FeatureTable[Frequency]]},
     input_descriptions={'table': 'The table to be subsampled'},
     parameter_descriptions={
@@ -65,7 +71,8 @@ plugin.pipelines.register_function(
                            'is less than the sampling depth will be not be '
                            'included in the resulting table.'),
         'n': 'The number of times to subsample the input table.',
-        'with_replacement': ''
+        'with_replacement': '',
+        'random_seed': random_seed_description
     },
     output_descriptions={
         'subsampled_tables': 'A collection of n tables normalized to the specified '
@@ -86,7 +93,8 @@ plugin.pipelines.register_function(
                                         alpha_metrics['NONPHYLO']['UNIMPL'] |
                                         alpha_metrics['PHYLO']['IMPL'] |
                                         alpha_metrics['PHYLO']['UNIMPL']),
-                'n': Int % Range(1, None)},
+                'n': Int % Range(1, None),
+                'random_seed': Int},
     outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
     input_descriptions={'table': 'The table to be diversified',
                         'phylogeny': phylogeny_description},
@@ -96,7 +104,8 @@ plugin.pipelines.register_function(
                            'is less than the sampling depth will be not be '
                            'included in the resulting table.'),
         'metric': 'The alpha diversity metric to be computed.',
-        'n': 'The number of times to subsample the input table.'
+        'n': 'The number of times to subsample the input table.',
+        'random_seed': random_seed_description
     },
     output_descriptions={
         'sample_data': 'A collection of Alpha Divsersity Sample Data',
@@ -116,7 +125,8 @@ plugin.pipelines.register_function(
                                         alpha_metrics['PHYLO']['IMPL'] |
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
-                'average_method': Str % Choices(['median' , 'mean' , 'mode'])},
+                'average_method': Str % Choices(['median' , 'mean' , 'mode']),
+                'random_seed': Int},
     outputs={'sample_data': SampleData[AlphaDiversity]},
     input_descriptions={'table': 'The table to be diversified',
                         'phylogeny': phylogeny_description},
@@ -126,7 +136,8 @@ plugin.pipelines.register_function(
                            'is less than the sampling depth will be not be '
                            'included in the resulting table.'),
         'metric': 'The alpha diversity metric to be computed.',
-        'n': 'The number of times to subsample the input table.'
+        'n': 'The number of times to subsample the input table.',
+        'random_seed': random_seed_description
     },
     output_descriptions={
         'sample_data': 'Vector containing per-sample alpha diversities.',
@@ -144,7 +155,8 @@ plugin.pipelines.register_function(
                 'pseudocount': Int % Range(1, None),
                 'n_jobs': Int % Range(1, None) | Str % Choices(['auto']),
                 'n': Int % Range(1, None),
-                'sampling_depth': Int % Range(1, None)},
+                'sampling_depth': Int % Range(1, None),
+                'random_seed': Int},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -154,7 +166,8 @@ plugin.pipelines.register_function(
         'metric': 'The beta diversity metric to be computed.',
         'pseudocount': ('A pseudocount to handle zeros for compositional '
                         'metrics.  This is ignored for other metrics.'),
-        'n_jobs': n_jobs_description
+        'n_jobs': n_jobs_description,
+        'random_seed': random_seed_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',
@@ -174,7 +187,8 @@ plugin.pipelines.register_function(
                 'alpha': Float % Range(0, 1, inclusive_end=True),
                 'bypass_tips': Bool,
                 'n': Int % Range(1, None),
-                'sampling_depth': Int % Range(1, None)},
+                'sampling_depth': Int % Range(1, None),
+                'random_seed': Int},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -198,7 +212,8 @@ plugin.pipelines.register_function(
                         'the nodes in a tree. By ignoring them, specificity '
                         'can be traded for reduced compute time. This has the'
                         ' effect of collapsing the phylogeny, and is analogous'
-                        ' (in concept) to moving from 99% to 97% OTUs')
+                        ' (in concept) to moving from 99% to 97% OTUs'),
+        'random_seed': random_seed_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity (phylogenetic)',

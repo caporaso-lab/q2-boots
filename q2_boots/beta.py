@@ -12,12 +12,14 @@ import numpy as np
 import math
 
 
-def beta(ctx, table, metric, sampling_depth, pseudocount=1, n_jobs=1, n=1):
+def beta(ctx, table, metric, sampling_depth, pseudocount=1, n_jobs=1, n=1,
+         random_seed=None):
 
     _bootstrap = ctx.get_action('boots', 'bootstrap')
     _beta = ctx.get_action('diversity', 'beta')
 
-    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n)
+    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n,
+                        random_seed=random_seed)
 
     diversified_tables = []
 
@@ -37,12 +39,14 @@ def beta_phylogenetic(ctx,
                       threads=1,
                       variance_adjusted=False,
                       alpha=None,
-                      bypass_tips=False):
+                      bypass_tips=False,
+                      random_seed=None):
 
     _bootstrap = ctx.get_action('boots', 'bootstrap')
     _beta_phylogenetic = ctx.get_action('diversity', 'beta_phylogenetic')
 
-    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n)
+    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n,
+                        random_seed=random_seed)
 
     diversified_tables = []
 
@@ -61,7 +65,9 @@ def beta_phylogenetic(ctx,
 
 
 def beta_representative(ctx, table, metric, sampling_depth, pseudocount=1,
-                        n_jobs=1, n=1, representative='medoid'):
+                        n_jobs=1, n=1, representative='medoid',
+                        random_seed=None):
+
     _beta = ctx.get_action('boots', 'beta')
 
     matrices = _beta(table=table,
@@ -89,7 +95,8 @@ def beta_phylogenetic_representative(ctx,
                                      variance_adjusted=False,
                                      alpha=None,
                                      bypass_tips=False,
-                                     representative='medoid'):
+                                     representative='medoid',
+                                     random_seed=None):
 
     _beta_phylogenetic = ctx.get_action('boots', 'beta_phylogenetic')
 
@@ -101,7 +108,8 @@ def beta_phylogenetic_representative(ctx,
                                   threads=threads,
                                   variance_adjusted=variance_adjusted,
                                   alpha=alpha,
-                                  bypass_tips=bypass_tips)
+                                  bypass_tips=bypass_tips,
+                                  random_seed=random_seed)
 
     if representative == 'medoid':
         return get_medoid(matrices)

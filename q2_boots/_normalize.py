@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------------
 
 import biom
+import random
 
 
 def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
@@ -24,7 +25,11 @@ def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
     return table
 
 
-def resample(ctx, table, sampling_depth, n=1, with_replacement=True):
+def resample(ctx, table, sampling_depth, n=1, with_replacement=True,
+             random_seed=None):
+
+    if random_seed is not None:
+        random.seed(random_seed)
 
     _iteration = ctx.get_action('feature_table', 'rarefy')
 

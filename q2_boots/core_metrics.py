@@ -13,7 +13,8 @@ import pandas as pd
 
 def core_metrics(ctx, table, sampling_depth, metric, metadata,
                  n_jobs, phylogeny=None, n=1, alpha_method='median',
-                 beta_method='medoid', with_replacement=True):
+                 beta_method='medoid', with_replacement=True,
+                 random_seed=None):
 
     bootstrap = ctx.get_action('boots', 'resample')
     observed_features = ctx.get_action("diversity_lib", "observed_features")
@@ -27,7 +28,8 @@ def core_metrics(ctx, table, sampling_depth, metric, metadata,
     results = []
     bootstrapped_tables = bootstrap(table=table,
                                     sampling_depth=sampling_depth,
-                                    n=n, with_replacement=with_replacement)
+                                    n=n, with_replacement=with_replacement,
+                                    random_seed=random_seed)
 
     for m in (observed_features, shannon, pielou_e):
         results += alpha_representative(m, bootstrapped_tables, alpha_method)
