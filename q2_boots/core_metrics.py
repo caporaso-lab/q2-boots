@@ -6,8 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from hdmedians import medoid
-from q2_boots.beta import per_cell_average
+from q2_boots.beta import per_cell_average, get_medoid
 import pandas as pd
 
 
@@ -58,7 +57,7 @@ def beta_representative(func, tables, method):
         metric.append(func(table))
 
     if method == 'medoid':
-        return medoid(metric)
+        return get_medoid(metric)
 
     return per_cell_average(metric, representation=method)
 

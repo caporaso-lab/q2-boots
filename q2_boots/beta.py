@@ -12,104 +12,55 @@ import numpy as np
 import math
 
 
-def beta(ctx, table, metric, sampling_depth, pseudocount=1, n_jobs=1, n=1,
-         random_seed=None):
+def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
+                    bypass_tips=False, n_threads=1, n=1000, random_seed=None,
+                    with_replacement=True, pseudocount=1, alpha=None,
+                    variance_adjusted=False):
 
-    _bootstrap = ctx.get_action('boots', 'bootstrap')
+    _resample = ctx.get_action('boots', 'resample')
     _beta = ctx.get_action('diversity', 'beta')
-
-    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n,
-                        random_seed=random_seed)
-
-    diversified_tables = []
-
-    for passthough in tables:
-        diversified_tables.append(_beta(table=passthough, metric=metric,
-                                        pseudocount=pseudocount, n_jobs=n_jobs))
-
-    return diversified_tables
-
-
-def beta_phylogenetic(ctx,
-                      table,
-                      phylogeny,
-                      metric,
-                      sampling_depth,
-                      n=1,
-                      threads=1,
-                      variance_adjusted=False,
-                      alpha=None,
-                      bypass_tips=False,
-                      random_seed=None):
-
-    _bootstrap = ctx.get_action('boots', 'bootstrap')
     _beta_phylogenetic = ctx.get_action('diversity', 'beta_phylogenetic')
 
-    tables = _bootstrap(table=table, sampling_depth=sampling_depth, n=n,
-                        random_seed=random_seed)
+    tables = _resample(table=table, sampling_depth=sampling_depth, n=n,
+                       random_seed=random_seed, with_replacement=with_replacement)
 
     diversified_tables = []
 
-    for passthrough in tables:
-        diversified_tables.append(_beta_phylogenetic(
-            table=passthrough,
-            phylogeny=phylogeny,
-            metric=metric,
-            threads=threads,
-            variance_adjusted=variance_adjusted,
-            alpha=alpha,
-            bypass_tips=bypass_tips
-        ))
+    if phylogeny is not None:
+        for passthrough in tables:
+            diversified_tables.append(_beta(table=passthrough, metric=metric,
+                                      pseudocount=pseudocount, n_jobs=n_threads))
+    else:
+        for passthrough in tables:
+            diversified_tables.append(_beta_phylogenetic(
+                table=passthrough,
+                phylogeny=phylogeny,
+                metric=metric,
+                threads=n_threads,
+                variance_adjusted=variance_adjusted,
+                alpha=alpha,
+                bypass_tips=bypass_tips
+            ))
 
     return diversified_tables
 
 
-def beta_representative(ctx, table, metric, sampling_depth, pseudocount=1,
-                        n_jobs=1, n=1, representative='medoid',
-                        random_seed=None):
+def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
+         bypass_tips=False, n_threads=1, n=1000, random_seed=None,
+         with_replacement=True, pseudocount=1, alpha=None, variance_adjusted=False):
 
-    _beta = ctx.get_action('boots', 'beta')
+    _beta = ctx.get_action('boots', 'beta_collection')
 
     matrices = _beta(table=table,
+                     phylogeny=phylogeny,
                      metric=metric,
                      sampling_depth=sampling_depth,
-                     pseudocount=pseudocount,
-                     n_jobs=n_jobs,
-                     n=n)
-
-    if representative == 'medoid':
-        return get_medoid(matrices)
-    elif representative == 'non-metric-mean':
-        return per_cell_average(matrices, 'mean')
-    elif representative == 'non-metric-median':
-        return per_cell_average(matrices, 'median')
-
-
-def beta_phylogenetic_representative(ctx,
-                                     table,
-                                     phylogeny,
-                                     metric,
-                                     sampling_depth,
-                                     n=1,
-                                     threads=1,
-                                     variance_adjusted=False,
-                                     alpha=None,
-                                     bypass_tips=False,
-                                     representative='medoid',
-                                     random_seed=None):
-
-    _beta_phylogenetic = ctx.get_action('boots', 'beta_phylogenetic')
-
-    matrices = _beta_phylogenetic(table=table,
-                                  phylogeny=phylogeny,
-                                  metric=metric,
-                                  sampling_depth=sampling_depth,
-                                  n=n,
-                                  threads=threads,
-                                  variance_adjusted=variance_adjusted,
-                                  alpha=alpha,
-                                  bypass_tips=bypass_tips,
-                                  random_seed=random_seed)
+                     n=n,
+                     threads=n_threads,
+                     variance_adjusted=variance_adjusted,
+                     alpha=alpha,
+                     bypass_tips=bypass_tips,
+                     random_seed=random_seed)
 
     if representative == 'medoid':
         return get_medoid(matrices)

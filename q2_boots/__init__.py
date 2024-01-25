@@ -8,22 +8,20 @@
 
 from ._normalize import _bootstrap_iteration, resample
 from .alpha import (alpha,
-                    alpha_representative)
+                    alpha_collection)
 from ._version import get_versions
-from .beta import (beta, beta_phylogenetic, beta_phylogenetic_representative,
-                   beta_representative, get_medoid)
+from .beta import (beta, get_medoid, beta_collection, per_cell_average)
 from .core_metrics import (core_metrics)
 
 __all__ = ['_bootstrap_iteration', 'resample',
            'alpha',
-           'alpha_representative',
+           'alpha_collection',
            'beta',
-           'beta_phylogenetic',
-           'beta_phylogenetic_representative',
-           'beta_representative',
            'core_metrics_alpha_bootstrap',
            'core_metrics',
-           'get_medoid']
+           'get_medoid',
+           'per_cell_average',
+           'beta_collection']
 
 __version__ = get_versions()['version']
 del get_versions

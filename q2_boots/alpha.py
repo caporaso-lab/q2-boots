@@ -11,8 +11,8 @@ import pandas as pd
 from q2_diversity_lib.alpha import METRICS
 
 
-def alpha(ctx, table, sampling_depth, metric, phylogeny=None, n=1,
-          random_seed=None):
+def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1,
+                     random_seed=None):
 
     if phylogeny is not None and metric in METRICS['NONPHYLO']:
         raise ValueError('You must use a phylogenic metric')
@@ -39,8 +39,8 @@ def alpha(ctx, table, sampling_depth, metric, phylogeny=None, n=1,
     return diversified_tables
 
 
-def alpha_representative(ctx, table, sampling_depth, metric, phylogeny=None,
-                         n=1, average_method='median', random_seed=None):
+def alpha(ctx, table, sampling_depth, metric, phylogeny=None,
+          n=1, average_method='median', random_seed=None):
 
     if phylogeny is not None and metric in METRICS['NONPHYLO']:
         raise ValueError('You must use a phylogenic metric when phylogeny is included.')
