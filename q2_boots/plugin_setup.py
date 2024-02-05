@@ -8,6 +8,7 @@
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
                            Citations, Str, Choices, Bool, Float)
+
 from q2_types.feature_table import (
     FeatureTable, Frequency, RelativeFrequency, PresenceAbsence
 )
@@ -149,17 +150,22 @@ plugin.pipelines.register_function(
 plugin.pipelines.register_function(
     function=q2_boots.beta,
     inputs={'table':
-            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence]},
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
+            'phylogeny': Phylogeny[Rooted]},
     parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
                                         beta_metrics['NONPHYLO']['UNIMPL'] |
                                         beta_metrics['PHYLO']['IMPL'] |
                                         beta_metrics['PHYLO']['UNIMPL']),
                 'pseudocount': Int % Range(1, None),
-                'n_jobs': Int % Range(1, None) | Str % Choices(['auto']),
+                'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'n': Int % Range(1, None),
                 'sampling_depth': Int % Range(1, None),
                 'random_seed': Int,
-                'representative': Str % Choices(['mean', 'median', 'medoid'])},
+                'bypass_tips': Bool,
+                'with_replacement': Bool,
+                'variance_adjusted': Bool,
+                'representative': Str % Choices(['mean', 'median', 'medoid']),
+                'alpha': Float % Range(0, 1, inclusive_end=True)},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
         'table': ('The feature table containing the samples over which beta '
@@ -169,7 +175,6 @@ plugin.pipelines.register_function(
         'metric': 'The beta diversity metric to be computed.',
         'pseudocount': ('A pseudocount to handle zeros for compositional '
                         'metrics.  This is ignored for other metrics.'),
-        'n_jobs': n_jobs_description,
         'random_seed': random_seed_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
@@ -178,23 +183,42 @@ plugin.pipelines.register_function(
                  "pairs of samples in a feature table.")
 )
 
-plugin.pipelines.register_function(
-    function=q2_boots.beta_collection,
+plugin.methods.register_function(
+    function=q2_boots.alpha_average,
     inputs={
-        'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
-        'phylogeny': Phylogeny[Rooted]
+        'data': Collection[SampleData[AlphaDiversity]]
     },
     parameters={
-                'metric': Str % Choices(beta_metrics['PHYLO']['IMPL'] |
-                                        beta_metrics['PHYLO']['UNIMPL'] |
-                                        beta_metrics['NONPHYLO']['IMPL'] |
-                                        beta_metrics['NONPHYLO']['UNIMPL']),
-                'threads': Int % Range(1, None) | Str % Choices(['auto']),
-                'variance_adjusted': Bool,
-                'alpha': Float % Range(0, 1, inclusive_end=True),
-                'bypass_tips': Bool,
+        'average_method': Str
     },
     outputs={
+        'alpha_diversity': SampleData[AlphaDiversity]
+    },
+    name='Alpha Average',
+    description='Average Alpha Collection'
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.beta_collection,
+    inputs={'table':
+            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
+            'phylogeny': Phylogeny[Rooted]},
+    parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
+                                        beta_metrics['NONPHYLO']['UNIMPL'] |
+                                        beta_metrics['PHYLO']['IMPL'] |
+                                        beta_metrics['PHYLO']['UNIMPL']),
+                'pseudocount': Int % Range(1, None),
+                'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
+                'n': Int % Range(1, None),
+                'sampling_depth': Int % Range(1, None),
+                'random_seed': Int,
+                'bypass_tips': Bool,
+                'with_replacement': Bool,
+                'variance_adjusted': Bool,
+                'alpha': Float % Range(0, 1, inclusive_end=True)},
+    outputs={
         'distance_matrices': Collection[DistanceMatrix]
-    }
+    },
+    name='Beta Diversity Collection',
+    description='Beta Diversity'
 )

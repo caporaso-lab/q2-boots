@@ -37,6 +37,6 @@ def resample(ctx, table, sampling_depth, n=1, with_replacement=True,
 
     for i in range(n):
         tables.append(_iteration(table=table, sampling_depth=sampling_depth,
-                                 with_replacement=with_replacement))
+                                 with_replacement=with_replacement)[0])
 
     return tables
