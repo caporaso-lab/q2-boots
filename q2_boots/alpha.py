@@ -11,7 +11,7 @@ import pandas as pd
 from q2_diversity_lib.alpha import METRICS
 
 
-def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1,
+def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
                      random_seed=None):
 
     if phylogeny is not None and metric in METRICS['NONPHYLO']:

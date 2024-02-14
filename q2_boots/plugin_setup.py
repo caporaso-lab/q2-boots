@@ -222,3 +222,23 @@ plugin.pipelines.register_function(
     name='Beta Diversity Collection',
     description='Beta Diversity'
 )
+
+plugin.methods.register_function(
+    function=q2_boots.beta_average,
+    inputs={
+        'data': Collection[DistanceMatrix],
+    },
+    parameters={
+        'representative': Str % Choices(['non-metric-mean',
+                                         'non-metric-median',
+                                         'medoid']),
+    },
+    outputs=[
+        ('distance_matrix', DistanceMatrix)
+    ],
+    output_descriptions={
+        'distance_matrix': 'representative distance matrix'
+    },
+    name='Beta Average',
+    description='Average of a Collection of Distance Matrices'
+)

@@ -50,24 +50,33 @@ def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
          with_replacement=True, pseudocount=1, alpha=None, variance_adjusted=False):
 
     _beta = ctx.get_action('boots', 'beta_collection')
+    _beta_avg = ctx.get_action('boots', 'beta_average')
 
-    matrices = _beta(table=table,
-                     phylogeny=phylogeny,
-                     metric=metric,
-                     sampling_depth=sampling_depth,
-                     n=n,
-                     threads=n_threads,
-                     variance_adjusted=variance_adjusted,
-                     alpha=alpha,
-                     bypass_tips=bypass_tips,
-                     random_seed=random_seed)
+    matrices, = _beta(table=table,
+                      phylogeny=phylogeny,
+                      metric=metric,
+                      sampling_depth=sampling_depth,
+                      n=n,
+                      pseudocount=pseudocount,
+                      with_replacement=with_replacement,
+                      threads=n_threads,
+                      variance_adjusted=variance_adjusted,
+                      alpha=alpha,
+                      bypass_tips=bypass_tips,
+                      random_seed=random_seed)
+
+    avg, = _beta_avg(matrices, representative)
+    return avg
+
+
+def beta_average(data: pd.Series, representative: str) -> pd.DataFrame:
 
     if representative == 'medoid':
-        return get_medoid(matrices)
+        return get_medoid(data)
     elif representative == 'non-metric-mean':
-        return per_cell_average(matrices, 'mean')
+        return per_cell_average(data, 'mean')
     elif representative == 'non-metric-median':
-        return per_cell_average(matrices, 'median')
+        return per_cell_average(data, 'median')
 
 
 def per_cell_average(a, representation):
