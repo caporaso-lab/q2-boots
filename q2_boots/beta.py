@@ -75,8 +75,6 @@ def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
 
     tmp = [x.to_data_frame() for x in data.values()]
     index = tmp[0].index
-    name = tmp[0].index.name
-    columns = tmp[0].columns
 
     if representative == 'medoid':
         mtx = get_medoid(tmp)
@@ -85,11 +83,7 @@ def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
     elif representative == 'non-metric-median':
         mtx = per_cell_average(tmp, 'median')
 
-    mtx.index = index
-    mtx.index.name = name
-    mtx.columns = columns
-    print(mtx)
-    return skbio.DistanceMatrix(mtx)
+    return skbio.DistanceMatrix(mtx, ids=index)
 
 
 def per_cell_average(a, representation):
