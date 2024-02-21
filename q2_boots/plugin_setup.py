@@ -7,7 +7,8 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations, Str, Choices, Bool, Float)
+                           Citations, Str, Choices, Bool, Float,
+                           Metadata, Visualization)
 
 from q2_types.feature_table import (
     FeatureTable, Frequency, RelativeFrequency, PresenceAbsence
@@ -19,6 +20,7 @@ from q2_types.tree import Phylogeny, Rooted
 from q2_diversity_lib.alpha import METRICS as alpha_metrics
 from q2_diversity_lib.beta import METRICS as beta_metrics
 from q2_types.distance_matrix import DistanceMatrix
+from q2_types.ordination import PCoAResults
 
 import q2_boots
 
@@ -241,4 +243,42 @@ plugin.methods.register_function(
     },
     name='Beta Average',
     description='Average of a Collection of Distance Matrices'
+)
+
+plugin.pipelines.register_function(
+    function=q2_boots.core_metrics,
+    inputs={
+        'table': FeatureTable[Frequency | RelativeFrequency |
+                              PresenceAbsence],
+        'phylogeny': Phylogeny[Rooted],
+    },
+    parameters={
+        'metadata': Metadata,
+        'n_jobs': Int % Range(1, None),
+        'n': Int % Range(1, None),
+        'sampling_depth': Int % Range(1, None),
+        'alpha_method': Str % Choices('mean', 'median'),
+        'beta_method': Str % Choices('non-metric-mean',
+                                     'non-metric-median',
+                                     'medoid'),
+        'with_replacement': Bool,
+        'random_seed': Int
+    },
+    outputs=[
+        ('rarefied_table', Collection[FeatureTable[Frequency]]),
+        ('observed_features_vector', SampleData[AlphaDiversity]),
+        ('shannon_vector', SampleData[AlphaDiversity]),
+        ('evenness_vector', SampleData[AlphaDiversity]),
+        ('jaccard_distance_matrix', DistanceMatrix),
+        ('bray_curtis_distance_matrix', DistanceMatrix),
+        ('jaccard_pcoa_results', PCoAResults),
+        ('bray_curtis_pcoa_results', PCoAResults),
+        ('jaccard_emperor', Visualization),
+        ('bray_curtis_emperor', Visualization),
+    ],
+    output_descriptions={
+
+    },
+    name='Core Metrics',
+    description='Bootstrapped Core Metrics'
 )

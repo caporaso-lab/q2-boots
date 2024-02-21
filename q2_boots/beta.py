@@ -73,17 +73,23 @@ def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
 def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
         skbio.DistanceMatrix:
 
-    data = data.values()
-
-    data = [x.to_data_frame() for x in data]
-    print(data)
+    tmp = [x.to_data_frame() for x in data.values()]
+    index = tmp[0].index
+    name = tmp[0].index.name
+    columns = tmp[0].columns
 
     if representative == 'medoid':
-        return skbio.DistanceMatrix(get_medoid(data))
+        mtx = get_medoid(tmp)
     elif representative == 'non-metric-mean':
-        return skbio.DistanceMatrix(per_cell_average(data, 'mean'))
+        mtx = per_cell_average(tmp, 'mean')
     elif representative == 'non-metric-median':
-        return skbio.DistanceMatrix(per_cell_average(data, 'median'))
+        mtx = per_cell_average(tmp, 'median')
+
+    mtx.index = index
+    mtx.index.name = name
+    mtx.columns = columns
+    print(mtx)
+    return skbio.DistanceMatrix(mtx)
 
 
 def per_cell_average(a, representation):

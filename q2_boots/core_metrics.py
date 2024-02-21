@@ -6,11 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from q2_boots.beta import per_cell_average, get_medoid
-import pandas as pd
-
-
-def core_metrics(ctx, table, sampling_depth, metric, metadata,
+def core_metrics(ctx, table, sampling_depth, metadata,
                  n_jobs, phylogeny=None, n=1, alpha_method='median',
                  beta_method='medoid', with_replacement=True,
                  random_seed=None):
@@ -23,19 +19,27 @@ def core_metrics(ctx, table, sampling_depth, metric, metadata,
     jaccard = ctx.get_action('diversity_lib', 'jaccard')
     pcoa = ctx.get_action('diversity', 'pcoa')
     emperor_plot = ctx.get_action('emperor', 'plot')
+    alpha_average = ctx.get_action('boots', 'alpha_average')
+    beta_average = ctx.get_action('boots', 'beta_average')
 
     results = []
-    bootstrapped_tables = bootstrap(table=table,
-                                    sampling_depth=sampling_depth,
-                                    n=n, with_replacement=with_replacement,
-                                    random_seed=random_seed)
+    bootstrapped_tables, = bootstrap(table=table,
+                                     sampling_depth=sampling_depth,
+                                     n=n, with_replacement=with_replacement,
+                                     random_seed=random_seed)
+
+    results.append(bootstrapped_tables)
+
+    bootstrapped_tables = bootstrapped_tables.values()
 
     for m in (observed_features, shannon, pielou_e):
-        results += alpha_representative(m, bootstrapped_tables, alpha_method)
+        alpha = alpha_representative(m, bootstrapped_tables, alpha_method)
+        results += alpha_average(data=alpha, average_method=alpha_method)
 
     dms = []
     for m in (jaccard, braycurtis):
         beta_results = beta_representative(m, bootstrapped_tables, beta_method)
+        beta_results = beta_average(data=beta_results, representative=beta_method)
         results += beta_results
         dms += beta_results
 
@@ -54,21 +58,15 @@ def core_metrics(ctx, table, sampling_depth, metric, metadata,
 def beta_representative(func, tables, method):
     metric = []
     for table in tables:
-        metric.append(func(table))
+        metric.append(func(table=table)[0])
 
-    if method == 'medoid':
-        return get_medoid(metric)
-
-    return per_cell_average(metric, representation=method)
+    return metric
 
 
 def alpha_representative(func, tables, method):
 
-    alpha = pd.DataFrame()
+    alpha = []
     for table in tables:
-        alpha.append(func(table=table))
+        alpha.append(func(table=table)[0])
 
-    if method == 'median':
-        return alpha.median()
-    elif method == 'mean':
-        return alpha.mean()
+    return alpha
