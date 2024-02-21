@@ -10,6 +10,7 @@ from hdmedians import medoid
 import pandas as pd
 import numpy as np
 import math
+import skbio
 
 
 def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
@@ -21,17 +22,17 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
     _beta = ctx.get_action('diversity', 'beta')
     _beta_phylogenetic = ctx.get_action('diversity', 'beta_phylogenetic')
 
-    tables = _resample(table=table, sampling_depth=sampling_depth, n=n,
-                       random_seed=random_seed, with_replacement=with_replacement)
+    tables, = _resample(table=table, sampling_depth=sampling_depth, n=n,
+                        random_seed=random_seed, with_replacement=with_replacement)
 
     diversified_tables = []
 
-    if phylogeny is not None:
-        for passthrough in tables:
+    if phylogeny is None:
+        for passthrough in tables.values():
             diversified_tables.append(_beta(table=passthrough, metric=metric,
-                                      pseudocount=pseudocount, n_jobs=n_threads))
+                                      pseudocount=pseudocount, n_jobs=n_threads)[0])
     else:
-        for passthrough in tables:
+        for passthrough in tables.values():
             diversified_tables.append(_beta_phylogenetic(
                 table=passthrough,
                 phylogeny=phylogeny,
@@ -40,7 +41,7 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
                 variance_adjusted=variance_adjusted,
                 alpha=alpha,
                 bypass_tips=bypass_tips
-            ))
+            )[0])
 
     return diversified_tables
 
@@ -59,7 +60,7 @@ def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
                       n=n,
                       pseudocount=pseudocount,
                       with_replacement=with_replacement,
-                      threads=n_threads,
+                      n_threads=n_threads,
                       variance_adjusted=variance_adjusted,
                       alpha=alpha,
                       bypass_tips=bypass_tips,
@@ -69,14 +70,20 @@ def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
     return avg
 
 
-def beta_average(data: pd.Series, representative: str) -> pd.DataFrame:
+def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
+        skbio.DistanceMatrix:
+
+    data = data.values()
+
+    data = [x.to_data_frame() for x in data]
+    print(data)
 
     if representative == 'medoid':
-        return get_medoid(data)
+        return skbio.DistanceMatrix(get_medoid(data))
     elif representative == 'non-metric-mean':
-        return per_cell_average(data, 'mean')
+        return skbio.DistanceMatrix(per_cell_average(data, 'mean'))
     elif representative == 'non-metric-median':
-        return per_cell_average(data, 'median')
+        return skbio.DistanceMatrix(per_cell_average(data, 'median'))
 
 
 def per_cell_average(a, representation):
