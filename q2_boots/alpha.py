@@ -62,13 +62,23 @@ def alpha(ctx, table, sampling_depth, metric, phylogeny=None,
 
 def alpha_average(data: pd.Series, average_method: str) -> pd.Series:
 
-    data = pd.DataFrame(data)
+    tbl = None
+    i = 0
+
+    for a in data.values():
+        if tbl is None:
+            a.name = i
+            tbl = pd.DataFrame(a)
+        else:
+            a.name = i
+            tbl.join(a)
+        i += 1
 
     if average_method == "median":
-        representative_sample_data = data.median(axis=1)
+        representative_sample_data = tbl.median(axis=1)
     elif average_method == "mean":
-        representative_sample_data = data.mean(axis=1)
+        representative_sample_data = tbl.mean(axis=1)
     elif average_method == 'mode':
-        representative_sample_data = data.mode(axis=1)
+        representative_sample_data = tbl.mode(axis=1)
 
     return representative_sample_data
