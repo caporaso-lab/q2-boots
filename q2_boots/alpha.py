@@ -64,9 +64,11 @@ def alpha_average(data: pd.Series, average_method: str) -> pd.Series:
 
     tbl = None
     i = 0
+    metric = ''
 
     for a in data.values():
         if tbl is None:
+            metric = a.name
             a.name = i
             tbl = pd.DataFrame(a)
         else:
@@ -80,5 +82,7 @@ def alpha_average(data: pd.Series, average_method: str) -> pd.Series:
         representative_sample_data = tbl.mean(axis=1)
     elif average_method == 'mode':
         representative_sample_data = tbl.mode(axis=1)
+    
+    representative_sample_data.name = metric
 
     return representative_sample_data
