@@ -92,7 +92,14 @@ class TestBeta(TestPluginBase):
 
         self.assertEqual(len(output), 1)
 
-        output: pd.DataFrame = Artifact.view(output[0], DistanceMatrix).to_data.frame()
+        output: DistanceMatrix = Artifact.view(output[0], DistanceMatrix)
+
+        self.assertTrue('S1' in output.ids)
+        self.assertTrue('S2' in output.ids)
+        self.assertTrue('S3' in output.ids)
+
+        output = output.to_data_frame()
+
         self.assertEqual(output.shape, (3, 3))
 
 
