@@ -14,10 +14,7 @@ from q2_diversity_lib.alpha import METRICS
 def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
                      random_seed=None):
 
-    if phylogeny is not None and metric in METRICS['NONPHYLO']:
-        raise ValueError('You must use a phylogenic metric')
-
-    elif phylogeny is None and metric in METRICS['PHYLO']:
+    if phylogeny is None and metric in METRICS['PHYLO']:
         raise ValueError('You must use a non-phylogenic metric')
 
     _bootstrap = ctx.get_action("boots", "resample")
@@ -82,7 +79,5 @@ def alpha_average(data: pd.Series, average_method: str) -> pd.Series:
         representative_sample_data = tbl.mean(axis=1)
     elif average_method == 'mode':
         representative_sample_data = tbl.mode(axis=1)
-    
     representative_sample_data.name = metric
-
     return representative_sample_data
