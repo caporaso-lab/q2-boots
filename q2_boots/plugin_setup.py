@@ -166,7 +166,9 @@ plugin.pipelines.register_function(
                 'bypass_tips': Bool,
                 'with_replacement': Bool,
                 'variance_adjusted': Bool,
-                'representative': Str % Choices(['mean', 'median', 'medoid']),
+                'representative': Str % Choices(['non-metric-mean',
+                                                 'non-metric-median',
+                                                 'medoid']),
                 'alpha': Float % Range(0, 1, inclusive_end=True)},
     outputs=[('distance_matrix', DistanceMatrix)],
     input_descriptions={
