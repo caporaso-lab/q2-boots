@@ -13,6 +13,7 @@ from biom.table import Table
 from qiime2 import Artifact
 from q2_boots.beta import per_cell_average, get_medoid
 import numpy as np
+from skbio import DistanceMatrix
 
 
 class TestAveraging(TestCase):
@@ -88,7 +89,11 @@ class TestBeta(TestPluginBase):
                            n=10,
                            representative='medoid'
                            )
-        print(output)
+
+        self.assertEqual(len(output), 1)
+
+        output: pd.DataFrame = Artifact.view(output[0], DistanceMatrix).to_data.frame()
+        self.assertEqual(output.shape, (3, 3))
 
 
 if __name__ == "__main__":
