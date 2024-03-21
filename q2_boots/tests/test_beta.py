@@ -102,6 +102,22 @@ class TestBeta(TestPluginBase):
 
         self.assertEqual(output.shape, (3, 3))
 
+    def range_test_non_phylo(self):
+        pass
+
+    def range_test_phylo(self):
+        pass
+
+    def phylo_metric_no_phylo(self):
+        pass
+
+    def non_phylo_metric_phylo(self):
+
+        self.assertTrue(True)
+
+    def per_cell_range_check(output, table_collection):
+        pass
+
 
 if __name__ == "__main__":
     main()

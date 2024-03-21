@@ -35,6 +35,8 @@ def core_metrics(ctx, table, sampling_depth, metadata,
     for m in (observed_features, shannon, pielou_e):
         alpha = alpha_representative(m, bootstrapped_tables, alpha_method)
         results += alpha_average(data=alpha, average_method=alpha_method)
+    if phylogeny is not None:
+        pass
 
     dms = []
     for m in (jaccard, braycurtis):
@@ -42,6 +44,8 @@ def core_metrics(ctx, table, sampling_depth, metadata,
         beta_results = beta_average(data=beta_results, representative=beta_method)
         results += beta_results
         dms += beta_results
+    if phylogeny is not None:
+        pass
 
     pcoas = []
     for dm in dms:

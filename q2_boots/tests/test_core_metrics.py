@@ -38,4 +38,8 @@ class TestCoreMetrics(TestPluginBase):
                                    n_jobs=1,
                                    n=10
                                    )
-        print(output)
+        self.assertEqual(len(output[0]), 10)
+
+        for table in output[0].values():
+            table = Artifact.view(table, pd.DataFrame)
+            self.assertEqual(table.shape, (3, 3))

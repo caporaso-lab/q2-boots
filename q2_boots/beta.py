@@ -25,15 +25,15 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
     tables, = _resample(table=table, sampling_depth=sampling_depth, n=n,
                         random_seed=random_seed, with_replacement=with_replacement)
 
-    diversified_tables = []
+    dms = []
 
     if phylogeny is None:
         for passthrough in tables.values():
-            diversified_tables.append(_beta(table=passthrough, metric=metric,
-                                      pseudocount=pseudocount, n_jobs=n_threads)[0])
+            dms.append(_beta(table=passthrough, metric=metric,
+                             pseudocount=pseudocount, n_jobs=n_threads)[0])
     else:
         for passthrough in tables.values():
-            diversified_tables.append(_beta_phylogenetic(
+            dms.append(_beta_phylogenetic(
                 table=passthrough,
                 phylogeny=phylogeny,
                 metric=metric,
@@ -43,7 +43,7 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
                 bypass_tips=bypass_tips
             )[0])
 
-    return diversified_tables
+    return dms
 
 
 def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
