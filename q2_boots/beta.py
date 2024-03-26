@@ -87,16 +87,11 @@ def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
 
 
 def per_cell_average(a, representation):
-    w, h = a[0].shape
-
     mtx = []
 
-    columns = a[0].columns
-    index = a[0].index
-
-    for col in columns:
+    for col in a[0].columns:
         c_row = []
-        for row in index:
+        for row in a[0].index:
             cell = pd.Series([x[row][col] for x in a])
 
             if representation == 'median':
