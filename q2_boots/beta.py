@@ -91,9 +91,12 @@ def per_cell_average(a, representation):
 
     mtx = []
 
-    for col in range(w):
+    columns = a[0].columns
+    index = a[0].index
+
+    for col in columns:
         c_row = []
-        for row in range(h):
+        for row in index:
             cell = pd.Series([x[row][col] for x in a])
 
             if representation == 'median':
