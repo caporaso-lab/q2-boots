@@ -13,6 +13,7 @@ from .alpha import (alpha,
 from ._version import get_versions
 from .beta import (beta, get_medoid, beta_collection, per_cell_average, beta_average)
 from .core_metrics import (core_metrics)
+from . import _version
 
 __all__ = ['_bootstrap_iteration', 'resample',
            'alpha',
@@ -29,5 +30,4 @@ __all__ = ['_bootstrap_iteration', 'resample',
 __version__ = get_versions()['version']
 del get_versions
 
-from . import _version
 __version__ = _version.get_versions()['version']

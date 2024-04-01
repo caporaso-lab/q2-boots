@@ -268,15 +268,10 @@ plugin.pipelines.register_function(
     },
     outputs=[
         ('rarefied_table', Collection[FeatureTable[Frequency]]),
-        ('observed_features_vector', SampleData[AlphaDiversity]),
-        ('shannon_vector', SampleData[AlphaDiversity]),
-        ('evenness_vector', SampleData[AlphaDiversity]),
-        ('jaccard_distance_matrix', DistanceMatrix),
-        ('bray_curtis_distance_matrix', DistanceMatrix),
-        ('jaccard_pcoa_results', PCoAResults),
-        ('bray_curtis_pcoa_results', PCoAResults),
-        ('jaccard_emperor', Visualization),
-        ('bray_curtis_emperor', Visualization),
+        ('alpha_diversity', Collection[SampleData[AlphaDiversity]]),
+        ('distance_matrices', Collection[DistanceMatrix]),
+        ('pcoas', Collection[PCoAResults]),
+        ('visualizations', Collection[Visualization]),
     ],
     output_descriptions={
 

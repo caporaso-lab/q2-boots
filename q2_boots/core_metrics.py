@@ -21,56 +21,73 @@ def core_metrics(ctx, table, sampling_depth, metadata,
     emperor_plot = ctx.get_action('emperor', 'plot')
     alpha_average = ctx.get_action('boots', 'alpha_average')
     beta_average = ctx.get_action('boots', 'beta_average')
+    faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
+    unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
+    weighted_unifrac = ctx.get_action('diversity_lib', 'weighted_unifrac')
 
-    results = []
     bootstrapped_tables, = bootstrap(table=table,
                                      sampling_depth=sampling_depth,
                                      n=n, with_replacement=with_replacement,
                                      random_seed=random_seed)
 
-    results.append(bootstrapped_tables)
+    tables = bootstrapped_tables.values()
 
-    bootstrapped_tables = bootstrapped_tables.values()
-
+    alphas = []
     for m in (observed_features, shannon, pielou_e):
-        alpha = alpha_representative(m, bootstrapped_tables, alpha_method)
-        results += alpha_average(data=alpha, average_method=alpha_method)
+        alpha = alpha_representative(m, tables, alpha_method)
+        alphas += alpha_average(data=alpha, average_method=alpha_method)[0]
     if phylogeny is not None:
-        pass
+        for m in (faith_pd):
+            alpha = alpha_representative(m, tables, alpha_method, phylogeny=phylogeny)
+            alphas += alpha_average(data=alpha, average_method=alpha_method)[0]
 
     dms = []
     for m in (jaccard, braycurtis):
-        beta_results = beta_representative(m, bootstrapped_tables, beta_method)
-        beta_results = beta_average(data=beta_results, representative=beta_method)
-        results += beta_results
+        beta_results = beta_representative(m, tables, beta_method)
+        beta_results = beta_average(data=beta_results, representative=beta_method)[0]
         dms += beta_results
     if phylogeny is not None:
-        pass
+        for m in (unweighted_unifrac, weighted_unifrac):
+            beta_results = beta_representative(m, tables, beta_method, phylogeny,
+                                               n_threads=n_jobs)
+            beta_results = beta_average(data=beta_results,
+                                        representative=beta_method)[0]
+            dms += beta_results
 
     pcoas = []
     for dm in dms:
         pcoa_results = pcoa(distance_matrix=dm)
-        results += pcoa_results
         pcoas += pcoa_results
 
+    visualizations = []
     for pcoa in pcoas:
-        results += emperor_plot(pcoa=pcoa, metadata=metadata)
+        visualizations.append(emperor_plot(pcoa=pcoa, metadata=metadata))
 
-    return tuple(results)
+    return (bootstrapped_tables, alphas, dms, pcoas, visualizations)
 
 
-def beta_representative(func, tables, method):
+def beta_representative(func, tables, method,
+                        phylogeny=None, n_threads=1):
     metric = []
-    for table in tables:
-        metric.append(func(table=table)[0])
+    if phylogeny is None:
+        for table in tables:
+            metric.append(func(table=table)[0])
+    else:
+        for table in tables:
+            metric.append(func(table=table, phylogeny=phylogeny,
+                               threads=n_threads)[0])
 
     return metric
 
 
-def alpha_representative(func, tables, method):
+def alpha_representative(func, tables, method, phylogeny=None):
 
     alpha = []
-    for table in tables:
-        alpha.append(func(table=table)[0])
+    if phylogeny is None:
+        for table in tables:
+            alpha.append(func(table=table)[0])
+    else:
+        for table in tables:
+            alpha.append(func(table-table, phylogeny-phylogeny)[0])
 
     return alpha
