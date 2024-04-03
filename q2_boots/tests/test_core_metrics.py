@@ -12,6 +12,8 @@ from biom.table import Table
 from qiime2 import Artifact
 import numpy as np
 import pandas as pd
+import skbio
+from io import StringIO
 
 
 class TestCoreMetrics(TestPluginBase):
@@ -37,6 +39,36 @@ class TestCoreMetrics(TestPluginBase):
                                    metadata=metadata,
                                    n_jobs=1,
                                    n=10
+                                   )
+        self.assertEqual(len(output[0]), 10)
+
+        for table in output[0].values():
+            table = Artifact.view(table, pd.DataFrame)
+            self.assertEqual(table.shape, (3, 3))
+
+    def test_phylogeny(self):
+        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
+            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
+
+        phylogeny = Artifact.import_data(
+            'Phylogeny[Rooted]',
+            phylogeny
+        )
+        metadata = pd.DataFrame(['not', 'of', 'interest'],
+                                index=['S1', 'S2', 'S3'],
+                                columns=['blank'])
+        metadata.index.name = 'sample-id'
+        metadata = Metadata(metadata)
+        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
+                  ['O1', 'O2', 'O3'],
+                  ['S1', 'S2', 'S3'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
+        output = self.core_metrics(table=t,
+                                   sampling_depth=1,
+                                   metadata=metadata,
+                                   n_jobs=1,
+                                   n=10,
+                                   phylogeny=phylogeny
                                    )
         self.assertEqual(len(output[0]), 10)
 
