@@ -32,38 +32,38 @@ def core_metrics(ctx, table, sampling_depth, metadata,
 
     tables = bootstrapped_tables.values()
 
-    alphas = []
+    alphas = {}
     for m in (observed_features, shannon, pielou_e):
         alpha = alpha_representative(m, tables, alpha_method)
         res, = alpha_average(data=alpha, average_method=alpha_method)
-        alphas.append(res)
+        alphas[m.__name__] = res
     if phylogeny is not None:
-        for m in (faith_pd):
+        for m in (faith_pd, ):
             alpha = alpha_representative(m, tables, alpha_method, phylogeny=phylogeny)
             res, = alpha_average(data=alpha, average_method=alpha_method)
-            alphas.append(res)
+            alphas[m.__name__] = res
 
-    dms = []
+    dms = {}
     for m in (jaccard, braycurtis):
         beta_results = beta_representative(m, tables, beta_method)
         res, = beta_average(data=beta_results, representative=beta_method)
-        dms.append(res)
+        dms[m.__name__] = res
     if phylogeny is not None:
         for m in (unweighted_unifrac, weighted_unifrac):
             beta_results = beta_representative(m, tables, beta_method, phylogeny,
                                                n_threads=n_jobs)
-            beta_results = beta_average(data=beta_results,
-                                        representative=beta_method)
-            dms += beta_results
+            beta_results, = beta_average(data=beta_results,
+                                         representative=beta_method)
+            dms[m.__name__] = beta_results
 
-    pcoas = []
-    for dm in dms:
+    pcoas = {}
+    for key, dm in dms.items():
         pcoa_results, = pcoa(distance_matrix=dm)
-        pcoas.append(pcoa_results)
+        pcoas[key] = pcoa_results
 
-    visualizations = []
-    for pcoa in pcoas:
-        visualizations.append(emperor_plot(pcoa=pcoa, metadata=metadata)[0])
+    visualizations = {}
+    for key, pcoa in pcoas.items():
+        visualizations[key] = (emperor_plot(pcoa=pcoa, metadata=metadata)[0])
 
     return bootstrapped_tables, alphas, dms, pcoas, visualizations
 
@@ -90,6 +90,6 @@ def alpha_representative(func, tables, method, phylogeny=None):
             alpha.append(func(table=table)[0])
     else:
         for table in tables:
-            alpha.append(func(table-table, phylogeny-phylogeny)[0])
+            alpha.append(func(table=table, phylogeny=phylogeny)[0])
 
     return alpha

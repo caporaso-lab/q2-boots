@@ -271,7 +271,7 @@ plugin.pipelines.register_function(
         ('alpha_diversity', Collection[SampleData[AlphaDiversity]]),
         ('distance_matrices', Collection[DistanceMatrix]),
         ('pcoas', Collection[PCoAResults]),
-        ('visualizations', Visualization),
+        ('visualizations', Collection[Visualization]),
     ],
     output_descriptions={
 
