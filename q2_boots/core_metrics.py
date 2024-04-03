@@ -35,35 +35,37 @@ def core_metrics(ctx, table, sampling_depth, metadata,
     alphas = []
     for m in (observed_features, shannon, pielou_e):
         alpha = alpha_representative(m, tables, alpha_method)
-        alphas += alpha_average(data=alpha, average_method=alpha_method)[0]
+        res, = alpha_average(data=alpha, average_method=alpha_method)
+        alphas.append(res)
     if phylogeny is not None:
         for m in (faith_pd):
             alpha = alpha_representative(m, tables, alpha_method, phylogeny=phylogeny)
-            alphas += alpha_average(data=alpha, average_method=alpha_method)[0]
+            res, = alpha_average(data=alpha, average_method=alpha_method)
+            alphas.append(res)
 
     dms = []
     for m in (jaccard, braycurtis):
         beta_results = beta_representative(m, tables, beta_method)
-        beta_results = beta_average(data=beta_results, representative=beta_method)[0]
-        dms += beta_results
+        res, = beta_average(data=beta_results, representative=beta_method)
+        dms.append(res)
     if phylogeny is not None:
         for m in (unweighted_unifrac, weighted_unifrac):
             beta_results = beta_representative(m, tables, beta_method, phylogeny,
                                                n_threads=n_jobs)
             beta_results = beta_average(data=beta_results,
-                                        representative=beta_method)[0]
+                                        representative=beta_method)
             dms += beta_results
 
     pcoas = []
     for dm in dms:
-        pcoa_results = pcoa(distance_matrix=dm)
-        pcoas += pcoa_results
+        pcoa_results, = pcoa(distance_matrix=dm)
+        pcoas.append(pcoa_results)
 
     visualizations = []
     for pcoa in pcoas:
-        visualizations.append(emperor_plot(pcoa=pcoa, metadata=metadata))
+        visualizations.append(emperor_plot(pcoa=pcoa, metadata=metadata)[0])
 
-    return (bootstrapped_tables, alphas, dms, pcoas, visualizations)
+    return bootstrapped_tables, alphas, dms, pcoas, visualizations
 
 
 def beta_representative(func, tables, method,
