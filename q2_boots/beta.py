@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import math
 import skbio
+import warnings
 
 
 def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
@@ -72,6 +73,10 @@ def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
 
 def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
         skbio.DistanceMatrix:
+
+    if representative == "medoid":
+        warnings.warn("Medoid is currently only capable of handling small n values and\
+                      datasets due to its implementation.")
 
     tmp = [x.to_data_frame() for x in data.values()]
     index = tmp[0].index

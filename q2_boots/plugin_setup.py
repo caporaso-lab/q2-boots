@@ -241,7 +241,10 @@ plugin.methods.register_function(
         ('distance_matrix', DistanceMatrix)
     ],
     output_descriptions={
-        'distance_matrix': 'representative distance matrix'
+        'distance_matrix': 'representative distance matrix',
+        'representative': 'The method by which the data is represented.'
+                          'Medoid currently only works with small datasets and, '
+                          'more importantly, small n values.'
     },
     name='Beta Average',
     description='Average of a Collection of Distance Matrices'
