@@ -25,7 +25,8 @@ class TestCoreMetrics(TestPluginBase):
         self.core_metrics = self.plugin.pipelines['core_metrics']
 
     def test_basic(self):
-        t = Table(data=np.array([[0, 1, 3], [1, 0, 2], [1, 3, 0]]),
+        t = Table(data=np.array([[1000, 1920, 3451], [4536, 1552, 6521],
+                                 [1634, 1634, 6721]]),
                   sample_ids=['S1', 'S2', 'S3'],
                   observation_ids=['O1', 'O2', 'O3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
@@ -35,9 +36,10 @@ class TestCoreMetrics(TestPluginBase):
         metadata.index.name = 'sample-id'
         metadata = Metadata(metadata)
         output = self.core_metrics(table=t,
-                                   sampling_depth=1,
+                                   sampling_depth=500,
                                    metadata=metadata,
                                    n_jobs=1,
+                                   with_replacement=True,
                                    n=10
                                    )
         self.assertEqual(len(output[0]), 10)
@@ -59,16 +61,18 @@ class TestCoreMetrics(TestPluginBase):
                                 columns=['blank'])
         metadata.index.name = 'sample-id'
         metadata = Metadata(metadata)
-        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
-                  ['O1', 'O2', 'O3'],
-                  ['S1', 'S2', 'S3'])
+        t = Table(data=np.array([[1000, 1920, 3451], [2536, 1552, 1521],
+                                 [1634, 1634, 6721]]),
+                  sample_ids=['S1', 'S2', 'S3'],
+                  observation_ids=['O1', 'O2', 'O3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
         output = self.core_metrics(table=t,
-                                   sampling_depth=1,
+                                   sampling_depth=500,
                                    metadata=metadata,
                                    n_jobs=1,
                                    n=10,
-                                   phylogeny=phylogeny
+                                   phylogeny=phylogeny,
+                                   with_replacement=True,
                                    )
         self.assertEqual(len(output[0]), 10)
 
