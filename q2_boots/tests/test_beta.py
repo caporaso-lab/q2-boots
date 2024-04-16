@@ -151,7 +151,7 @@ class TestBeta(TestPluginBase):
     def test_range_phylo(self):
         t = Table(np.array([[3000, 4000, 4151],
                             [1611, 3016, 2313], [3761, 2861, 2091]]),
-                  ['01', '02', '03'],
+                  ['O1', 'O2', 'O3'],
                   ['S1', 'S2', 'S3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
         with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
