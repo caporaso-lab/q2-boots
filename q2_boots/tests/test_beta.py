@@ -201,7 +201,18 @@ class TestBeta(TestPluginBase):
                 )
 
     def test_phylo_metric_no_phylo(self):
-        pass
+        t = Table(np.array([[0, 1, 3], [1, 0, 2], [1, 3, 0]]),
+                  ['01', '02', '03'],
+                  ['S1', 'S2', 'S3'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
+
+        with self.assertRaisesRegex(ValueError, 'You must use a non-phylogenic metric'):
+            self.beta(table=t,
+                      metric='weighted_unifrac',
+                      sampling_depth=1,
+                      n=10,
+                      representative='medoid'
+                      )
 
     def test_non_phylo_metric_phylo(self):
         t = Table(np.array([[3000, 4000, 4151],
