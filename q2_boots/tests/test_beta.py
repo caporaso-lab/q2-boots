@@ -204,7 +204,27 @@ class TestBeta(TestPluginBase):
         pass
 
     def test_non_phylo_metric_phylo(self):
-        pass
+        t = Table(np.array([[3000, 4000, 4151],
+                            [1611, 3016, 2313], [3761, 2861, 2091]]),
+                  ['O1', 'O2', 'O3'],
+                  ['S1', 'S2', 'S3'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
+        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
+            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
+
+        phylogeny = Artifact.import_data(
+            'Phylogeny[Rooted]',
+            phylogeny
+        )
+        # just assert no value is raised
+        self.beta(table=t,
+                  metric='jaccard',
+                  sampling_depth=5,
+                  n=10,
+                  representative='medoid',
+                  phylogeny=phylogeny
+                  )
+        self.assertTrue(True)
 
     def get_mins_and_maxes(self, dms):
 
