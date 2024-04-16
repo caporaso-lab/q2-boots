@@ -96,7 +96,7 @@ class TestAlphaBootstrap(TestPluginBase):
                   ['S1', 'S2', 'S3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
         output, = self.alpha(table=t, sampling_depth=1,
-                             metric='faith_pd',
+                             metric='pielou_e',
                              phylogeny=phylogeny,
                              random_seed=12,
                              n=10)
@@ -106,7 +106,7 @@ class TestAlphaBootstrap(TestPluginBase):
             table=t, sampling_depth=1,
             phylogeny=phylogeny,
             random_seed=12,
-            metric='faith_pd', n=10
+            metric='pielou_e', n=10
         )
 
         self.assertTrue(self.range_check(output, collection.values()))
