@@ -12,12 +12,22 @@ import numpy as np
 import math
 import skbio
 import warnings
+from q2_diversity_lib.beta import METRICS
 
 
 def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
                     bypass_tips=False, n_threads=1, n=1000, random_seed=None,
                     with_replacement=True, pseudocount=1, alpha=None,
                     variance_adjusted=False):
+
+    if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
+                              metric in METRICS['PHYLO']['UNIMPL']):
+        raise ValueError('You must use a non-phylogenic metric when no phylogeny is' +
+                         'included.')
+
+    if phylogeny is not None and (metric in METRICS['NONPHYLO']['IMPL'] or
+                                  metric in METRICS['NONPHYLO']['UNIMPL']):
+        phylogeny = None
 
     _resample = ctx.get_action('boots', 'resample')
     _beta = ctx.get_action('diversity', 'beta')

@@ -14,10 +14,14 @@ from q2_diversity_lib.alpha import METRICS
 def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
                      random_seed=None):
 
-    if phylogeny is None and metric in METRICS['PHYLO']['IMPL'] or\
-            metric in METRICS['PHYLO']['UNIMPL']:
+    if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
+                              metric in METRICS['PHYLO']['UNIMPL']):
         raise ValueError('You must use a non-phylogenic metric when no phylogeny is' +
                          'included.')
+
+    if phylogeny is not None and (metric in METRICS['NONPHYLO']['IMPL'] or
+                                  metric in METRICS['NONPHYLO']['UNIMPL']):
+        phylogeny = None
 
     _bootstrap = ctx.get_action("boots", "resample")
     _alpha = ctx.get_action("diversity", "alpha")

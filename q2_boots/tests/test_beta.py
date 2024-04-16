@@ -200,13 +200,10 @@ class TestBeta(TestPluginBase):
                     output[row][col] <= maxes[row][col]
                 )
 
-    def phylo_metric_no_phylo(self):
+    def test_phylo_metric_no_phylo(self):
         pass
 
-    def non_phylo_metric_phylo(self):
-        pass
-
-    def per_cell_range_check(output, table_collection):
+    def test_non_phylo_metric_phylo(self):
         pass
 
     def get_mins_and_maxes(self, dms):
