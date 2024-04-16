@@ -193,7 +193,7 @@ plugin.methods.register_function(
         'data': Collection[SampleData[AlphaDiversity]]
     },
     parameters={
-        'average_method': Str
+        'average_method': Str % Choices('mean', 'median'),
     },
     outputs={
         'alpha_diversity': SampleData[AlphaDiversity]
