@@ -7,8 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations, Str, Choices, Bool, Float,
-                           Metadata, Visualization)
+                           Citations, Str, Choices, Bool, Float)
 
 from q2_types.feature_table import (
     FeatureTable, Frequency, RelativeFrequency, PresenceAbsence
@@ -20,7 +19,6 @@ from q2_types.tree import Phylogeny, Rooted
 from q2_diversity_lib.alpha import METRICS as alpha_metrics
 from q2_diversity_lib.beta import METRICS as beta_metrics
 from q2_types.distance_matrix import DistanceMatrix
-from q2_types.ordination import PCoAResults
 
 import q2_boots
 
@@ -252,35 +250,35 @@ plugin.methods.register_function(
     description='Average of a Collection of Distance Matrices'
 )
 
-plugin.pipelines.register_function(
-    function=q2_boots.core_metrics,
-    inputs={
-        'table': FeatureTable[Frequency | RelativeFrequency |
-                              PresenceAbsence],
-        'phylogeny': Phylogeny[Rooted],
-    },
-    parameters={
-        'metadata': Metadata,
-        'n_jobs': Int % Range(1, None),
-        'n': Int % Range(1, None),
-        'sampling_depth': Int % Range(1, None),
-        'alpha_method': Str % Choices('mean', 'median'),
-        'beta_method': Str % Choices('non-metric-mean',
-                                     'non-metric-median',
-                                     'medoid'),
-        'with_replacement': Bool,
-        'random_seed': Int
-    },
-    outputs=[
-        ('rarefied_table', Collection[FeatureTable[Frequency]]),
-        ('alpha_diversity', Collection[SampleData[AlphaDiversity]]),
-        ('distance_matrices', Collection[DistanceMatrix]),
-        ('pcoas', Collection[PCoAResults]),
-        ('visualizations', Collection[Visualization]),
-    ],
-    output_descriptions={
-
-    },
-    name='Core Metrics',
-    description='Bootstrapped Core Metrics'
-)
+# plugin.pipelines.register_function(
+#     function=q2_boots.core_metrics,
+#     inputs={
+#         'table': FeatureTable[Frequency | RelativeFrequency |
+#                               PresenceAbsence],
+#         'phylogeny': Phylogeny[Rooted],
+#     },
+#     parameters={
+#         'metadata': Metadata,
+#         'n_jobs': Int % Range(1, None),
+#         'n': Int % Range(1, None),
+#         'sampling_depth': Int % Range(1, None),
+#         'alpha_method': Str % Choices('mean', 'median'),
+#         'beta_method': Str % Choices('non-metric-mean',
+#                                      'non-metric-median',
+#                                      'medoid'),
+#         'with_replacement': Bool,
+#         'random_seed': Int
+#     },
+#     outputs=[
+#         ('rarefied_table', Collection[FeatureTable[Frequency]]),
+#         ('alpha_diversity', Collection[SampleData[AlphaDiversity]]),
+#         ('distance_matrices', Collection[DistanceMatrix]),
+#         ('pcoas', Collection[PCoAResults]),
+#         ('visualizations', Collection[Visualization]),
+#     ],
+#     output_descriptions={
+#
+#     },
+#     name='Core Metrics',
+#     description='Bootstrapped Core Metrics'
+# )
