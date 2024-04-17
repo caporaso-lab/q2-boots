@@ -21,7 +21,5 @@ In the case of an error, q2-diversity can be installed from https://github.com/q
 If no error is thrown, proceed to installing q2-boots with the following commands:
 
 ```
-git clone https://github.com/qiime2/q2-boots.git
-cd q2-boots
-make install
+pip install https://github.com/qiime2/q2-boots/archive/refs/heads/main.zip
 ```
