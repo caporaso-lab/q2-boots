@@ -123,7 +123,24 @@ class TestAlphaBootstrap(TestPluginBase):
                        n=10)
 
     def test_non_phylo_metric_with_phylo(self):
-        pass
+        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
+            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
+
+        phylogeny = Artifact.import_data(
+            'Phylogeny[Rooted]',
+            phylogeny
+        )
+        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
+                  ['01', '02', '03'],
+                  ['S1', 'S2', 'S3'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
+        # assert no error is thrown, and that phylogeny is just thrown out
+        self.alpha(table=t, sampling_depth=1,
+                   metric='shannon',
+                   random_seed=12,
+                   n=10,
+                   phylogeny=phylogeny)
+        self.assertTrue(True)
 
 
 class TestAlphaBootstrapRepresentative(TestPluginBase):
