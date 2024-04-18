@@ -1,25 +1,15 @@
 # q2-boots
 
-This is a QIIME 2 plugin. For details on QIIME 2, see https://qiime2.org.
+q2-boots is a [QIIME 2](https://qiime2.org) plugin for microbiome rarefaction analysis that is currently in **beta** testing. 
+Feel free to use this plugin, but please get in touch on the [QIIME 2 Forum](https://forum.qiime2.org) if you experience any issues. 
 
 ## Installation
 
-Ensure QIIME2 is installed by running 
+To install the most recent development version of q2-boots, start by installing QIIME 2 if you don't already have it installed. 
+You should install either the _amplicon_ or _metagenome_ distribution of QIIME 2, according to the install instructions in the QIIME 2 documentation at https://docs.qiime2.org.
 
-```
-qiime --version
-```
+Then, install q2-boots as follows:
 
-If there is an error, visit the qiime2 information link above for instructions on installation.
-If there is no error thrown here, ensure qiime diversity is installed with:
-
-```
-qiime diversity --version
-```
-In the case of an error, q2-diversity can be installed from https://github.com/qiime2/q2-diversity.
-
-If no error is thrown, proceed to installing q2-boots with the following command:
-
-```
+```shell
 pip install https://github.com/qiime2/q2-boots/archive/refs/heads/main.zip
 ```
