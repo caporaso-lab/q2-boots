@@ -13,3 +13,8 @@ Then, install q2-boots as follows:
 ```shell
 pip install https://github.com/qiime2/q2-boots/archive/refs/heads/main.zip
 ```
+
+To install the most recent release version of boots, run the following command:
+```shell
+pip install https://github.com/qiime2/q2-boots/archive/refs/tags/0.0.1.zip
+```
