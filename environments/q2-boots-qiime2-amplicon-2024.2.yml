@@ -7,4 +7,4 @@ dependencies:
   - qiime2-amplicon
   - pip
   - pip:
-    - "q2-boots @ https://github.com/qiime2/q2-boots/archive/refs/tags/0.0.1.zip"
+    - "q2-boots @ https://github.com/qiime2/q2-boots/archive/refs/tags/no-vis-collections.zip"
