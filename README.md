@@ -1,20 +1,99 @@
 # q2-boots
 
-q2-boots is a [QIIME 2](https://qiime2.org) plugin for microbiome rarefaction analysis that is currently in **beta** testing. 
-Feel free to use this plugin, but please get in touch on the [QIIME 2 Forum](https://forum.qiime2.org) if you experience any issues. 
+q2-boots is a [QIIME 2](https://qiime2.org) plugin for microbiome rarefaction analysis that is currently in **beta** testing.
 
 ## Installation
 
-To install the most recent development version of q2-boots, start by installing QIIME 2 if you don't already have it installed. 
-You should install either the _amplicon_ or _metagenome_ distribution of QIIME 2, according to the install instructions in the QIIME 2 documentation at https://docs.qiime2.org.
+### Install Prerequisites
 
-Then, install q2-boots as follows:
+[Miniconda](https://conda.io/miniconda.html) provides the `conda` environment and package manager, and is currently the only supported way to install QIIME 2.
+Follow the instructions for downloading and installing Miniconda.
 
-```shell
-pip install https://github.com/qiime2/q2-boots/archive/refs/heads/main.zip
+After installing Miniconda and opening a new terminal, make sure you're running the latest version of `conda`, and install `wget` in case you don't already have it.
+
+```bash
+conda update conda
+conda install wget
 ```
 
-To install the most recent release version of boots, run the following command:
+### QIIME 2024.2 release version of q2-boots
+
+The most recent release version of q2-boots is the most stable, and is recommended for use in work that you're intending to publish.
+It may not contain all of the most recent feature additions, so if you're at an early experimental phase of your analysis you may prefer to install the development version of q2-boots (see those instructions below).
+
 ```shell
-pip install https://github.com/qiime2/q2-boots/archive/refs/tags/0.0.1.zip
+wget https://raw.githubusercontent.com/qiime2/q2-boots/main/environments/q2-boots-qiime2-amplicon-2024.2.yml
 ```
+
+```shell
+conda env create -n q2-boots-2024.2 --file ./q2-boots-qiime2-amplicon-2024.2.yml
+```
+
+```shell
+conda activate q2-boots-2024.2
+```
+
+### QIIME 2024.5 development version of q2-boots
+
+Installing the most recent development version of q2-boots allows you to access the most recent functionality, including some that depends on features being introduced in QIIME 2 2024.5.
+It is hard to unambiguously reference development versions of software in publications however, so you'll likely want to re-run your boots analyses with a release version prior to publication.
+
+```shell
+wget https://raw.githubusercontent.com/qiime2/q2-boots/main/environments/q2-boots-qiime2-amplicon-2024.5.yml
+```
+
+```shell
+conda env create -n q2-boots-2024.5 --file ./q2-boots-qiime2-amplicon-2024.5.yml
+```
+
+```shell
+conda activate q2-boots-2024.5
+```
+
+## Testing and using `q2-boots`
+
+After completing the install steps above, confirm that everything is working as expected by running:
+
+```shell
+make test
+```
+
+You should get a report that tests were run, and you should see that all tests passed and none failed.
+It's usually ok if some warnings are reported.
+
+If all of the tests pass, you're ready to use the plugin.
+Start by making QIIME 2's command line interface aware of `q2-boots` by running:
+
+```shell
+qiime dev refresh-cache
+```
+
+You should then see the plugin in the list of available plugins if you run:
+
+```shell
+qiime info
+```
+
+You should be able to review the help text by running:
+
+```shell
+qiime boots --help
+```
+
+Have fun! 😎
+
+## Getting help
+
+If you need help with q2-boots, please get in touch on the [QIIME 2 Forum](https://forum.qiime2.org).
+
+## About
+
+The `q2-boots` Python package was built using content from the [QIIME 2 plugin template](https://develop.qiime2.org/en/latest/plugins/tutorials/create-from-template.html).
+To learn more about `q2-boots`, refer to the [project website](https://github.com/qiime2/q2-boots).
+To learn how to use QIIME 2, refer to the [QIIME 2 User Documentation](https://docs.qiime2.org).
+To learn QIIME 2 plugin development, refer to [*Developing with QIIME 2*](https://develop.qiime2.org).
+
+`q2-boots` is a QIIME 2 community plugin, meaning that it is not necessarily developed and maintained by the developers of QIIME 2.
+Please be aware that because community plugins are developed by the QIIME 2 developer community, and not necessarily the QIIME 2 developers themselves, some may not be actively maintained or compatible with current release versions of the QIIME 2 distributions.
+More information on development and support for community plugins can be found [here](https://library.qiime2.org).
+
