@@ -97,3 +97,4 @@ To learn QIIME 2 plugin development, refer to [*Developing with QIIME 2*](https:
 Please be aware that because community plugins are developed by the QIIME 2 developer community, and not necessarily the QIIME 2 developers themselves, some may not be actively maintained or compatible with current release versions of the QIIME 2 distributions.
 More information on development and support for community plugins can be found [here](https://library.qiime2.org).
 
+![Boots covered in microorganisms](./images/q2-boots-ai-art.png)
