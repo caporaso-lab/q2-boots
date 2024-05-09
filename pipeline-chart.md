@@ -1,7 +1,7 @@
 ```mermaid
 flowchart TD
     
-    feature-table[Feature Table] --> resample
+    feature-table[FeatureTable] --> resample
     n(["n (Int)"]) --> resample
     sampling-depth(["sampling-depth (Int)"]) --> resample
     phylogeny-alpha[phylogeny] -- optional --> div-alpha
