@@ -1,6 +1,6 @@
 ```mermaid
-flowchart TD
-function-call{qiime function call}
+flowchart LR
+    function-call{qiime function call}
     input
     parameter([parameter])
     collection[[collection]]
