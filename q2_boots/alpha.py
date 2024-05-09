@@ -12,7 +12,7 @@ from q2_diversity_lib.alpha import METRICS
 
 
 def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
-                     random_seed=None):
+                     random_seed=None, with_replacement=False):
 
     if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
                               metric in METRICS['PHYLO']['UNIMPL']):
@@ -45,7 +45,7 @@ def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
 
 
 def alpha(ctx, table, sampling_depth, metric, phylogeny=None,
-          n=1, average_method='median', random_seed=None):
+          n=1, average_method='median', random_seed=None, with_replacement=False):
 
     _alpha_bootstrap = ctx.get_action("boots", "alpha_collection")
     _alpha_average = ctx.get_action('boots', 'alpha_average')

@@ -97,6 +97,7 @@ plugin.pipelines.register_function(
                                         alpha_metrics['PHYLO']['IMPL'] |
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
+                'with_replacement': Bool,
                 'random_seed': Int},
     outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
     input_descriptions={'table': 'The table to be diversified',
@@ -129,6 +130,7 @@ plugin.pipelines.register_function(
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
                 'average_method': Str % Choices(['median' , 'mean' , 'mode']),
+                'with_replacement': Bool,
                 'random_seed': Int},
     outputs={'sample_data': SampleData[AlphaDiversity]},
     input_descriptions={'table': 'The table to be diversified',
@@ -221,6 +223,7 @@ plugin.pipelines.register_function(
                                         beta_metrics['PHYLO']['IMPL'] |
                                         beta_metrics['PHYLO']['UNIMPL']),
                 'pseudocount': Int % Range(1, None),
+                'with_replacement': Bool,
                 'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'n': Int % Range(1, None),
                 'sampling_depth': Int % Range(1, None),
