@@ -1,0 +1,10 @@
+name: q2-boots-qiime2-amplicon-2024.2
+channels:
+- https://packages.qiime2.org/qiime2/2024.2/amplicon/passed
+- conda-forge
+- bioconda
+dependencies:
+  - qiime2-amplicon
+  - pip
+  - pip:
+    - "q2-boots @ https://github.com/qiime2/q2-boots/archive/refs/tags/no-vis-collections.zip"
