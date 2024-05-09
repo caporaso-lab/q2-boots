@@ -198,6 +198,15 @@ plugin.methods.register_function(
     outputs={
         'alpha_diversity': SampleData[AlphaDiversity]
     },
+    input_descriptions={
+        'data': 'Collection of SampleData[AlphaDiversity]'
+    },
+    output_descriptions={
+        'alpha_diversity': 'Representative SampleData[AlphaDiversity from input]'
+    },
+    parameter_descriptions={
+        'average_method': 'Method by which the representative will be obtained'
+    },
     name='Alpha Average',
     description='Average Alpha Collection'
 )
@@ -223,6 +232,15 @@ plugin.pipelines.register_function(
     outputs={
         'distance_matrices': Collection[DistanceMatrix]
     },
+    input_descriptions={
+
+    },
+    output_descriptions={
+
+    },
+    parameter_descriptions={
+
+    },
     name='Beta Diversity Collection',
     description='Beta Diversity'
 )
@@ -240,6 +258,9 @@ plugin.methods.register_function(
     outputs=[
         ('distance_matrix', DistanceMatrix)
     ],
+    input_descriptions={
+        'data': 'Collection of Distance Matrices to be averaged'
+    },
     output_descriptions={
         'distance_matrix': 'representative distance matrix',
     },
@@ -278,6 +299,12 @@ plugin.pipelines.register_function(
         ('pcoas', Collection[PCoAResults]),
         ('visualizations', Collection[Visualization]),
     ],
+    input_descriptions={
+
+    },
+    parameter_descriptions={
+
+    },
     output_descriptions={
 
     },
