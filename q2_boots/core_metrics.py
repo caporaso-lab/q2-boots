@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 def core_metrics(ctx, table, sampling_depth, metadata,
-                 n_jobs=1, phylogeny=None, n=1, alpha_method='median',
+                 n_jobs=1, phylogeny=None, n=100, alpha_method='median',
                  beta_method='non-metric-median', with_replacement=True,
                  random_seed=None):
 
