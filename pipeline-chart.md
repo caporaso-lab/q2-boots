@@ -1,63 +1,55 @@
 ```mermaid
 flowchart TD
     
-    feature-table[FeatureTable] --> resample
-    n(["n (Int)"]) --> resample
-    sampling-depth(["sampling-depth (Int)"]) --> resample
-    phylogeny-alpha[phylogeny] -- optional --> div-alpha
-    alpha-metric(["metric (alpha, String)"]) --> div-alpha
-    resample{qiime feature-table resample} -->
-    feature-collection[[FeatureTable]] -- looped call --> div-alpha
+    feature-table["<b>FeatureTable"] --> resample
+    n(["<b>n (Int)"]) --> resample
+    sampling-depth(["<b>sampling-depth (Int)"]) --> resample
+    phylogeny-alpha[<b>phylogeny] -- optional --> div-alpha
+    alpha-metric(["<b>metric (alpha, String)"]) --> div-alpha
+    resample{<b>qiime feature-table resample} -->
+    feature-collection[[<b>FeatureTable]] -- looped call --> div-alpha
     feature-collection -- looped call --> beta-diversity
-    div-alpha{qiime diversity alpha} --> sd-collection
-    alpha-rep(["representative (alpha, String)"]) --> alpha-avg
-    sd-collection[["SampleData[AlphaDiversity]"]] -->
-    alpha-avg{qiime boots alpha-average} -->
-    sample-data["SampleData[AlphaDiversity]"]
+    div-alpha{<b>qiime diversity alpha} --> sd-collection
+    alpha-rep(["<b>representative (alpha, String)"]) --> alpha-avg
+    sd-collection[["<b>SampleData[AlphaDiversity]"]] -->
+    alpha-avg{<b>qiime boots alpha-average} -->
+    sample-data["<b>SampleData[AlphaDiversity]"]
 
-    style feature-table fill:#FFC107
-    style feature-table color:black
+    style feature-table fill:#DDCC77
+    style n fill:#DDCC77
+    style sampling-depth fill:#DDCC77
+    style resample fill:#DDCC77
+    style feature-collection fill:#DDCC77
 
-    style n fill:#FFC107
-    style n color:black
+    style phylogeny-alpha fill:#88CCEE
+    style alpha-metric fill:#88CCEE
+    style div-alpha fill:#88CCEE
+    style sd-collection fill:#88CCEE
+    style alpha-rep fill:#88CCEE
+    style alpha-avg fill:#88CCEE
+    style sample-data fill:#88CCEE
 
-    style sampling-depth fill:#FFC107
-    style sampling-depth color:black
+    beta-diversity{<b>qiime diversity beta} --> dms
+    beta-metric(["<b>metric (beta, String)"]) --> beta-diversity
+    phylogeny-beta[<b>phylogeny] -- optional --> beta-diversity
 
-    style resample fill:#FFC107
-    style resample color:black
-    style feature-collection color:black
-    style feature-collection fill:#FFC107
-
-    style phylogeny-alpha fill:#1E88E5
-    style alpha-metric fill:#1E88E5
-    style div-alpha fill:#1E88E5
-    style sd-collection fill:#1E88E5
-    style alpha-rep fill:#1E88E5
-    style alpha-avg fill:#1E88E5
-
-    style sample-data fill:#1E88E5
-
-    beta-diversity{qiime diversity beta} --> dms
-    beta-metric(["metric (beta, String)"]) --> beta-diversity
-    phylogeny-beta[phylogeny] -- optional --> beta-diversity
-
-    dms[[DistanceMatrix]] --> beta-average
-    beta-rep(["representative (beta, String)"]) -->
-    beta-average{qiime boots beta-average} -->
-    dm[DistanceMatrix]
+    dms[[<b>DistanceMatrix]] --> beta-average
+    beta-rep(["<b>representative (beta, String)"]) -->
+    beta-average{<b>qiime boots beta-average} -->
+    dm[<b>DistanceMatrix]
   
-    style beta-diversity fill:#004D40
+    style beta-diversity fill:#CC6677
+    style beta-metric fill:#CC6677
+    style phylogeny-beta fill:#CC6677
+    style dms fill:#CC6677
+    style beta-rep fill:#CC6677
+    style beta-average fill:#CC6677
+    style dm fill:#CC6677
 
-    style beta-metric fill:#004D40
-    style phylogeny-beta fill:#004D40
-    style dms fill:#004D40
-    style beta-rep fill:#004D40
-    style beta-average fill:#004D40
-    style dm fill:#004D40
-
-    dm --> pcoa[PCoA] -->
-    emperor-plot["Emperor Plot (Visualization)"]
+    dm --> pcoa[<b>PCoA] --> emperor-plot
+    style pcoa fill:white
+    style emperor-plot fill:white
+    emperor-plot["<b>Emperor Plot (Visualization)"]
     
 ```
   
