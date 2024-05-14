@@ -33,71 +33,68 @@ def core_metrics(ctx, table, sampling_depth, metadata,
 
     tables = bootstrapped_tables.values()
 
-    alpha_metric_names = alpha_metrics
+    alpha_metric_actions = {'PHYLO': [], 'NONPHYLO': []}
 
-    alpha_metrics = {'PHYLO': {}, 'NONPHYLO': {}}
-
-    for metric in alpha_metric_names:
+    for metric in alpha_metrics:
         if metric in ALPHA_METRICS["PHYLO"]["IMPL"] or metric in\
            ALPHA_METRICS["PHYLO"]["UNIMPL"]:
             metric = ALPHA_METRICS['NAME_TRANSLATIONS'][metric]
-            alpha_metrics['PHYLO'][metric] = ctx.get_action('diversity_lib',
-                                                            metric)
+            alpha_metric_actions['PHYLO'].append(ctx.get_action('diversity_lib',
+                                                                metric))
         else:
             if metric in ALPHA_METRICS['NONPHYLO']['IMPL']:
                 metric = ALPHA_METRICS['NAME_TRANSLATIONS'][metric]
-                alpha_metrics['NONPHYLO'][metric] = ctx.get_action('diversity_lib',
-                                                                   metric)
+                alpha_metric_actions['NONPHYLO'].append(ctx.get_action('diversity_lib',
+                                                                       metric))
             else:
-                alpha_metrics['NONPHYLO'][metric] = ctx.get_action('diversity_lib',
-                                                                   'alpha_passthrough')
+                alpha_metric_actions['NONPHYLO'].append(
+                    ctx.get_action('diversity_lib', 'alpha_passthrough'))
 
-    beta_metric_names = beta_metrics
+    beta_metric_actions = {'PHYLO': [], 'NONPHYLO': []}
 
-    beta_metrics = {'PHYLO': {}, 'NONPHYLO': {}}
-
-    for metric in beta_metric_names:
+    for metric in beta_metrics:
         if metric in BETA_METRICS["PHYLO"]["IMPL"] or metric in\
            BETA_METRICS["PHYLO"]["UNIMPL"]:
             if metric in ('unweighted_unifrac', 'weighted_unifrac'):
                 metric = BETA_METRICS['NAME_TRANSLATIONS'][metric]
-                beta_metrics['PHYLO'][metric] = ctx.get_action('diversity_lib', metric)
+                beta_metric_actions['PHYLO'].append(ctx.get_action('diversity_lib',
+                                                                   metric))
             else:
                 # handle unimplemented unifracs
-                beta_metrics['PHYLO'][metric] =\
-                    ctx.get_action('diversity_lib', 'beta_phylogenetic_passthrough')
+                beta_metric_actions['PHYLO'].append(
+                    ctx.get_action('diversity_lib', 'beta_phylogenetic_passthrough'))
         else:
 
             if metric in BETA_METRICS['NONPHYLO']['IMPL']:
                 metric = BETA_METRICS['NAME_TRANSLATIONS'][metric]
-                beta_metrics['NONPHYLO'][metric] = ctx.get_action('diversity_lib',
-                                                                  metric)
+                beta_metric_actions['NONPHYLO'].append(ctx.get_action('diversity_lib',
+                                                                      metric))
             else:
-                beta_metrics['NONPHYLO'][metric] = ctx.get_action('diversity_lib',
-                                                                  'beta_passthrough')
+                beta_metric_actions['NONPHYLO'].append(
+                    ctx.get_action('diversity_lib', 'beta_passthrough'))
 
     if phylogeny is None and (len(alpha_metrics['PHYLO']) > 0 or
                               len(beta_metrics['PHYLO']) > 0):
-        print("WARNING: NO PHYLOGENY PROVIDED, PHYLOGENIC METRICS WILL NOT BE RUN")
+        print("WARNING: NO PHYLOGENY PROVIDED, PHYLOGENETIC METRICS WILL NOT BE RUN")
 
     alphas = {}
-    for m in (alpha_metrics['NONPHYLO'].values()):
+    for m in (alpha_metrics['NONPHYLO']):
         alpha = alpha_representative(m, tables, alpha_method)
         res, = alpha_average(data=alpha, average_method=alpha_method)
         alphas[m.__name__] = res
     if phylogeny is not None:
-        for m in (alpha_metrics['PHYLO'].values()):
+        for m in (alpha_metrics['PHYLO']):
             alpha = alpha_representative(m, tables, alpha_method, phylogeny=phylogeny)
             res, = alpha_average(data=alpha, average_method=alpha_method)
             alphas[m.__name__] = res
 
     dms = {}
-    for m in (beta_metrics['NONPHYLO'].values()):
+    for m in (beta_metrics['NONPHYLO']):
         beta_results = beta_representative(m, tables, beta_method)
         res, = beta_average(data=beta_results, representative=beta_method)
         dms[m.__name__] = res
     if phylogeny is not None:
-        for m in (beta_metrics['PHYLO'].values()):
+        for m in (beta_metrics['PHYLO']):
             beta_results = beta_representative(m, tables, beta_method, phylogeny,
                                                n_threads=n_jobs)
             beta_results, = beta_average(data=beta_results,
