@@ -297,14 +297,14 @@ plugin.pipelines.register_function(
                                      'medoid'),
         'with_replacement': Bool,
         'random_seed': Int,
+        'alpha_metrics' : List[Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
+                                             alpha_metrics['NONPHYLO']['UNIMPL'] |
+                                             alpha_metrics['PHYLO']['IMPL'] |
+                                             alpha_metrics['PHYLO']['UNIMPL'])],
         'beta_metrics': List[Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
                                            beta_metrics['NONPHYLO']['UNIMPL'] |
                                            beta_metrics['PHYLO']['IMPL'] |
                                            beta_metrics['PHYLO']['UNIMPL'])],
-        'alpha_metrics' : List[Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
-                                             alpha_metrics['NONPHYLO']['UNIMPL'] |
-                                             alpha_metrics['PHYLO']['IMPL'] |
-                                             alpha_metrics['PHYLO']['UNIMPL'])]
     },
     outputs=[
         ('rarefied_table', Collection[FeatureTable[Frequency]]),
