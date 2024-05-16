@@ -79,3 +79,37 @@ class TestCoreMetrics(TestPluginBase):
         for table in output[0].values():
             table = Artifact.view(table, pd.DataFrame)
             self.assertEqual(table.shape, (3, 3))
+
+    def test_custom_pipeline(self):
+        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
+            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
+
+        phylogeny = Artifact.import_data(
+            'Phylogeny[Rooted]',
+            phylogeny
+        )
+        metadata = pd.DataFrame(['not', 'of', 'interest'],
+                                index=['S1', 'S2', 'S3'],
+                                columns=['blank'])
+        metadata.index.name = 'sample-id'
+        metadata = Metadata(metadata)
+        t = Table(data=np.array([[1000, 1920, 3451], [2536, 1552, 1521],
+                                 [1634, 1634, 6721]]),
+                  sample_ids=['S1', 'S2', 'S3'],
+                  observation_ids=['O1', 'O2', 'O3'])
+        t = Artifact.import_data('FeatureTable[Frequency]', t)
+        output = self.core_metrics(table=t,
+                                   sampling_depth=500,
+                                   metadata=metadata,
+                                   n_jobs=1,
+                                   n=10,
+                                   phylogeny=phylogeny,
+                                   with_replacement=True,
+                                   alpha_metrics=["pielou_e", "faith_pd"],
+                                   beta_metrics=["jaccard", "unweighted_unifrac"]
+                                   )
+        self.assertEqual(len(output[0]), 10)
+
+        for table in output[0].values():
+            table = Artifact.view(table, pd.DataFrame)
+            self.assertEqual(table.shape, (3, 3))
