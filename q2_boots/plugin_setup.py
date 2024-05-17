@@ -280,7 +280,7 @@ plugin.methods.register_function(
 )
 
 plugin.pipelines.register_function(
-    function=q2_boots.core_metrics,
+    function=q2_boots.diversity_metrics,
     inputs={
         'table': FeatureTable[Frequency | RelativeFrequency |
                               PresenceAbsence],
@@ -322,6 +322,6 @@ plugin.pipelines.register_function(
     output_descriptions={
 
     },
-    name='Core Metrics',
+    name='Diversity Metrics',
     description='Bootstrapped Core Metrics'
 )

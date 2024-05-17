@@ -10,15 +10,15 @@ from q2_diversity._alpha import METRICS as ALPHA_METRICS
 from q2_diversity._beta import METRICS as BETA_METRICS
 
 
-def core_metrics(ctx, table, sampling_depth, metadata,
-                 n_jobs=1, phylogeny=None, n=100, alpha_method='median',
-                 beta_method='non-metric-median', with_replacement=True,
-                 random_seed=None, alpha_metrics=["observed_features",
-                                                  "shannon",
-                                                  "pielou_e",
-                                                  "faith_pd"],
-                 beta_metrics=["jaccard", "braycurtis",
-                               "weighted_unifrac", "unweighted_unifrac"]):
+def diversity_metrics(ctx, table, sampling_depth, metadata,
+                      n_jobs=1, phylogeny=None, n=100, alpha_method='median',
+                      beta_method='non-metric-median', with_replacement=True,
+                      random_seed=None, alpha_metrics=["observed_features",
+                                                       "shannon",
+                                                       "pielou_e",
+                                                       "faith_pd"],
+                      beta_metrics=["jaccard", "braycurtis",
+                                    "weighted_unifrac", "unweighted_unifrac"]):
 
     bootstrap = ctx.get_action('boots', 'resample')
     pcoa = ctx.get_action('diversity', 'pcoa')

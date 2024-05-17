@@ -12,7 +12,7 @@ from .alpha import (alpha,
                     alpha_average)
 from ._version import get_versions
 from .beta import (beta, get_medoid, beta_collection, per_cell_average, beta_average)
-from .core_metrics import (core_metrics)
+from .core_metrics import diversity_metrics
 from . import _version
 
 __all__ = ['_bootstrap_iteration', 'resample',
@@ -20,7 +20,7 @@ __all__ = ['_bootstrap_iteration', 'resample',
            'alpha_collection',
            'beta',
            'core_metrics_alpha_bootstrap',
-           'core_metrics',
+           'diversity_metrics',
            'get_medoid',
            'per_cell_average',
            'beta_collection',
