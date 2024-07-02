@@ -53,10 +53,13 @@ Citations = Citations.load('citations.bib', package='q2_boots')
 plugin = Plugin(
     name='boots',
     version=q2_boots.__version__,
-    website='https://github.com/qiime2/q2-boots',
+    website='https://github.com/caporaso-lab/q2-boots',
     package='q2_boots',
-    short_description='placeholder',
-    description='placeholder'
+    short_description=('Bootstrapped and rarefaction-based diversity '
+                       'analyses.'),
+    description=('A plugin providing bootstrapped and rarefaction-based '
+                 'diversity analyses, designed to mirror the interface of '
+                 'q2-diversity.')
 )
 
 plugin.pipelines.register_function(

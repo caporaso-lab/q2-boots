@@ -10,6 +10,9 @@ from setuptools import find_packages, setup
 
 import versioneer
 
+description = ('A QIIME 2 plugin supporting bootstrapped and rarefaction-based '
+               'diversity analyses.')
+
 setup(
     name="q2-boots",
     version=versioneer.get_version(),
@@ -17,9 +20,9 @@ setup(
     license="BSD-3-Clause",
     packages=find_packages(),
     author="Isaiah Raspet",
-    author_email="gregcaperaso@gmail.com",
-    description="This is a plugin for bootstraping sample data",
-    url="https://github.com/qiime2/q2-boots",
+    author_email="ijr44@nau.edu",
+    description=description,
+    url="https://github.com/caporaso-lab/q2-boots",
     entry_points={
         "qiime2.plugins": ["q2-boots=q2_boots.plugin_setup:plugin"]
     },
