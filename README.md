@@ -29,19 +29,9 @@ conda env create -n q2-boots-2024.10 -f https://raw.githubusercontent.com/qiime2
 conda activate q2-boots-2024.10
 ```
 
-## Testing and using `q2-boots`
+## Using `q2-boots`
 
-After completing the install steps above, confirm that everything is working as expected by running:
-
-```shell
-make test
-```
-
-You should get a report that tests were run, and you should see that all tests passed and none failed.
-It's usually ok if some warnings are reported.
-
-If all of the tests pass, you're ready to use the plugin.
-Start by making QIIME 2's command line interface aware of `q2-boots` by running:
+After completing the install steps above, make QIIME 2's command line interface aware of `q2-boots` by running:
 
 ```shell
 qiime dev refresh-cache
