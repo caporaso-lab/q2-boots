@@ -16,38 +16,17 @@ conda update conda
 conda install wget
 ```
 
-### QIIME 2024.2 release version of q2-boots
+### QIIME 2024.10 development version of q2-boots
 
-The most recent release version of q2-boots is the most stable, and is recommended for use in work that you're intending to publish.
-It may not contain all of the most recent feature additions, so if you're at an early experimental phase of your analysis you may prefer to install the development version of q2-boots (see those instructions below).
-
-```shell
-wget https://raw.githubusercontent.com/qiime2/q2-boots/main/environments/q2-boots-qiime2-amplicon-2024.2.yml
-```
-
-```shell
-conda env create -n q2-boots-2024.2 --file ./q2-boots-qiime2-amplicon-2024.2.yml
-```
-
-```shell
-conda activate q2-boots-2024.2
-```
-
-### QIIME 2024.5 development version of q2-boots
-
-Installing the most recent development version of q2-boots allows you to access the most recent functionality, including some that depends on features being introduced in QIIME 2 2024.5.
+Installing the most recent development version of q2-boots allows you to access the most recent functionality, including some that depends on features being introduced in QIIME 2 2024.10.
 It is hard to unambiguously reference development versions of software in publications however, so you'll likely want to re-run your boots analyses with a release version prior to publication.
 
 ```shell
-wget https://raw.githubusercontent.com/qiime2/q2-boots/main/environments/q2-boots-qiime2-amplicon-2024.5.yml
+conda env create -n q2-boots-2024.10 -f https://raw.githubusercontent.com/qiime2/q2-boots/main/environments/q2-boots-qiime2-amplicon-2024.10.yml
 ```
 
 ```shell
-conda env create -n q2-boots-2024.5 --file ./q2-boots-qiime2-amplicon-2024.5.yml
-```
-
-```shell
-conda activate q2-boots-2024.5
+conda activate q2-boots-2024.10
 ```
 
 ## Testing and using `q2-boots`
