@@ -17,11 +17,6 @@ def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
     table = table.subsample(sampling_depth, axis='sample', by_id=False,
                             with_replacement=True)
 
-    if table.is_empty():
-        return ValueError('The output table contains no samples or features.'
-                          'Verify your table is valid and that you provided a '
-                          'shallow enough samplign depth')
-
     return table
 
 
