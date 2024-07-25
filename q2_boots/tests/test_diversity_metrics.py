@@ -16,13 +16,13 @@ import skbio
 from io import StringIO
 
 
-class TestCoreMetrics(TestPluginBase):
+class TestDiversityMetrics(TestPluginBase):
 
     package = 'q2_boots'
 
     def setUp(self):
         super().setUp()
-        self.core_metrics = self.plugin.pipelines['core_metrics']
+        self.diversity_metrics = self.plugin.pipelines['diversity_metrics']
 
     def test_basic(self):
         t = Table(data=np.array([[1000, 1920, 3451], [4536, 1552, 6521],
@@ -35,7 +35,7 @@ class TestCoreMetrics(TestPluginBase):
                                 columns=['blank'])
         metadata.index.name = 'sample-id'
         metadata = Metadata(metadata)
-        output = self.core_metrics(table=t,
+        output = self.diversity_metrics(table=t,
                                    sampling_depth=500,
                                    metadata=metadata,
                                    n_jobs=1,
@@ -66,7 +66,7 @@ class TestCoreMetrics(TestPluginBase):
                   sample_ids=['S1', 'S2', 'S3'],
                   observation_ids=['O1', 'O2', 'O3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
-        output = self.core_metrics(table=t,
+        output = self.diversity_metrics(table=t,
                                    sampling_depth=500,
                                    metadata=metadata,
                                    n_jobs=1,
@@ -98,7 +98,7 @@ class TestCoreMetrics(TestPluginBase):
                   sample_ids=['S1', 'S2', 'S3'],
                   observation_ids=['O1', 'O2', 'O3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
-        output = self.core_metrics(table=t,
+        output = self.diversity_metrics(table=t,
                                    sampling_depth=500,
                                    metadata=metadata,
                                    n_jobs=1,
