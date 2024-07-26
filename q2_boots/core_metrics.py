@@ -38,7 +38,8 @@ def core_metrics(ctx, table, sampling_depth, metadata, replacement,
         alphas[m.__name__] = res
     if phylogeny is not None:
         for m in (faith_pd, ):
-            alpha = alpha_representative(m, tables, alpha_method, phylogeny=phylogeny)
+            alpha = alpha_representative(m, tables, alpha_method,
+                                         phylogeny=phylogeny)
             res, = alpha_average(data=alpha, average_method=alpha_method)
             alphas[m.__name__] = res
 
@@ -49,8 +50,8 @@ def core_metrics(ctx, table, sampling_depth, metadata, replacement,
         dms[m.__name__] = res
     if phylogeny is not None:
         for m in (unweighted_unifrac, weighted_unifrac):
-            beta_results = beta_representative(m, tables, beta_method, phylogeny,
-                                               n_threads=n_jobs)
+            beta_results = beta_representative(m, tables, beta_method,
+                                               phylogeny, n_threads=n_jobs)
             beta_results, = beta_average(data=beta_results,
                                          representative=beta_method)
             dms[m.__name__] = beta_results

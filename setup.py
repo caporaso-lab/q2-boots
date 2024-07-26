@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2023, Caperaso Lab
+# Copyright (c) 2024, Caporaso Lab (https://cap-lab.bio).
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -10,8 +10,8 @@ from setuptools import find_packages, setup
 
 import versioneer
 
-description = ('A QIIME 2 plugin supporting bootstrapped and rarefaction-based '
-               'diversity analyses.')
+description = ('A QIIME 2 plugin supporting bootstrapped and '
+               'rarefaction-based diversity analyses.')
 
 setup(
     name="q2-boots",
@@ -20,7 +20,7 @@ setup(
     license="BSD-3-Clause",
     packages=find_packages(),
     author="Isaiah Raspet",
-    author_email="ijr44@nau.edu",
+    author_email="caplab@nau.edu",
     description=description,
     url="https://github.com/caporaso-lab/q2-boots",
     entry_points={
