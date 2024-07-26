@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2023, QIIME 2 development team.
+# Copyright (c) 2024, Caporaso Lab (https://cap-lab.bio).
 #
 # Distributed under the terms of the Modified BSD License.
 #
