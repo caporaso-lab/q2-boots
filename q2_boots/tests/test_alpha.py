@@ -117,7 +117,7 @@ class TestAlphaBootstrap(TestPluginBase):
                   ['S1', 'S2', 'S3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
 
-        with self.assertRaisesRegex(ValueError, 'You must use a non-phylogenic metric'):
+        with self.assertRaisesRegex(ValueError, 'non-phylogenic metric'):
             self.alpha(table=t, sampling_depth=1,
                        metric='faith_pd',
                        n=10, replacement=True)

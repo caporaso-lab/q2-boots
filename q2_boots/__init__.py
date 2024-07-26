@@ -11,7 +11,8 @@ from .alpha import (alpha,
                     alpha_collection,
                     alpha_average)
 from ._version import get_versions
-from .beta import (beta, get_medoid, beta_collection, per_cell_average, beta_average)
+from .beta import (beta, get_medoid, beta_collection, per_cell_average,
+                   beta_average)
 from .core_metrics import (core_metrics)
 from . import _version
 

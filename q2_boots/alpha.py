@@ -16,8 +16,8 @@ def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
 
     if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
                               metric in METRICS['PHYLO']['UNIMPL']):
-        raise ValueError('You must use a non-phylogenic metric when no phylogeny is' +
-                         'included.')
+        raise ValueError('You must use a non-phylogenic metric when no '
+                         'phylogeny is included.')
 
     if phylogeny is not None and (metric in METRICS['NONPHYLO']['IMPL'] or
                                   metric in METRICS['NONPHYLO']['UNIMPL']):
@@ -32,8 +32,9 @@ def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
     diversified_tables = []
 
     for table in tables.values():
-        if phylogeny is not None and metric not in METRICS['PHYLO']['IMPL'] and\
-                metric not in METRICS['PHYLO']['UNIMPL']:
+        if phylogeny is not None and \
+           metric not in METRICS['PHYLO']['IMPL'] and \
+           metric not in METRICS['PHYLO']['UNIMPL']:
             tmp, = _alpha_phylogenetic(table=table, metric=metric,
                                        phylogeny=phylogeny)
             diversified_tables.append(tmp)
@@ -51,7 +52,8 @@ def alpha(ctx, table, sampling_depth, metric, phylogeny=None,
     _alpha_average = ctx.get_action('boots', 'alpha_average')
     sample_data, = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
                                     phylogeny=phylogeny, metric=metric, n=n,
-                                    random_seed=random_seed, replacement=replacement)
+                                    random_seed=random_seed,
+                                    replacement=replacement)
 
     result, = _alpha_average(sample_data, average_method)
 

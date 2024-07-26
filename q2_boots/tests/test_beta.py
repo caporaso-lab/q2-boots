@@ -206,7 +206,7 @@ class TestBeta(TestPluginBase):
                   ['S1', 'S2', 'S3'])
         t = Artifact.import_data('FeatureTable[Frequency]', t)
 
-        with self.assertRaisesRegex(ValueError, 'You must use a non-phylogenic metric'):
+        with self.assertRaisesRegex(ValueError, 'non-phylogenic metric'):
             self.beta(table=t,
                       metric='weighted_unifrac',
                       sampling_depth=1,

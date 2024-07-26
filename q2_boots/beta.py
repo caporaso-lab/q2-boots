@@ -22,8 +22,8 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
 
     if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
                               metric in METRICS['PHYLO']['UNIMPL']):
-        raise ValueError('You must use a non-phylogenic metric when no phylogeny is' +
-                         'included.')
+        raise ValueError('You must use a non-phylogenic metric when no '
+                         'phylogeny is included.')
 
     if phylogeny is not None and (metric in METRICS['NONPHYLO']['IMPL'] or
                                   metric in METRICS['NONPHYLO']['UNIMPL']):
@@ -85,8 +85,11 @@ def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
         skbio.DistanceMatrix:
 
     if representative == "medoid":
-        warnings.warn("Medoid is currently only capable of handling small n values and\
-                      datasets due to its implementation.")
+        warnings.warn('The current implementation of medoid may require '
+                      'prohibitively large amounts of memory for large data '
+                      'sets or large values of `n`. You can track progress '
+                      'on this issue here: '
+                      'https://github.com/caporaso-lab/q2-boots/issues/10')
 
     tmp = [x.to_data_frame() for x in data.values()]
     index = tmp[0].index

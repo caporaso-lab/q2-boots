@@ -111,20 +111,25 @@ threads_description = (
 )
 
 phylogeny_description = (
-    'Phylogenetic tree containing tip identifiers that correspond to the feature '
-    'identifiers in the table. This tree can contain tip ids that are not present '
-    'in the table, but all feature ids must be present in this tree.'
+    'Tree containing tip identifiers that correspond to the feature '
+    'identifiers in the provided feature table. The tree can contain tips that '
+    'are not present in the table, but all feature ids in the table must be '
+    'present in this tree.'
 )
 
 random_seed_description = (
-    'A seed to allow multiple runs to have the same outcome if the same seed is '
-    'included'
+    'A seed to allow multiple runs to have the same outcome if the same seed '
+    'is included.'
 )
+
+_alpha_inputs = {
+    'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
+    'phylogeny': Phylogeny[Rooted]
+}
 
 plugin.pipelines.register_function(
     function=q2_boots.alpha_collection,
-    inputs={'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
-            'phylogeny': Phylogeny[Rooted]},
+    inputs=_alpha_inputs,
     parameters={'sampling_depth': Int % Range(1, None),
                 'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
                                         alpha_metrics['NONPHYLO']['UNIMPL'] |
@@ -137,26 +142,21 @@ plugin.pipelines.register_function(
     input_descriptions={'table': 'The table to be diversified',
                         'phylogeny': phylogeny_description},
     parameter_descriptions={
-        'sampling_depth': ('The total frequency that each sample should be '
-                           'subsampled to. Samples where the sum of frequencies '
-                           'is less than the sampling depth will be not be '
-                           'included in the resulting table.'),
+        'sampling_depth': _sampling_depth_description,
         'metric': 'The alpha diversity metric to be computed.',
         'n': 'The number of times to subsample the input table.',
         'random_seed': random_seed_description
     },
     output_descriptions={
-        'sample_data': 'A collection of Alpha Divsersity Sample Data',
+        'sample_data': 'A collection of Alpha Diversity Sample Data',
     },
     name='Alpha Bootstrap',
-    description='Subsamples the input table multiple times and provides those in a ' +
-                'collection of feature tables of the same type as an input.'
+    description='Compute bootstrapped or rarefaction-based alpha diversity.'
 )
 
 plugin.pipelines.register_function(
     function=q2_boots.alpha,
-    inputs={'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
-            'phylogeny': Phylogeny[Rooted]},
+    inputs=_alpha_inputs,
     parameters={'sampling_depth': Int % Range(1, None),
                 'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
                                         alpha_metrics['NONPHYLO']['UNIMPL'] |
@@ -170,10 +170,7 @@ plugin.pipelines.register_function(
     input_descriptions={'table': 'The table to be diversified',
                         'phylogeny': phylogeny_description},
     parameter_descriptions={
-        'sampling_depth': ('The total frequency that each sample should be '
-                           'subsampled to. Samples where the sum of frequencies '
-                           'is less than the sampling depth will be not be '
-                           'included in the resulting table.'),
+        'sampling_depth': _sampling_depth_description,
         'metric': 'The alpha diversity metric to be computed.',
         'n': 'The number of times to subsample the input table.',
         'random_seed': random_seed_description
@@ -185,11 +182,11 @@ plugin.pipelines.register_function(
     description=''
 )
 
+_beta_inputs = _alpha_inputs
+
 plugin.pipelines.register_function(
     function=q2_boots.beta,
-    inputs={'table':
-            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
-            'phylogeny': Phylogeny[Rooted]},
+    inputs=_beta_inputs,
     parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
                                         beta_metrics['NONPHYLO']['UNIMPL'] |
                                         beta_metrics['PHYLO']['IMPL'] |
@@ -238,7 +235,7 @@ plugin.methods.register_function(
         'data': 'Collection of SampleData[AlphaDiversity]'
     },
     output_descriptions={
-        'alpha_diversity': 'Representative SampleData[AlphaDiversity from input]'
+        'alpha_diversity': ''
     },
     parameter_descriptions={
         'average_method': 'Method by which the representative will be obtained'
@@ -249,9 +246,7 @@ plugin.methods.register_function(
 
 plugin.pipelines.register_function(
     function=q2_boots.beta_collection,
-    inputs={'table':
-            FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
-            'phylogeny': Phylogeny[Rooted]},
+    inputs=_beta_inputs,
     parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
                                         beta_metrics['NONPHYLO']['UNIMPL'] |
                                         beta_metrics['PHYLO']['IMPL'] |
@@ -302,21 +297,17 @@ plugin.methods.register_function(
         'distance_matrix': 'representative distance matrix',
     },
     parameter_descriptions={
-        'representative': 'The method by which the data is represented.' +
-                          'Medoid currently only works with small datasets and, ' +
-                          'more importantly, small n values.'
+        'representative': ''
     },
     name='Beta Average',
     description='Average of a Collection of Distance Matrices'
 )
 
+_core_metrics_inputs = _beta_inputs
+
 plugin.pipelines.register_function(
     function=q2_boots.core_metrics,
-    inputs={
-        'table': FeatureTable[Frequency | RelativeFrequency |
-                              PresenceAbsence],
-        'phylogeny': Phylogeny[Rooted],
-    },
+    inputs=_core_metrics_inputs,
     parameters={
         'metadata': Metadata,
         'n_jobs': Int % Range(1, None),
