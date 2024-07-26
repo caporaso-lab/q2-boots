@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2023, QIIME 2 development team.
+# Copyright (c) 2024, Caporaso Lab (https://cap-lab.bio).
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -23,6 +23,78 @@ from q2_types.distance_matrix import DistanceMatrix
 from q2_types.ordination import PCoAResults
 
 import q2_boots
+from q2_boots._examples import (_resample_bootstrap_example,
+                                _resample_rarefaction_example)
+
+Citations = Citations.load('citations.bib', package='q2_boots')
+
+plugin = Plugin(
+    name='boots',
+    version=q2_boots.__version__,
+    website='https://github.com/caporaso-lab/q2-boots',
+    package='q2_boots',
+    short_description=('Bootstrapped and rarefaction-based diversity '
+                       'analyses.'),
+    description=('A plugin providing bootstrapped and rarefaction-based '
+                 'diversity analyses, designed to mirror the interface of '
+                 'q2-diversity.')
+)
+
+
+_feature_table_description = 'The feature table to be resampled.'
+_sampling_depth_description = (
+    'The total number of observations that each sample in `table` should be '
+    'resampled to. Samples where the total number of observations in `table` '
+    'is less than `sampling_depth` will be not be included in the output '
+    'tables.')
+_n_description = 'The number of resampled tables that should be generated.'
+_replacement_description = (
+    'Resample `table` with replacement (i.e., bootstrap) or resample without '
+    'replacement (i.e., rarefaction).')
+_resampled_tables_description = 'The `n` resampled tables.'
+
+# Resampling
+
+_resample_inputs = {
+    'table': FeatureTable[Frequency]
+}
+_resample_parameters = {
+    'sampling_depth': Int % Range(1, None),
+    'n': Int % Range(1, None),
+    'replacement': Bool
+}
+_resample_outputs = {
+    'resampled_tables': Collection[FeatureTable[Frequency]]
+}
+_resample_input_descriptions = {
+    'table': _feature_table_description
+}
+_resample_parameter_descriptions = {
+    'sampling_depth': _sampling_depth_description,
+    'n': _n_description,
+    'replacement': _replacement_description
+}
+_resample_output_descriptions = {
+    'resampled_tables': _resampled_tables_description
+}
+
+plugin.pipelines.register_function(
+    function=q2_boots.resample,
+    inputs=_resample_inputs,
+    parameters=_resample_parameters,
+    outputs=_resample_outputs,
+    input_descriptions=_resample_input_descriptions,
+    parameter_descriptions=_resample_parameter_descriptions,
+    output_descriptions=_resample_output_descriptions,
+    name='Resample feature table.',
+    description=('Resample `table` to `sampling_depth` total observations with '
+                 'replacement (i.e., bootstrapping) or without replacement '
+                 '(i.e., rarefaction) `n` times, to generate `n` resampled '
+                 'feature tables.'),
+    examples={'Generate 10 bootstrapped tables.': _resample_bootstrap_example,
+              'Generate 10 rarefied tables.': _resample_rarefaction_example}
+)
+
 
 n_jobs_description = (
     'The number of concurrent jobs to use in performing this calculation. '
@@ -47,47 +119,6 @@ phylogeny_description = (
 random_seed_description = (
     'A seed to allow multiple runs to have the same outcome if the same seed is '
     'included'
-)
-
-Citations = Citations.load('citations.bib', package='q2_boots')
-plugin = Plugin(
-    name='boots',
-    version=q2_boots.__version__,
-    website='https://github.com/caporaso-lab/q2-boots',
-    package='q2_boots',
-    short_description=('Bootstrapped and rarefaction-based diversity '
-                       'analyses.'),
-    description=('A plugin providing bootstrapped and rarefaction-based '
-                 'diversity analyses, designed to mirror the interface of '
-                 'q2-diversity.')
-)
-
-plugin.pipelines.register_function(
-    function=q2_boots.resample,
-    inputs={'table': FeatureTable[Frequency]},
-    parameters={'sampling_depth': Int % Range(1, None),
-                'n': Int % Range(1, None),
-                'replacement': Bool,
-                'random_seed': Int},
-    outputs={'subsampled_tables': Collection[FeatureTable[Frequency]]},
-    input_descriptions={'table': 'The table to be subsampled'},
-    parameter_descriptions={
-        'sampling_depth': ('The total frequency that each sample should be '
-                           'subsampled to. Samples where the sum of frequencies '
-                           'is less than the sampling depth will be not be '
-                           'included in the resulting table.'),
-        'n': 'The number of times to subsample the input table.',
-        'replacement': '',
-        'random_seed': random_seed_description
-    },
-    output_descriptions={
-        'subsampled_tables': 'A collection of n tables normalized to the specified '
-                             'sampling depth'
-    },
-    name='Bootstrap',
-    description='This pipeline is a repeated subsampling of a specified input table. '
-                'N tables are produced normalized so the sum of each sample\'s '
-                'frequency is equal to the sampling depth.'
 )
 
 plugin.pipelines.register_function(

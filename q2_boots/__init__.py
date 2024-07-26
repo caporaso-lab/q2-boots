@@ -1,12 +1,12 @@
 # ----------------------------------------------------------------------------
-# Copyright (c) 2023, QIIME 2 development team.
+# Copyright (c) 2024, Caporaso Lab (https://cap-lab.bio).
 #
 # Distributed under the terms of the Modified BSD License.
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from ._normalize import _bootstrap_iteration, resample
+from ._resample import resample
 from .alpha import (alpha,
                     alpha_collection,
                     alpha_average)
@@ -15,7 +15,7 @@ from .beta import (beta, get_medoid, beta_collection, per_cell_average, beta_ave
 from .core_metrics import (core_metrics)
 from . import _version
 
-__all__ = ['_bootstrap_iteration', 'resample',
+__all__ = ['resample',
            'alpha',
            'alpha_collection',
            'beta',
