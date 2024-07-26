@@ -12,7 +12,7 @@ from q2_diversity_lib.alpha import METRICS
 
 
 def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
-                     random_seed=None, with_replacement=False):
+                     random_seed=None, replacement=False):
 
     if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
                               metric in METRICS['PHYLO']['UNIMPL']):
@@ -28,7 +28,7 @@ def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
     _alpha_phylogenetic = ctx.get_action("diversity", "alpha_phylogenetic")
 
     tables, = _bootstrap(table=table, sampling_depth=sampling_depth, n=n,
-                         random_seed=random_seed)
+                         random_seed=random_seed, replacement=replacement)
     diversified_tables = []
 
     for table in tables.values():
@@ -45,13 +45,13 @@ def alpha_collection(ctx, table, sampling_depth, metric, phylogeny=None, n=1000,
 
 
 def alpha(ctx, table, sampling_depth, metric, phylogeny=None,
-          n=1, average_method='median', random_seed=None, with_replacement=False):
+          n=1, average_method='median', random_seed=None, replacement=False):
 
     _alpha_bootstrap = ctx.get_action("boots", "alpha_collection")
     _alpha_average = ctx.get_action('boots', 'alpha_average')
     sample_data, = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
                                     phylogeny=phylogeny, metric=metric, n=n,
-                                    random_seed=random_seed)
+                                    random_seed=random_seed, replacement=replacement)
 
     result, = _alpha_average(sample_data, average_method)
 

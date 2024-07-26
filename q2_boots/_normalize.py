@@ -20,8 +20,7 @@ def _bootstrap_iteration(table: biom.Table, sampling_depth: int) -> biom.Table:
     return table
 
 
-def resample(ctx, table, sampling_depth, n=1, with_replacement=True,
-             random_seed=None):
+def resample(ctx, table, sampling_depth, n, replacement, random_seed=None):
 
     if random_seed is not None:
         random.seed(random_seed)
@@ -32,6 +31,6 @@ def resample(ctx, table, sampling_depth, n=1, with_replacement=True,
 
     for i in range(n):
         tables.append(_iteration(table=table, sampling_depth=sampling_depth,
-                                 with_replacement=with_replacement)[0])
+                                 with_replacement=replacement)[0])
 
     return tables

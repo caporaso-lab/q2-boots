@@ -67,7 +67,7 @@ plugin.pipelines.register_function(
     inputs={'table': FeatureTable[Frequency]},
     parameters={'sampling_depth': Int % Range(1, None),
                 'n': Int % Range(1, None),
-                'with_replacement': Bool,
+                'replacement': Bool,
                 'random_seed': Int},
     outputs={'subsampled_tables': Collection[FeatureTable[Frequency]]},
     input_descriptions={'table': 'The table to be subsampled'},
@@ -77,7 +77,7 @@ plugin.pipelines.register_function(
                            'is less than the sampling depth will be not be '
                            'included in the resulting table.'),
         'n': 'The number of times to subsample the input table.',
-        'with_replacement': '',
+        'replacement': '',
         'random_seed': random_seed_description
     },
     output_descriptions={
@@ -100,7 +100,7 @@ plugin.pipelines.register_function(
                                         alpha_metrics['PHYLO']['IMPL'] |
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
-                'with_replacement': Bool,
+                'replacement': Bool,
                 'random_seed': Int},
     outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
     input_descriptions={'table': 'The table to be diversified',
@@ -133,7 +133,7 @@ plugin.pipelines.register_function(
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
                 'average_method': Str % Choices(['median' , 'mean' , 'mode']),
-                'with_replacement': Bool,
+                'replacement': Bool,
                 'random_seed': Int},
     outputs={'sample_data': SampleData[AlphaDiversity]},
     input_descriptions={'table': 'The table to be diversified',
@@ -169,7 +169,7 @@ plugin.pipelines.register_function(
                 'sampling_depth': Int % Range(1, None),
                 'random_seed': Int,
                 'bypass_tips': Bool,
-                'with_replacement': Bool,
+                'replacement': Bool,
                 'variance_adjusted': Bool,
                 'representative': Str % Choices(['non-metric-mean',
                                                  'non-metric-median',
@@ -226,13 +226,13 @@ plugin.pipelines.register_function(
                                         beta_metrics['PHYLO']['IMPL'] |
                                         beta_metrics['PHYLO']['UNIMPL']),
                 'pseudocount': Int % Range(1, None),
-                'with_replacement': Bool,
+                'replacement': Bool,
                 'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'n': Int % Range(1, None),
                 'sampling_depth': Int % Range(1, None),
                 'random_seed': Int,
                 'bypass_tips': Bool,
-                'with_replacement': Bool,
+                'replacement': Bool,
                 'variance_adjusted': Bool,
                 'alpha': Float % Range(0, 1, inclusive_end=True)},
     outputs={
@@ -295,7 +295,7 @@ plugin.pipelines.register_function(
         'beta_method': Str % Choices('non-metric-mean',
                                      'non-metric-median',
                                      'medoid'),
-        'with_replacement': Bool,
+        'replacement': Bool,
         'random_seed': Int
     },
     outputs=[

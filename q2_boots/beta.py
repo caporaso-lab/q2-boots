@@ -17,7 +17,7 @@ from q2_diversity_lib.beta import METRICS
 
 def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
                     bypass_tips=False, n_threads=1, n=1000, random_seed=None,
-                    with_replacement=True, pseudocount=1, alpha=None,
+                    replacement=True, pseudocount=1, alpha=None,
                     variance_adjusted=False):
 
     if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
@@ -34,7 +34,7 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
     _beta_phylogenetic = ctx.get_action('diversity', 'beta_phylogenetic')
 
     tables, = _resample(table=table, sampling_depth=sampling_depth, n=n,
-                        random_seed=random_seed, with_replacement=with_replacement)
+                        random_seed=random_seed, replacement=replacement)
 
     dms = []
 
@@ -59,7 +59,7 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
 
 def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
          bypass_tips=False, n_threads=1, n=1000, random_seed=None,
-         with_replacement=True, pseudocount=1, alpha=None, variance_adjusted=False):
+         replacement=True, pseudocount=1, alpha=None, variance_adjusted=False):
 
     _beta = ctx.get_action('boots', 'beta_collection')
     _beta_avg = ctx.get_action('boots', 'beta_average')
@@ -70,7 +70,7 @@ def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
                       sampling_depth=sampling_depth,
                       n=n,
                       pseudocount=pseudocount,
-                      with_replacement=with_replacement,
+                      replacement=replacement,
                       n_threads=n_threads,
                       variance_adjusted=variance_adjusted,
                       alpha=alpha,

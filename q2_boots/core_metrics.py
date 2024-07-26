@@ -6,10 +6,9 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-def core_metrics(ctx, table, sampling_depth, metadata,
+def core_metrics(ctx, table, sampling_depth, metadata, replacement,
                  n_jobs=1, phylogeny=None, n=100, alpha_method='median',
-                 beta_method='non-metric-median', with_replacement=True,
-                 random_seed=None):
+                 beta_method='non-metric-median', random_seed=None):
 
     bootstrap = ctx.get_action('boots', 'resample')
     observed_features = ctx.get_action("diversity_lib", "observed_features")
@@ -27,7 +26,7 @@ def core_metrics(ctx, table, sampling_depth, metadata,
 
     bootstrapped_tables, = bootstrap(table=table,
                                      sampling_depth=sampling_depth,
-                                     n=n, with_replacement=with_replacement,
+                                     n=n, replacement=replacement,
                                      random_seed=random_seed)
 
     tables = bootstrapped_tables.values()
