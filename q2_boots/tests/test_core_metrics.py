@@ -39,7 +39,7 @@ class TestCoreMetrics(TestPluginBase):
                                    sampling_depth=500,
                                    metadata=metadata,
                                    n_jobs=1,
-                                   with_replacement=True,
+                                   replacement=True,
                                    n=10
                                    )
         self.assertEqual(len(output[0]), 10)
@@ -72,7 +72,7 @@ class TestCoreMetrics(TestPluginBase):
                                    n_jobs=1,
                                    n=10,
                                    phylogeny=phylogeny,
-                                   with_replacement=True,
+                                   replacement=True,
                                    )
         self.assertEqual(len(output[0]), 10)
 

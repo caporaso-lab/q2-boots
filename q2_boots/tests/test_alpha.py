@@ -55,7 +55,7 @@ class TestAlphaBootstrap(TestPluginBase):
         output = self.alpha(table=t, sampling_depth=1,
                             metric='shannon',
                             random_seed=12,
-                            n=10)
+                            n=10, replacement=True)
 
         self.assertEqual(len(output), 1)
 
@@ -72,13 +72,13 @@ class TestAlphaBootstrap(TestPluginBase):
         output, = self.alpha(table=t, sampling_depth=1,
                              metric='shannon',
                              random_seed=12,
-                             n=10)
+                             n=10, replacement=True)
         output: pd.Series = Artifact.view(output, pd.Series)
 
         collection, = self.alpha_collection(
             table=t, sampling_depth=1,
             random_seed=12,
-            metric='shannon', n=10
+            metric='shannon', n=10, replacement=True
         )
 
         self.assertTrue(self.range_check(output, collection.values()))
@@ -99,14 +99,14 @@ class TestAlphaBootstrap(TestPluginBase):
                              metric='pielou_e',
                              phylogeny=phylogeny,
                              random_seed=12,
-                             n=10)
+                             n=10, replacement=True)
         output: pd.Series = Artifact.view(output, pd.Series)
 
         collection, = self.alpha_collection(
             table=t, sampling_depth=1,
             phylogeny=phylogeny,
             random_seed=12,
-            metric='pielou_e', n=10
+            metric='pielou_e', n=10, replacement=True
         )
 
         self.assertTrue(self.range_check(output, collection.values()))
@@ -120,7 +120,7 @@ class TestAlphaBootstrap(TestPluginBase):
         with self.assertRaisesRegex(ValueError, 'You must use a non-phylogenic metric'):
             self.alpha(table=t, sampling_depth=1,
                        metric='faith_pd',
-                       n=10)
+                       n=10, replacement=True)
 
     def test_non_phylo_metric_with_phylo(self):
         with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
@@ -139,7 +139,7 @@ class TestAlphaBootstrap(TestPluginBase):
                    metric='shannon',
                    random_seed=12,
                    n=10,
-                   phylogeny=phylogeny)
+                   phylogeny=phylogeny, replacement=True)
         self.assertTrue(True)
 
 
@@ -163,7 +163,7 @@ class TestAlphaBootstrapRepresentative(TestPluginBase):
         t = Artifact.import_data('FeatureTable[Frequency]', t)
         output = self.alpha_collection(table=t, sampling_depth=1,
                                        metric='shannon',
-                                       n=10)
+                                       n=10, replacement=True)
 
         self.assertEqual(len(output[0]), 10)
         index = ['S1', 'S2', 'S3']
