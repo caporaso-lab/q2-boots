@@ -136,16 +136,14 @@ plugin.pipelines.register_function(
                                         alpha_metrics['PHYLO']['IMPL'] |
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
-                'replacement': Bool,
-                'random_seed': Int},
+                'replacement': Bool},
     outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
     input_descriptions={'table': 'The table to be diversified',
                         'phylogeny': phylogeny_description},
     parameter_descriptions={
         'sampling_depth': _sampling_depth_description,
         'metric': 'The alpha diversity metric to be computed.',
-        'n': 'The number of times to subsample the input table.',
-        'random_seed': random_seed_description
+        'n': 'The number of times to subsample the input table.'
     },
     output_descriptions={
         'sample_data': 'A collection of Alpha Diversity Sample Data',
@@ -164,16 +162,14 @@ plugin.pipelines.register_function(
                                         alpha_metrics['PHYLO']['UNIMPL']),
                 'n': Int % Range(1, None),
                 'average_method': Str % Choices(['median' , 'mean' , 'mode']),
-                'replacement': Bool,
-                'random_seed': Int},
+                'replacement': Bool},
     outputs={'sample_data': SampleData[AlphaDiversity]},
     input_descriptions={'table': 'The table to be diversified',
                         'phylogeny': phylogeny_description},
     parameter_descriptions={
         'sampling_depth': _sampling_depth_description,
         'metric': 'The alpha diversity metric to be computed.',
-        'n': 'The number of times to subsample the input table.',
-        'random_seed': random_seed_description
+        'n': 'The number of times to subsample the input table.'
     },
     output_descriptions={
         'sample_data': 'Vector containing per-sample alpha diversities.',
