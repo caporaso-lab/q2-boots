@@ -7,9 +7,9 @@
 # ----------------------------------------------------------------------------
 
 from ._resample import resample
-from .alpha import (alpha,
-                    alpha_collection,
-                    alpha_average)
+from ._alpha import (alpha,
+                     alpha_collection,
+                     alpha_average)
 from ._version import get_versions
 from .beta import (beta, get_medoid, beta_collection, per_cell_average,
                    beta_average)
