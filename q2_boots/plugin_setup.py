@@ -49,7 +49,7 @@ _sampling_depth_description = (
     'tables.')
 _n_description = 'The number of resampled tables that should be generated.'
 _replacement_description = (
-    'Resample `table` with replacement (i.e., bootstrap) or resample without '
+    'Resample `table` with replacement (i.e., bootstrap) or without '
     'replacement (i.e., rarefaction).')
 _resampled_tables_description = 'The `n` resampled tables.'
 
@@ -127,58 +127,109 @@ _alpha_inputs = {
     'phylogeny': Phylogeny[Rooted]
 }
 
+_alpha_input_descriptions = {
+    'table': 'The feature table to use in diversity computations.',
+    'phylogeny': ('The phylogenetic tree to use in phylogenetic diversity '
+                  'calculations. All feature ids in `table` must be present in '
+                  'this tree, but this tree can contain feature ids that are '
+                  'not present in `table`.')
+}
+
+_alpha_collection_parameters = {
+    'sampling_depth': Int % Range(1, None),
+    'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
+                            alpha_metrics['NONPHYLO']['UNIMPL'] |
+                            alpha_metrics['PHYLO']['IMPL'] |
+                            alpha_metrics['PHYLO']['UNIMPL']),
+    'n': Int % Range(1, None),
+    'replacement': Bool
+}
+
+_alpha_collection_parameter_descriptions = {
+    'sampling_depth': _sampling_depth_description,
+    'metric': 'The alpha diversity metric to be computed.',
+    'n': _n_description,
+    'replacement': _replacement_description
+}
+
+_alpha_average_parameters = {
+    'average_method': Str % Choices('mean', 'median')
+}
+
+_alpha_average_parameter_descriptions = {
+    'average_method': 'Method to use for averaging.'
+}
+
+plugin.methods.register_function(
+    function=q2_boots.alpha_average,
+    inputs={
+        'data': Collection[SampleData[AlphaDiversity]]
+    },
+    parameters=_alpha_average_parameters,
+    outputs={
+        'averaged_alpha_diversities': SampleData[AlphaDiversity]
+    },
+    input_descriptions={
+        'data': 'Alpha diversity vectors to be averaged.'
+    },
+    output_descriptions={
+        'averaged_alpha_diversities':
+        ('Per-sample alpha diversities representing the averages across the '
+         'input data.')
+    },
+    parameter_descriptions=_alpha_average_parameter_descriptions,
+    name='Average alpha diversity values.',
+    description=('Compute the per-sample average across a collection of alpha '
+                 'diversity vectors computed from the same samples.')
+)
+
 plugin.pipelines.register_function(
     function=q2_boots.alpha_collection,
     inputs=_alpha_inputs,
-    parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
-                                        alpha_metrics['NONPHYLO']['UNIMPL'] |
-                                        alpha_metrics['PHYLO']['IMPL'] |
-                                        alpha_metrics['PHYLO']['UNIMPL']),
-                'n': Int % Range(1, None),
-                'replacement': Bool},
-    outputs={'sample_data': Collection[SampleData[AlphaDiversity]]},
-    input_descriptions={'table': 'The table to be diversified',
-                        'phylogeny': phylogeny_description},
-    parameter_descriptions={
-        'sampling_depth': _sampling_depth_description,
-        'metric': 'The alpha diversity metric to be computed.',
-        'n': 'The number of times to subsample the input table.'
-    },
+    parameters=_alpha_collection_parameters,
+    outputs={'alpha_diversities': Collection[SampleData[AlphaDiversity]]},
+    input_descriptions=_alpha_input_descriptions,
+    parameter_descriptions=_alpha_collection_parameter_descriptions,
     output_descriptions={
-        'sample_data': 'A collection of Alpha Diversity Sample Data',
+        'alpha_diversities': ('`n` alpha diversity vectors, each containing '
+                              'per-sample alpha diversity scores for the same '
+                              'samples.'),
     },
-    name='Alpha Bootstrap',
-    description='Compute bootstrapped or rarefaction-based alpha diversity.'
+    name='Iterative alpha diversity.',
+    description=('Given a single feature table as input, this action resamples '
+                 'the feature table `n` times to a total frequency of '
+                 '`sampling depth` per sample, and then computes the specified '
+                 'alpha diversity metric on each resulting `table`. The '
+                 'resulting artifacts can be used, for example, to explore the '
+                 'variance of `n` iterations of resampling.')
 )
+
+_alpha_parameters = _alpha_collection_parameters | _alpha_average_parameters
+_alpha_parameter_descriptions = (_alpha_collection_parameter_descriptions |
+                                 _alpha_average_parameter_descriptions)
 
 plugin.pipelines.register_function(
     function=q2_boots.alpha,
     inputs=_alpha_inputs,
-    parameters={'sampling_depth': Int % Range(1, None),
-                'metric': Str % Choices(alpha_metrics['NONPHYLO']['IMPL'] |
-                                        alpha_metrics['NONPHYLO']['UNIMPL'] |
-                                        alpha_metrics['PHYLO']['IMPL'] |
-                                        alpha_metrics['PHYLO']['UNIMPL']),
-                'n': Int % Range(1, None),
-                'average_method': Str % Choices(['median' , 'mean' , 'mode']),
-                'replacement': Bool},
+    parameters=_alpha_parameters,
     outputs={'sample_data': SampleData[AlphaDiversity]},
-    input_descriptions={'table': 'The table to be diversified',
-                        'phylogeny': phylogeny_description},
-    parameter_descriptions={
-        'sampling_depth': _sampling_depth_description,
-        'metric': 'The alpha diversity metric to be computed.',
-        'n': 'The number of times to subsample the input table.'
-    },
+    input_descriptions=_alpha_input_descriptions,
+    parameter_descriptions=_alpha_parameter_descriptions,
     output_descriptions={
         'sample_data': 'Vector containing per-sample alpha diversities.',
     },
-    name='Alpha Bootstrap Representative',
-    description=''
+    name='Bootstrapped or rarefaction-based alpha diversity.',
+    description=('Given a single feature table as input, this action resamples '
+                 'the feature table `n` times to a total frequency of '
+                 '`sampling depth` per sample, and then computes the specified '
+                 'alpha diversity metric on each resulting `table`. The '
+                 'resulting artifacts are then averaged using the method '
+                 'specified by `average_method`, and the resulting averaged '
+                 'per-sample alpha diversities are returned.')
 )
 
 _beta_inputs = _alpha_inputs
+_beta_input_descriptions = _alpha_input_descriptions
 
 plugin.pipelines.register_function(
     function=q2_boots.beta,
@@ -200,10 +251,7 @@ plugin.pipelines.register_function(
                                                  'medoid']),
                 'alpha': Float % Range(0, 1, inclusive_end=True)},
     outputs=[('distance_matrix', DistanceMatrix)],
-    input_descriptions={
-        'table': ('The feature table containing the samples over which beta '
-                  'diversity should be computed.')
-    },
+    input_descriptions=_beta_input_descriptions,
     parameter_descriptions={
         'metric': 'The beta diversity metric to be computed.',
         'pseudocount': ('A pseudocount to handle zeros for compositional '
@@ -214,30 +262,6 @@ plugin.pipelines.register_function(
     name='Beta diversity',
     description=("Computes a user-specified beta diversity metric for all "
                  "pairs of samples in a feature table.")
-)
-
-plugin.methods.register_function(
-    function=q2_boots.alpha_average,
-    inputs={
-        'data': Collection[SampleData[AlphaDiversity]]
-    },
-    parameters={
-        'average_method': Str % Choices('mean', 'median'),
-    },
-    outputs={
-        'alpha_diversity': SampleData[AlphaDiversity]
-    },
-    input_descriptions={
-        'data': 'Collection of SampleData[AlphaDiversity]'
-    },
-    output_descriptions={
-        'alpha_diversity': ''
-    },
-    parameter_descriptions={
-        'average_method': 'Method by which the representative will be obtained'
-    },
-    name='Alpha Average',
-    description='Average Alpha Collection'
 )
 
 plugin.pipelines.register_function(
