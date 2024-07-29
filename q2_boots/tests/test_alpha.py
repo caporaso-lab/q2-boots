@@ -6,13 +6,9 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from io import StringIO
-
-import numpy as np
 import pandas as pd
 import pandas.testing as pdt
-import skbio
-from biom.table import Table
+from skbio import TreeNode
 
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
@@ -39,7 +35,7 @@ class AlphaAverageTests(TestPluginBase):
         vector3 = pd.Series([900., 3000.,], index=['S1', 'S2'], name='x')
         vector_collection = dict(enumerate([vector1, vector2, vector3]))
 
-        observed = alpha_average(vector_collection, average_method='median')
+        observed = alpha_average(vector_collection, average_method='mean')
         expected = pd.Series([904./3, 3500./3,],
                              index=['S1', 'S2'],
                              name='x')
@@ -51,7 +47,7 @@ class AlphaAverageTests(TestPluginBase):
         vector3 = pd.Series([900., 3000.,], index=['S1', 'S2'], name='x')
         vector_collection = dict(enumerate([vector1, vector2, vector3]))
 
-        with self.assertRaisesRegex(KeyError, "median or mean"):
+        with self.assertRaisesRegex(KeyError, "'w'.*'median' and 'mean'"):
             alpha_average(vector_collection, average_method='w')
 
 
@@ -60,207 +56,238 @@ class AlphaCollectionTests(TestPluginBase):
 
     def setUp(self):
         super().setUp()
-        self.alpha_pipeline = self.plugin.pipelines['alpha']
         self.alpha_collection_pipeline = \
             self.plugin.pipelines['alpha_collection']
 
-    def test_alpha_w_replacement(self):
-        table1 = pd.DataFrame(data=[[0, 2], [3, 2]],
+    def test_alpha_collection_w_replacement(self):
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
                               columns=['F1', 'F2'],
                               index=['S1', 'S2'])
         table1 = qiime2.Artifact.import_data(
             "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
         )
 
-        observed = self.alpha_pipeline(
-            table=table1, sampling_depth=1, metric='observed_features', n=10,
+        # at a sampling depth of 1, with table1 as input, there is one possible
+        # outcome. confirm that we observe it.
+        observed, = self.alpha_collection_pipeline(
+            table=table1, sampling_depth=1, metric='observed_features', n=42,
             replacement=True)
-        self.assertEqual(len(observed), 1)
-        observed_series = qiime2.Artifact.view(observed[0], view_type=pd.Series)
-        expected_series = pd.Series([1., 1.],
+        self.assertEqual(len(observed), 42)
+
+        expected_series = pd.Series([1, 1],
                                     index=['S1', 'S2'],
                                     name='observed_features')
-        pdt.assert_series_equal(observed_series, expected_series)
+        for alpha_vector in observed.values():
+            observed_series = qiime2.Artifact.view(alpha_vector,
+                                                   view_type=pd.Series)
+            pdt.assert_series_equal(observed_series, expected_series)
 
-        # at a sampling depth of 2, with table1 as input, there are only two
-        # possible outputs. each will occur with a probability of 0.5 on each
-        # iteration. confirm that in 100 iterations, both are observed at least
-        # once, and no other outputs are observed
-        possible_series1 = pd.Series([1., 1.],
+        # at a sampling depth of 2, with table1 as input and sampling with
+        # replacement, there are two possible outcomes. confirm that in 100
+        # iterations each is observed at least once and no other outputs are
+        # observed.
+        observed, = self.alpha_collection_pipeline(
+            table=table1, sampling_depth=2, metric='observed_features', n=100,
+            replacement=True)
+        self.assertEqual(len(observed), 100)
+
+        possible_series1 = pd.Series([1, 1],
                                      index=['S1', 'S2'],
                                      name='observed_features')
-        possible_series2 = pd.Series([1., 2.],
+        possible_series2 = pd.Series([2, 1],
                                      index=['S1', 'S2'],
                                      name='observed_features')
         count_possible_series1_observed = 0
         count_possible_series2_observed = 0
         other_series_observed = False
-        for _ in range(20):
-            observed = self.alpha_pipeline(
-                table=table1, sampling_depth=2, metric='observed_features',
-                n=2, replacement=True)
-
-            observed_series = qiime2.Artifact.view(
-                observed[0], view_type=pd.Series)
-
+        for alpha_vector in observed.values():
+            observed_series = qiime2.Artifact.view(alpha_vector,
+                                                   view_type=pd.Series)
             if observed_series.equals(possible_series1):
                 count_possible_series1_observed += 1
             elif observed_series.equals(possible_series2):
                 count_possible_series2_observed += 1
             else:
                 other_series_observed = True
-
         self.assertTrue(count_possible_series1_observed > 0)
         self.assertTrue(count_possible_series2_observed > 0)
         self.assertFalse(other_series_observed)
 
-        ## Hmm, the above passes, but I'm actually not sure why. If the default
-        ## averaging method is median, I would expect this S2 to sometimes have
-        ## a value of 1.5. Pick up here.
-        self.assertTrue(False)
-
-    def test_alpha_wo_replacement(self):
-        table1 = pd.DataFrame(data=[[0, 1], [1, 1], [3, 2]],
+    def test_alpha_collection_wo_replacement(self):
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
                               columns=['F1', 'F2'],
-                              index=['S1', 'S2', 'S3'])
+                              index=['S1', 'S2'])
         table1 = qiime2.Artifact.import_data(
             "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
         )
 
-        observed = self.alpha_pipeline(
-            table=table1, sampling_depth=1, metric='observed_features', n=10,
-            replacement=True)
+        # at a sampling depth of 2, with table1 as input and sampling without
+        # replacement, there is one possible outcome. confirm that we always
+        # observe it.
+        observed, = self.alpha_collection_pipeline(
+            table=table1, sampling_depth=2, metric='observed_features', n=88,
+            replacement=False)
+        self.assertEqual(len(observed), 88)
 
-        self.assertEqual(len(observed), 1)
-        observed_series = qiime2.Artifact.view(observed[0], view_type=pd.Series)
-        expected_series = pd.Series([1., 1., 1.],
-                                    index=['S1', 'S2', 'S3'],
+        expected_series = pd.Series([2, 1],
+                                    index=['S1', 'S2'],
                                     name='observed_features')
+        for alpha_vector in observed.values():
+            observed_series = qiime2.Artifact.view(alpha_vector,
+                                                   view_type=pd.Series)
+            pdt.assert_series_equal(observed_series, expected_series)
 
-        pdt.assert_series_equal(observed_series, expected_series)
-
-    def test_range_non_phylo(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
-                  ['O1', 'O2', 'O3'],
-                  ['S1', 'S2', 'S3'])
-        t = qiime2.Artifact.import_data('FeatureTable[Frequency]', t)
-        output, = self.alpha_pipeline(table=t, sampling_depth=1,
-                             metric='shannon',
-                             n=10, replacement=True)
-        output: pd.Series = qiime2.Artifact.view(output, pd.Series)
-
-        collection, = self.alpha_collection_pipeline(
-            table=t, sampling_depth=1,
-            metric='shannon', n=10, replacement=True
+    def test_alpha_collection_phylogenetic(self):
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
+                              columns=['F1', 'F2'],
+                              index=['S1', 'S2'])
+        table1 = qiime2.Artifact.import_data(
+            "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
         )
-
-        self.assertTrue(self._range_check(output, collection.values()))
-
-    def test_range_phylo(self):
-        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
-            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
-
+        phylogeny = TreeNode.read(["((F1:5.0,F2:3.0):0.5);"])
         phylogeny = qiime2.Artifact.import_data(
-            'Phylogeny[Rooted]',
-            phylogeny
+            "Phylogeny[Rooted]", phylogeny)
+
+        # at a sampling depth of 2, with table1 as input and sampling without
+        # replacement, there is one possible outcome. confirm that we always
+        # observe it.
+        observed, = self.alpha_collection_pipeline(
+            table=table1, sampling_depth=2, metric='faith_pd', n=88,
+            replacement=False, phylogeny=phylogeny)
+        self.assertEqual(len(observed), 88)
+
+        expected_series = pd.Series([8.5, 3.5],
+                                    index=['S1', 'S2'],
+                                    name='faith_pd')
+        for alpha_vector in observed.values():
+            observed_series = qiime2.Artifact.view(alpha_vector,
+                                                   view_type=pd.Series)
+            pdt.assert_series_equal(observed_series, expected_series)
+
+    def test_alpha_collection_invalid_input(self):
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
+                              columns=['F1', 'F2'],
+                              index=['S1', 'S2'])
+        table1 = qiime2.Artifact.import_data(
+            "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
         )
-        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
-                  ['O1', 'O2', 'O3'],
-                  ['S1', 'S2', 'S3'])
-        t = qiime2.Artifact.import_data('FeatureTable[Frequency]', t)
-        output, = self.alpha_pipeline(table=t, sampling_depth=1,
-                             metric='pielou_e',
-                             phylogeny=phylogeny,
-                             n=10, replacement=True)
-        output: pd.Series = qiime2.Artifact.view(output, pd.Series)
 
-        collection, = self.alpha_collection_pipeline(
-            table=t, sampling_depth=1,
-            phylogeny=phylogeny,
-            metric='pielou_e', n=10, replacement=True
-        )
+        with self.assertRaisesRegex(ValueError, "_pd requires a phy"):
+            self.alpha_collection_pipeline(table=table1, sampling_depth=2,
+                                           metric='faith_pd', n=88,
+                                           replacement=False)
 
-        self.assertTrue(self._range_check(output, collection.values()))
-
-    def test_phylo_metric_no_phylo(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
-                  ['01', '02', '03'],
-                  ['S1', 'S2', 'S3'])
-        t = qiime2.Artifact.import_data('FeatureTable[Frequency]', t)
-
-        with self.assertRaisesRegex(ValueError, 'non-phylogenic metric'):
-            self.alpha_pipeline(table=t, sampling_depth=1,
-                       metric='faith_pd',
-                       n=10, replacement=True)
-
-    def test_non_phylo_metric_with_phylo(self):
-        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
-            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
-
-        phylogeny = qiime2.Artifact.import_data(
-            'Phylogeny[Rooted]',
-            phylogeny
-        )
-        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
-                  ['01', '02', '03'],
-                  ['S1', 'S2', 'S3'])
-        t = qiime2.Artifact.import_data('FeatureTable[Frequency]', t)
-        # assert no error is thrown, and that phylogeny is just thrown out
-        self.alpha_pipeline(table=t, sampling_depth=1,
-                   metric='shannon',
-                   n=10,
-                   phylogeny=phylogeny, replacement=True)
-        self.assertTrue(True)
-
-    def _range_check(self, output, div_collection):
-
-        df = None
-        i = 0
-
-        all_series = [qiime2.Artifact.view(x, pd.Series) for x in div_collection]
-
-        for series in all_series:
-            if df is None:
-                df = pd.DataFrame(series)
-            else:
-                series.name = i
-                df.join(series)
-            i += 1
-
-        max_value = df.max(axis=1)
-        min_value = df.min(axis=1)
-
-        for i in range(len(output)):
-            if output[i] > max_value[i] or output[i] < min_value[i]:
-                return False
-        return True
+        with self.assertRaisesRegex(TypeError, "xyz"):
+            self.alpha_collection_pipeline(table=table1, sampling_depth=2,
+                                           metric='xyz', n=88,
+                                           replacement=False)
 
 
-class TestAlphaBootstrapRepresentative(TestPluginBase):
-
+class AlphaTests(TestPluginBase):
     package = 'q2_boots'
 
     def setUp(self):
         super().setUp()
-        self.alpha_collection = self.plugin.pipelines[
-            'alpha_collection']
+        self.alpha_pipeline = self.plugin.pipelines['alpha']
 
-    def check_samples(self, indices, data: pd.Series):
-        for index in indices:
-            self.assertTrue(index in data.index)
+    def test_alpha_w_replacement(self):
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
+                              columns=['F1', 'F2'],
+                              index=['S1', 'S2'])
+        table1 = qiime2.Artifact.import_data(
+            "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
+        )
 
-    def test_basic(self):
-        t = Table(np.array([[0, 1, 3], [1, 1, 2], [1, 3, 2]]),
-                  ['01', '02', '03'],
-                  ['S1', 'S2', 'S3'])
-        t = qiime2.Artifact.import_data('FeatureTable[Frequency]', t)
-        output = self.alpha_collection(table=t, sampling_depth=1,
-                                       metric='shannon',
-                                       n=10, replacement=True)
+        # at a sampling depth of 1, with table1 as input, there is one possible
+        # outcome. confirm that we observe it.
+        observed, = self.alpha_pipeline(
+            table=table1, sampling_depth=1, metric='observed_features', n=42,
+            replacement=True)
+        observed_series = qiime2.Artifact.view(observed,
+                                               view_type=pd.Series)
 
-        self.assertEqual(len(output[0]), 10)
-        index = ['S1', 'S2', 'S3']
+        expected_series = pd.Series([1., 1.],
+                                    index=['S1', 'S2'],
+                                    name='observed_features')
+        pdt.assert_series_equal(observed_series, expected_series)
 
-        for series in output[0].values():
-            series = qiime2.Artifact.view(series, pd.Series)
-            self.check_samples(index, series)
+        # at a sampling depth of 2, with table1 as input, sampling with
+        # replacement, and averaging with median, there are two possible
+        # outcomes for S1 and one possible outcome for S2. confirm that in 99
+        # iterations we observe one of the possible values for S1 and the
+        # expected value for S2
+        observed, = self.alpha_pipeline(
+            table=table1, sampling_depth=2, metric='observed_features',
+            n=99, replacement=True)
+        observed_series = qiime2.Artifact.view(observed,
+                                               view_type=pd.Series)
+        # note that because n is an odd number, the median for S1 will always
+        # be one of the actual values that were observed (as opposed to possibly
+        # being 1.5, if n was an even number.
+        self.assertTrue(observed_series['S1'] == 1.0 or
+                        observed_series['S1'] == 2.0)
+        self.assertEqual(observed_series['S2'], 1.0)
+
+        # at a sampling depth of 2, with table1 as input, sampling with
+        # replacement, and averaging with mean, there are many possible
+        # outcomes for S1 and one possible outcome for S2. confirm that in
+        # 100 iterations S1 is always in the expected range and S2 always has
+        # the expected value
+        observed, = self.alpha_pipeline(
+            table=table1, sampling_depth=2, metric='observed_features',
+            n=100, replacement=True, average_method='mean')
+        observed_series = qiime2.Artifact.view(observed,
+                                               view_type=pd.Series)
+        # note that b/c these are <, not <=, we know that identical tables
+        # were not always obtained from the resampling step
+        self.assertTrue(1.0 < observed_series['S1'] < 2.0)
+        self.assertEqual(observed_series['S2'], 1.0)
+
+    def test_alpha_wo_replacement(self):
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
+                              columns=['F1', 'F2'],
+                              index=['S1', 'S2'])
+        table1 = qiime2.Artifact.import_data(
+            "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
+        )
+
+        # at a sampling depth of 1, with table1 as input, there is one possible
+        # outcome. confirm that we observe it.
+        observed, = self.alpha_pipeline(
+            table=table1, sampling_depth=1, metric='observed_features', n=42,
+            replacement=False)
+        observed_series = qiime2.Artifact.view(observed,
+                                               view_type=pd.Series)
+
+        expected_series = pd.Series([1., 1.],
+                                    index=['S1', 'S2'],
+                                    name='observed_features')
+        pdt.assert_series_equal(observed_series, expected_series)
+
+        # at a sampling depth of 2, with table1 as input, sampling without
+        # replacement, and averaging with median, there is one possible outcome.
+        # confirm that we observe it.
+        observed, = self.alpha_pipeline(
+            table=table1, sampling_depth=2, metric='observed_features',
+            n=100, replacement=False)
+        observed_series = qiime2.Artifact.view(observed,
+                                               view_type=pd.Series)
+
+        expected_series = pd.Series([2., 1.],
+                                    index=['S1', 'S2'],
+                                    name='observed_features')
+        pdt.assert_series_equal(observed_series, expected_series)
+
+        # at a sampling depth of 2, with table1 as input, sampling without
+        # replacement, and averaging with mean, there is one possible outcome.
+        # confirm that we observe it.
+        observed, = self.alpha_pipeline(
+            table=table1, sampling_depth=2, metric='observed_features',
+            n=100, replacement=False, average_method='mean')
+        observed_series = qiime2.Artifact.view(observed,
+                                               view_type=pd.Series)
+
+        expected_series = pd.Series([2., 1.],
+                                    index=['S1', 'S2'],
+                                    name='observed_features')
+        pdt.assert_series_equal(observed_series, expected_series)
