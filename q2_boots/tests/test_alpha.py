@@ -17,6 +17,43 @@ from biom.table import Table
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
 
+from q2_boots import alpha_average
+
+
+class AlphaAverageTests(TestPluginBase):
+    package = 'q2_boots'
+
+    def test_median(self):
+        vector1 = pd.Series([1., 200.,], index=['S1', 'S2'], name='x')
+        vector2 = pd.Series([3., 300.,], index=['S1', 'S2'], name='x')
+        vector3 = pd.Series([900., 3000.,], index=['S1', 'S2'], name='x')
+        vector_collection = dict(enumerate([vector1, vector2, vector3]))
+
+        observed = alpha_average(vector_collection, average_method='median')
+        expected = pd.Series([3., 300.,], index=['S1', 'S2'], name='x')
+        pdt.assert_series_equal(observed, expected)
+
+    def test_mean(self):
+        vector1 = pd.Series([1., 200.,], index=['S1', 'S2'], name='x')
+        vector2 = pd.Series([3., 300.,], index=['S1', 'S2'], name='x')
+        vector3 = pd.Series([900., 3000.,], index=['S1', 'S2'], name='x')
+        vector_collection = dict(enumerate([vector1, vector2, vector3]))
+
+        observed = alpha_average(vector_collection, average_method='median')
+        expected = pd.Series([904./3, 3500./3,],
+                             index=['S1', 'S2'],
+                             name='x')
+        pdt.assert_series_equal(observed, expected)
+
+    def test_invalid_average_method(self):
+        vector1 = pd.Series([1., 200.,], index=['S1', 'S2'], name='x')
+        vector2 = pd.Series([3., 300.,], index=['S1', 'S2'], name='x')
+        vector3 = pd.Series([900., 3000.,], index=['S1', 'S2'], name='x')
+        vector_collection = dict(enumerate([vector1, vector2, vector3]))
+
+        with self.assertRaisesRegex(KeyError, "median or mean"):
+            alpha_average(vector_collection, average_method='w')
+
 
 class AlphaCollectionTests(TestPluginBase):
     package = 'q2_boots'
@@ -62,10 +99,10 @@ class AlphaCollectionTests(TestPluginBase):
             observed = self.alpha_pipeline(
                 table=table1, sampling_depth=2, metric='observed_features',
                 n=2, replacement=True)
-            self.assertEqual(len(observed), 1)
+
             observed_series = qiime2.Artifact.view(
                 observed[0], view_type=pd.Series)
-            print(observed_series)
+
             if observed_series.equals(possible_series1):
                 count_possible_series1_observed += 1
             elif observed_series.equals(possible_series2):

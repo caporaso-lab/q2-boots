@@ -14,13 +14,14 @@ from q2_diversity_lib.alpha import METRICS
 def alpha(ctx, table, sampling_depth, metric, n, phylogeny=None,
           average_method='median', replacement=False):
 
-    _alpha_bootstrap = ctx.get_action("boots", "alpha_collection")
-    _alpha_average = ctx.get_action('boots', 'alpha_average')
-    sample_data, = _alpha_bootstrap(table=table, sampling_depth=sampling_depth,
-                                    phylogeny=phylogeny, metric=metric, n=n,
-                                    replacement=replacement)
+    alpha_collection_action = ctx.get_action("boots", "alpha_collection")
+    alpha_average_action = ctx.get_action('boots', 'alpha_average')
+    sample_data, = alpha_collection_action(
+        table=table, sampling_depth=sampling_depth, phylogeny=phylogeny,
+        metric=metric, n=n, replacement=replacement)
+    print(len(sample_data))
 
-    result, = _alpha_average(sample_data, average_method)
+    result, = alpha_average_action(sample_data, average_method)
 
     return result
 
@@ -37,15 +38,16 @@ def alpha_average(data: pd.Series, average_method: str) -> pd.Series:
             tbl = pd.DataFrame(a)
         else:
             a.name = i
-            tbl.join(a)
+            tbl = tbl.join(a)
         i += 1
 
     if average_method == "median":
         representative_sample_data = tbl.median(axis=1)
     elif average_method == "mean":
         representative_sample_data = tbl.mean(axis=1)
-    elif average_method == 'mode':
-        representative_sample_data = tbl.mode(axis=1)
+    else:
+        raise KeyError("Invalid average method: '{average_method}'. "
+                       "Valid choices are 'median' and 'mean'.")
     representative_sample_data.name = metric
     return representative_sample_data
 
