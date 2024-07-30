@@ -1,3 +1,4 @@
+# flake8: noqa
 # ----------------------------------------------------------------------------
 # Copyright (c) 2024, Caporaso Lab (https://cap-lab.bio).
 #
@@ -7,26 +8,20 @@
 # ----------------------------------------------------------------------------
 
 from ._resample import resample
-from ._alpha import (alpha,
-                     alpha_collection,
-                     alpha_average)
+from ._alpha import alpha, alpha_collection, alpha_average
 from ._version import get_versions
-from ._beta import (beta, get_medoid, beta_collection, per_cell_average,
-                    beta_average)
-from ._core_metrics import (core_metrics)
+from ._beta import beta, beta_collection, beta_average
+from ._core_metrics import core_metrics
 from . import _version
 
 __all__ = ['resample',
-           'alpha',
+           'alpha_average',
            'alpha_collection',
-           'beta',
-           'core_metrics_alpha_bootstrap',
-           'core_metrics',
-           'get_medoid',
-           'per_cell_average',
+           'alpha',
+           'beta_average'
            'beta_collection',
-           'beta_average',
-           'alpha_average']
+           'beta',
+           'core_metrics']
 
 __version__ = get_versions()['version']
 del get_versions
