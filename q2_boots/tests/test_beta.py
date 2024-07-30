@@ -11,7 +11,7 @@ from qiime2.plugin.testing import TestPluginBase
 import pandas as pd
 from biom.table import Table
 from qiime2 import Artifact
-from q2_boots.beta import per_cell_average, get_medoid
+from q2_boots._beta import per_cell_average, get_medoid
 import numpy as np
 from skbio import DistanceMatrix
 import skbio
