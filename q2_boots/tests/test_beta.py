@@ -7,259 +7,307 @@
 # ----------------------------------------------------------------------------
 
 from unittest import TestCase, main
-from qiime2.plugin.testing import TestPluginBase
+
 import pandas as pd
-from biom.table import Table
-from qiime2 import Artifact
-from q2_boots._beta import per_cell_average, get_medoid
-import numpy as np
-from skbio import DistanceMatrix
+import qiime2
+
 import skbio
-from io import StringIO
+
+from qiime2.plugin.testing import TestPluginBase
+
+from q2_boots import beta_average
+from q2_boots._beta import _per_cell_average, _medoid
 
 
-class TestAveraging(TestCase):
+class BetaAverageTests(TestCase):
 
-    def test_per_cell_median(self):
+    def setUp(self):
+        super().setUp()
+        self.a = skbio.DistanceMatrix([[0, 2, 99],
+                                       [2, 0, 1],
+                                       [99, 1, 0]], ids=('S1', 'S2', 'S3'))
+        self.b = skbio.DistanceMatrix([[0, 4, 1],
+                                       [4, 0, 2],
+                                       [1, 2, 0]], ids=('S1', 'S2', 'S3'))
+        self.c = skbio.DistanceMatrix([[0, 6, 2],
+                                       [6, 0, 3],
+                                       [2, 3, 0]], ids=('S1', 'S2', 'S3'))
+        self.dms = {'a': self.a, 'b': self.b, 'c': self.c}
 
-        a = pd.DataFrame([[1, 1, 1],
-                          [1, 1, 1],
-                          [1, 1, 1]])
-        b = pd.DataFrame([[2, 2, 2],
-                          [2, 2, 2],
-                          [2, 2, 2]])
-        c = pd.DataFrame([[3, 3, 3],
-                          [3, 3, 3],
-                          [3, 3, 3]])
+    def test_non_metric_median(self):
+        observed = beta_average(self.dms, "non-metric-median")
+        exp = skbio.DistanceMatrix([[0.0, 4.0, 2.0],
+                                    [4.0, 0.0, 2.0],
+                                    [2.0, 2.0, 0.0]], ids=('S1', 'S2', 'S3'))
 
-        result = per_cell_average([a, b, c], 'median')
-        exp = pd.DataFrame([[2.0, 2.0, 2.0],
-                            [2.0, 2.0, 2.0],
-                            [2.0, 2.0, 2.0]])
+        self.assertEqual(observed, exp)
 
-        pd.testing.assert_frame_equal(exp, result)
+        self.assertEqual(beta_average({'a': self.a}, "non-metric-median"),
+                         self.a)
+        self.assertEqual(beta_average({'a1': self.a,
+                                       'a2': self.a,
+                                       'a3': self.a,
+                                       'a4': self.a}, "non-metric-median"),
+                         self.a)
 
-    def test_per_cell_mean(self):
-        a = pd.DataFrame([[1, 0, 1],
-                          [1, 0, 1],
-                          [1, 0, 1]])
-        b = pd.DataFrame([[2, 2, 2],
-                          [2, 2, 2],
-                          [2, 2, 2]])
-        c = pd.DataFrame([[3, 1, 3],
-                          [3, 1, 3],
-                          [3, 1, 3]])
+    def test_non_metric_mean(self):
+        observed = beta_average(self.dms, "non-metric-mean")
+        exp = skbio.DistanceMatrix([[0.0, 4.0, 34.0],
+                                    [4.0, 0.0, 2.0],
+                                    [34.0, 2.0, 0.0]], ids=('S1', 'S2', 'S3'))
 
-        result = per_cell_average([a, b, c], 'mean')
-        exp = pd.DataFrame([[2.0, 1.0, 2.0],
-                            [2.0, 1.0, 2.0],
-                            [2.0, 1.0, 2.0]])
+        self.assertEqual(observed, exp)
 
-        pd.testing.assert_frame_equal(exp, result)
+        self.assertEqual(beta_average({'a': self.a}, "non-metric-mean"),
+                         self.a)
+        self.assertEqual(beta_average({'a1': self.a,
+                                       'a2': self.a,
+                                       'a3': self.a,
+                                       'a4': self.a}, "non-metric-mean"),
+                         self.a)
 
     def test_medoid(self):
-        a = pd.DataFrame([[0, 0, 1],
-                          [1, 0, 1],
-                          [1, 0, 0]])
-        b = pd.DataFrame([[0, 2, 2],
-                          [2, 0, 2],
-                          [2, 2, 0]])
-        c = pd.DataFrame([[0, 1, 3],
-                          [3, 0, 3],
-                          [3, 1, 0]])
+        observed = beta_average(self.dms, "medoid")
+        exp = skbio.DistanceMatrix([[0, 6, 2],
+                                    [6, 0, 3],
+                                    [2, 3, 0]], ids=('S1', 'S2', 'S3'))
 
-        result = get_medoid([a, b, c])
-        pd.testing.assert_frame_equal(result, b)
+        self.assertEqual(observed, exp)
+
+        self.assertEqual(beta_average({'a': self.a}, "medoid"),
+                         self.a)
+        self.assertEqual(beta_average({'a1': self.a,
+                                       'a2': self.a,
+                                       'a3': self.a,
+                                       'a4': self.a}, "medoid"),
+                         self.a)
+
+    def test_invalid(self):
+        with self.assertRaisesRegex(ValueError, "Unknown average method.*xyz"):
+            beta_average(self.dms, "xyz")
 
 
-class TestBeta(TestPluginBase):
+class BetaAverageHelperTests(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.a = skbio.DistanceMatrix([[0, 2, 99],
+                                       [2, 0, 1],
+                                       [99, 1, 0]], ids=('S1', 'S2', 'S3'))
+        self.b = skbio.DistanceMatrix([[0, 4, 1],
+                                       [4, 0, 2],
+                                       [1, 2, 0]], ids=('S1', 'S2', 'S3'))
+        self.c = skbio.DistanceMatrix([[0, 6, 2],
+                                       [6, 0, 3],
+                                       [2, 3, 0]], ids=('S1', 'S2', 'S3'))
+        self.dms = [self.a, self.b, self.c]
+
+    def test_per_cell_median(self):
+        observed = _per_cell_average(self.dms, 'median')
+        exp = skbio.DistanceMatrix([[0.0, 4.0, 2.0],
+                                    [4.0, 0.0, 2.0],
+                                    [2.0, 2.0, 0.0]], ids=('S1', 'S2', 'S3'))
+
+        self.assertEqual(observed, exp)
+
+    def test_per_cell_mean(self):
+        observed = _per_cell_average(self.dms, 'mean')
+        exp = skbio.DistanceMatrix([[0.0, 4.0, 34.0],
+                                    [4.0, 0.0, 2.0],
+                                    [34.0, 2.0, 0.0]], ids=('S1', 'S2', 'S3'))
+
+        self.assertEqual(observed, exp)
+
+    def test_medoid(self):
+        observed = _medoid(self.dms)
+        self.assertEqual(observed, self.c)
+
+
+class BetaCollectionTests(TestPluginBase):
 
     package = 'q2_boots'
 
     def setUp(self):
         super().setUp()
-        self.beta = self.plugin.pipelines['beta']
-        self.beta_collection = self.plugin.pipelines['beta_collection']
+        self.beta_collection_pipeline = self.plugin.pipelines['beta_collection']
 
-    def test_basic(self):
-        t = Table(np.array([[0, 1, 3], [1, 0, 2], [1, 3, 0]]),
-                  ['01', '02', '03'],
-                  ['S1', 'S2', 'S3'])
-        t = Artifact.import_data('FeatureTable[Frequency]', t)
-        output = self.beta(table=t,
-                           metric='jaccard',
-                           sampling_depth=1,
-                           n=10,
-                           representative='medoid'
-                           )
-
-        self.assertEqual(len(output), 1)
-
-        output: DistanceMatrix = Artifact.view(output[0], DistanceMatrix)
-
-        self.assertTrue('S1' in output.ids)
-        self.assertTrue('S2' in output.ids)
-        self.assertTrue('S3' in output.ids)
-
-        output = output.to_data_frame()
-
-        self.assertEqual(output.shape, (3, 3))
-
-    def test_range_non_phylo(self):
-        t = Table(np.array([[3000, 4000, 4151],
-                            [1611, 3016, 2313], [3761, 2861, 2091]]),
-                  ['01', '02', '03'],
-                  ['S1', 'S2', 'S3'])
-        t = Artifact.import_data('FeatureTable[Frequency]', t)
-        output = self.beta(table=t,
-                           metric='jaccard',
-                           sampling_depth=500,
-                           n=10,
-                           representative='medoid'
-                           )
-
-        self.assertEqual(len(output), 1)
-
-        output: DistanceMatrix = Artifact.view(output[0], DistanceMatrix)
-
-        self.assertTrue('S1' in output.ids)
-        self.assertTrue('S2' in output.ids)
-        self.assertTrue('S3' in output.ids)
-
-        output = output.to_data_frame()
-
-        collection = self.beta_collection(
-            table=t,
-            metric='jaccard',
-            sampling_depth=500,
-            n=10,
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
+                              columns=['F1', 'F2'],
+                              index=['S1', 'S2'])
+        self.table1 = qiime2.Artifact.import_data(
+            "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
         )
 
-        index = output.index
-        columns = output.columns
+    def test_beta_collection_invalid_input(self):
+        with self.assertRaisesRegex(ValueError, 'requires a phylogenetic tree'):
+            self.beta_collection_pipeline(
+                table=self.table1, metric='weighted_unifrac', sampling_depth=1,
+                n=10)
 
-        collection = collection[0].values()
-        mins, maxes = self.get_mins_and_maxes(collection)
+    def test_beta_collection_w_replacement(self):
+        # At a sampling depth of 2, with self.table1, and when sampling with
+        # replacement, there are three possible Jaccard distance matrices.
+        # Confirm that we see each of these at least once and no others.
+        observed, = self.beta_collection_pipeline(
+            table=self.table1, metric='jaccard', sampling_depth=2, n=100,
+            replacement=True)
+        self.assertEqual(len(observed), 100)
 
-        for col in columns:
-            for row in index:
-                self.assertTrue(
-                    output[row][col] >= mins[row][col] and
-                    output[row][col] <= maxes[row][col]
-                )
+        possible_dm1 = skbio.DistanceMatrix([[0, 0.5], [0.5, 0]],
+                                            ids=['S1', 'S2'])
+        possible_dm2 = skbio.DistanceMatrix([[0, 1.0], [1.0, 0]],
+                                            ids=['S1', 'S2'])
+        possible_dm3 = skbio.DistanceMatrix([[0, 0.0], [0.0, 0]],
+                                            ids=['S1', 'S2'])
+        count_possible_dm1_observed = 0
+        count_possible_dm2_observed = 0
+        count_possible_dm3_observed = 0
+        count_other_dm_observed = 0
 
-    def test_range_phylo(self):
-        t = Table(np.array([[3000, 4000, 4151],
-                            [1611, 3016, 2313], [3761, 2861, 2091]]),
-                  ['O1', 'O2', 'O3'],
-                  ['S1', 'S2', 'S3'])
-        t = Artifact.import_data('FeatureTable[Frequency]', t)
-        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
-            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
+        for o in observed.values():
+            o = qiime2.Artifact.view(o, skbio.DistanceMatrix)
+            if o == possible_dm1:
+                count_possible_dm1_observed += 1
+            elif o == possible_dm2:
+                count_possible_dm2_observed += 1
+            elif o == possible_dm3:
+                count_possible_dm3_observed += 1
+            else:
+                count_other_dm_observed += 1
+        self.assertTrue(count_possible_dm1_observed > 0)
+        self.assertTrue(count_possible_dm2_observed > 0)
+        self.assertTrue(count_possible_dm3_observed > 0)
+        self.assertEqual(count_other_dm_observed, 0)
 
-        phylogeny = Artifact.import_data(
-            'Phylogeny[Rooted]',
-            phylogeny
-        )
-        output = self.beta(table=t,
-                           metric='weighted_unifrac',
-                           sampling_depth=500,
-                           n=10,
-                           representative='medoid',
-                           phylogeny=phylogeny
-                           )
+    def test_beta_collection_wo_replacement(self):
+        # At a sampling depth of 2, with self.table1, and when sampling without
+        # replacement, there is only one possible Jaccard distance matrix.
+        # Confirm that we only ever see that distance matrix.
+        expected = skbio.DistanceMatrix([[0, 0.5], [0.5, 0]], ids=['S1', 'S2'])
 
-        self.assertEqual(len(output), 1)
+        observed, = self.beta_collection_pipeline(
+            table=self.table1, metric='jaccard', sampling_depth=2, n=10,
+            replacement=False)
+        self.assertEqual(len(observed), 10)
+        for o in observed.values():
+            o = qiime2.Artifact.view(o, skbio.DistanceMatrix)
+            self.assertEqual(o, expected)
 
-        output: DistanceMatrix = Artifact.view(output[0], DistanceMatrix)
+    def test_beta_collection_phylogenetic(self):
+        # At a sampling depth of 2, with self.table1, and when sampling without
+        # replacement, there is only one possible unweighted UniFrac distance
+        # matrix. Confirm that we only ever see that distance matrix.
+        phylogeny = skbio.TreeNode.read(["((F1:1.0,F2:1.0):2.0);"])
+        phylogeny = qiime2.Artifact.import_data(
+            "Phylogeny[Rooted]", phylogeny)
+        expected = skbio.DistanceMatrix([[0, 0.25], [0.25, 0]],
+                                        ids=['S1', 'S2'])
 
-        self.assertTrue('S1' in output.ids)
-        self.assertTrue('S2' in output.ids)
-        self.assertTrue('S3' in output.ids)
+        observed, = self.beta_collection_pipeline(
+            table=self.table1, metric='unweighted_unifrac', phylogeny=phylogeny,
+            sampling_depth=2, n=10, replacement=False)
+        self.assertEqual(len(observed), 10)
+        for o in observed.values():
+            o = qiime2.Artifact.view(o, skbio.DistanceMatrix)
+            self.assertEqual(o, expected)
 
-        output = output.to_data_frame()
 
-        collection = self.beta_collection(
-            table=t,
-            metric='weighted_unifrac',
-            sampling_depth=500,
-            n=10,
-            phylogeny=phylogeny,
-        )
+class BetaTests(TestPluginBase):
 
-        index = output.index
-        columns = output.columns
+    package = 'q2_boots'
 
-        collection = collection[0].values()
-        mins, maxes = self.get_mins_and_maxes(collection)
+    def setUp(self):
+        super().setUp()
+        self.beta_pipeline = self.plugin.pipelines['beta']
 
-        for col in columns:
-            for row in index:
-                self.assertTrue(
-                    output[row][col] >= mins[row][col] and
-                    output[row][col] <= maxes[row][col]
-                )
+        table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
+                              columns=['F1', 'F2'],
+                              index=['S1', 'S2'])
+        self.table1 = qiime2.Artifact.import_data(
+            "FeatureTable[Frequency]", table1, view_type=pd.DataFrame)
 
-    def test_phylo_metric_no_phylo(self):
-        t = Table(np.array([[0, 1, 3], [1, 0, 2], [1, 3, 0]]),
-                  ['01', '02', '03'],
-                  ['S1', 'S2', 'S3'])
-        t = Artifact.import_data('FeatureTable[Frequency]', t)
+    def test_beta_w_replacement(self):
+        # At a sampling depth of 2, with self.table1, and when sampling with
+        # replacement, there are three possible Jaccard distance matrices.
+        # Confirm the average is in range with all averaging methods.
+        observed, = self.beta_pipeline(table=self.table1,
+                                       metric='jaccard',
+                                       sampling_depth=2,
+                                       n=10,
+                                       average_method='medoid',
+                                       replacement=True)
+        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        # This can occasionally fail, but it should be very infrequent
+        self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0)
 
-        with self.assertRaisesRegex(ValueError, 'non-phylogenic metric'):
-            self.beta(table=t,
-                      metric='weighted_unifrac',
-                      sampling_depth=1,
-                      n=10,
-                      representative='medoid'
-                      )
+        observed, = self.beta_pipeline(table=self.table1,
+                                       metric='jaccard',
+                                       sampling_depth=2,
+                                       n=10,
+                                       average_method='non-metric-median',
+                                       replacement=True)
+        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        # This can occasionally fail, but it should be very infrequent
+        self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0)
 
-    def test_non_phylo_metric_phylo(self):
-        t = Table(np.array([[3000, 4000, 4151],
-                            [1611, 3016, 2313], [3761, 2861, 2091]]),
-                  ['O1', 'O2', 'O3'],
-                  ['S1', 'S2', 'S3'])
-        t = Artifact.import_data('FeatureTable[Frequency]', t)
-        with StringIO('(O1:0.3, O2:0.2, O3:0.1, O4:0.2)root;') as f:
-            phylogeny = skbio.read(f, format='newick', into=skbio.TreeNode)
+        observed, = self.beta_pipeline(table=self.table1,
+                                       metric='jaccard',
+                                       sampling_depth=2,
+                                       n=10,
+                                       average_method='non-metric-mean',
+                                       replacement=True)
+        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        # This can occasionally fail, but it should be very infrequent
+        # (probability should be around 0.25**10)
+        self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0)
 
-        phylogeny = Artifact.import_data(
-            'Phylogeny[Rooted]',
-            phylogeny
-        )
-        # just assert no value is raised
-        self.beta(table=t,
-                  metric='jaccard',
-                  sampling_depth=5,
-                  n=10,
-                  representative='medoid',
-                  phylogeny=phylogeny
-                  )
-        self.assertTrue(True)
+    def test_beta_wo_replacement(self):
+        # At a sampling depth of 2, with self.table1, and when sampling without
+        # replacement, there is only one possible Jaccard distance matrix.
+        # Confirm that we see it with all averaging methods.
+        expected = skbio.DistanceMatrix([[0, 0.5], [0.5, 0]], ids=['S1', 'S2'])
 
-    def get_mins_and_maxes(self, dms):
+        observed, = self.beta_pipeline(table=self.table1,
+                                       metric='jaccard',
+                                       sampling_depth=2,
+                                       n=10,
+                                       average_method='medoid',
+                                       replacement=False)
+        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        self.assertEqual(observed, expected)
 
-        dfs = []
-        for dm in dms:
-            dm = Artifact.view(dm, DistanceMatrix)
-            dfs.append(dm.to_data_frame())
-        x, y = dfs[0].shape
+        observed, = self.beta_pipeline(table=self.table1,
+                                       metric='jaccard',
+                                       sampling_depth=2,
+                                       n=10,
+                                       average_method='non-metric-median',
+                                       replacement=False)
+        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        self.assertEqual(observed, expected)
 
-        columns = dfs[0].columns
-        index = dfs[0].index
+        observed, = self.beta_pipeline(table=self.table1,
+                                       metric='jaccard',
+                                       sampling_depth=2,
+                                       n=10,
+                                       average_method='non-metric-mean',
+                                       replacement=False)
+        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        self.assertEqual(observed, expected)
 
-        mins = pd.DataFrame(index=index, columns=columns)
-        maxes = pd.DataFrame(index=index, columns=columns)
+    def test_invalid(self):
+        with self.assertRaisesRegex(ValueError, 'requires a phylogenetic tree'):
+            self.beta_pipeline(table=self.table1,
+                               metric='weighted_unifrac',
+                               sampling_depth=1,
+                               n=10,
+                               average_method='medoid')
 
-        for col in columns:
-            for row in index:
-                vals = []
-                for df in dfs:
-                    vals.append(df[row][col])
-                mins[row][col] = min(vals)
-                maxes[row][col] = max(vals)
-
-        return mins, maxes
+        with self.assertRaisesRegex(TypeError, 'xyz'):
+            self.beta_pipeline(table=self.table1,
+                               metric='jaccard',
+                               sampling_depth=1,
+                               n=10,
+                               average_method='xyz')
 
 
 if __name__ == "__main__":

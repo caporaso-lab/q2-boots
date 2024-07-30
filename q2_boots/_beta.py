@@ -6,129 +6,112 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from hdmedians import medoid
-import pandas as pd
-import numpy as np
-import math
-import skbio
+import functools
 import warnings
+
+import numpy as np
+import skbio
+from hdmedians import medoid
+
 from q2_diversity_lib.beta import METRICS
 
 
-def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
-                    bypass_tips=False, n_threads=1, n=1000, random_seed=None,
-                    replacement=True, pseudocount=1, alpha=None,
-                    variance_adjusted=False):
-
-    if phylogeny is None and (metric in METRICS['PHYLO']['IMPL'] or
-                              metric in METRICS['PHYLO']['UNIMPL']):
-        raise ValueError('You must use a non-phylogenic metric when no '
-                         'phylogeny is included.')
-
-    if phylogeny is not None and (metric in METRICS['NONPHYLO']['IMPL'] or
-                                  metric in METRICS['NONPHYLO']['UNIMPL']):
-        phylogeny = None
-
-    _resample = ctx.get_action('boots', 'resample')
-    _beta = ctx.get_action('diversity', 'beta')
-    _beta_phylogenetic = ctx.get_action('diversity', 'beta_phylogenetic')
-
-    tables, = _resample(table=table, sampling_depth=sampling_depth, n=n,
-                        random_seed=random_seed, replacement=replacement)
-
-    dms = []
-
-    if phylogeny is None:
-        for passthrough in tables.values():
-            dms.append(_beta(table=passthrough, metric=metric,
-                             pseudocount=pseudocount, n_jobs=n_threads)[0])
-    else:
-        for passthrough in tables.values():
-            dms.append(_beta_phylogenetic(
-                table=passthrough,
-                phylogeny=phylogeny,
-                metric=metric,
-                threads=n_threads,
-                variance_adjusted=variance_adjusted,
-                alpha=alpha,
-                bypass_tips=bypass_tips
-            )[0])
-
-    return dms
-
-
-def beta(ctx, table, metric, sampling_depth, representative, phylogeny=None,
-         bypass_tips=False, n_threads=1, n=1000, random_seed=None,
-         replacement=True, pseudocount=1, alpha=None, variance_adjusted=False):
-
-    _beta = ctx.get_action('boots', 'beta_collection')
-    _beta_avg = ctx.get_action('boots', 'beta_average')
-
-    matrices, = _beta(table=table,
-                      phylogeny=phylogeny,
-                      metric=metric,
-                      sampling_depth=sampling_depth,
-                      n=n,
-                      pseudocount=pseudocount,
-                      replacement=replacement,
-                      n_threads=n_threads,
-                      variance_adjusted=variance_adjusted,
-                      alpha=alpha,
-                      bypass_tips=bypass_tips,
-                      random_seed=random_seed)
-
-    avg, = _beta_avg(matrices, representative)
-    return avg
-
-
-def beta_average(data: skbio.DistanceMatrix, representative: str) ->\
-        skbio.DistanceMatrix:
-
-    if representative == "medoid":
+def beta_average(data: skbio.DistanceMatrix,
+                 average_method: str) -> skbio.DistanceMatrix:
+    # I need to be able to index into data.values(). Come up with a more
+    # efficient way to do this.
+    data = list(data.values())
+    if average_method == 'medoid':
         warnings.warn('The current implementation of medoid may require '
                       'prohibitively large amounts of memory for large data '
                       'sets or large values of `n`. You can track progress '
                       'on this issue here: '
                       'https://github.com/caporaso-lab/q2-boots/issues/10')
-
-    tmp = [x.to_data_frame() for x in data.values()]
-    index = tmp[0].index
-
-    if representative == 'medoid':
-        mtx = get_medoid(tmp)
-    elif representative == 'non-metric-mean':
-        mtx = per_cell_average(tmp, 'mean')
-    elif representative == 'non-metric-median':
-        mtx = per_cell_average(tmp, 'median')
-
-    return skbio.DistanceMatrix(mtx, ids=index)
+        return _medoid(data)
+    elif average_method == 'non-metric-mean':
+        return _per_cell_average(data, 'mean')
+    elif average_method == 'non-metric-median':
+        return _per_cell_average(data, 'median')
+    else:
+        raise ValueError(f"Unknown average method {average_method}. "
+                         "Available options are non-metric-median, non-metric-"
+                         "mean, and medoid.")
 
 
-def per_cell_average(a, representation):
-    mtx = []
+def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
+                    bypass_tips=False, n_threads=1, n=1000,
+                    replacement=True, pseudocount=1, alpha=None,
+                    variance_adjusted=False):
+    if (metric in METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']):
+        if phylogeny is None:
+            raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
+        beta_action = ctx.get_action("diversity", "beta_phylogenetic")
+        beta_action = functools.partial(beta_action,
+                                        phylogeny=phylogeny,
+                                        threads=n_threads,
+                                        variance_adjusted=variance_adjusted,
+                                        alpha=alpha,
+                                        bypass_tips=bypass_tips)
+    else:
+        if phylogeny is not None:
+            phylogeny = None
+        beta_action = ctx.get_action("diversity", "beta")
+        beta_action = functools.partial(beta_action,
+                                        pseudocount=pseudocount,
+                                        n_jobs=n_threads)
 
-    for col in a[0].columns:
-        c_row = []
-        for row in a[0].index:
-            cell = pd.Series([x[row][col] for x in a])
+    resample_action = ctx.get_action("boots", "resample")
 
-            if representation == 'median':
-                c_row.append(cell.median())
+    tables, = resample_action(
+        table=table, sampling_depth=sampling_depth, n=n,
+        replacement=replacement)
+    results = []
 
-            elif representation == 'mean':
-                c_row.append(cell.mean())
+    for table in tables.values():
+        results.append(beta_action(table=table, metric=metric)[0])
 
-        mtx.append(c_row.copy())
-
-    return pd.DataFrame(mtx)
+    return results
 
 
-def get_medoid(a):
+def beta(ctx, table, metric, sampling_depth, average_method, phylogeny=None,
+         bypass_tips=False, n_threads=1, n=1000, replacement=True,
+         pseudocount=1, alpha=None, variance_adjusted=False):
 
-    arrays = np.array([x.values.ravel() for x in a]).T
-    rep = medoid(arrays)
+    beta_collection_action = ctx.get_action('boots', 'beta_collection')
+    beta_average_action = ctx.get_action('boots', 'beta_average')
+    dms, = beta_collection_action(
+        table=table, phylogeny=phylogeny, metric=metric,
+        sampling_depth=sampling_depth, n=n, pseudocount=pseudocount,
+        replacement=replacement, n_threads=n_threads,
+        variance_adjusted=variance_adjusted, alpha=alpha,
+        bypass_tips=bypass_tips)
 
-    side = int(math.sqrt(len(rep)))
-    rep = np.reshape(np.array(rep, type(rep[0])), (side, side))
+    result, = beta_average_action(dms, average_method)
+    return result
 
-    return pd.DataFrame(rep)
+
+def _per_cell_average(a, average_method):
+    shape = a[0].shape
+    ids = a[0].ids
+    if average_method == 'median':
+        average_fn = np.median
+    elif average_method == 'mean':
+        average_fn = np.mean
+    else:
+        raise ValueError(f"Unknown average method {average_method}. "
+                         "Available options are median and mean.")
+    condensed_dms = np.asarray([dm.condensed_form() for dm in a])
+    average_condensed_dm = average_fn(condensed_dms, axis=0)
+
+    result = np.zeros(shape)
+    dm_indices = np.triu_indices(shape[0], 1)
+    result[(dm_indices[0], dm_indices[1])] = average_condensed_dm
+    result[(dm_indices[1], dm_indices[0])] = average_condensed_dm
+
+    return skbio.DistanceMatrix(result, ids=ids)
+
+
+def _medoid(a):
+    condensed_dms = np.asarray([dm.condensed_form() for dm in a])
+    medoid_dm_index = medoid(condensed_dms, axis=0, indexonly=True)
+    return a[medoid_dm_index]

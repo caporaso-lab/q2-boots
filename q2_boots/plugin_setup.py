@@ -242,11 +242,10 @@ plugin.pipelines.register_function(
                 'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'n': Int % Range(1, None),
                 'sampling_depth': Int % Range(1, None),
-                'random_seed': Int,
                 'bypass_tips': Bool,
                 'replacement': Bool,
                 'variance_adjusted': Bool,
-                'representative': Str % Choices(['non-metric-mean',
+                'average_method': Str % Choices(['non-metric-mean',
                                                  'non-metric-median',
                                                  'medoid']),
                 'alpha': Float % Range(0, 1, inclusive_end=True)},
@@ -256,7 +255,6 @@ plugin.pipelines.register_function(
         'metric': 'The beta diversity metric to be computed.',
         'pseudocount': ('A pseudocount to handle zeros for compositional '
                         'metrics.  This is ignored for other metrics.'),
-        'random_seed': random_seed_description
     },
     output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
     name='Beta diversity',
@@ -276,7 +274,6 @@ plugin.pipelines.register_function(
                 'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
                 'n': Int % Range(1, None),
                 'sampling_depth': Int % Range(1, None),
-                'random_seed': Int,
                 'bypass_tips': Bool,
                 'replacement': Bool,
                 'variance_adjusted': Bool,
@@ -303,7 +300,7 @@ plugin.methods.register_function(
         'data': Collection[DistanceMatrix],
     },
     parameters={
-        'representative': Str % Choices(['non-metric-mean',
+        'average_method': Str % Choices(['non-metric-mean',
                                          'non-metric-median',
                                          'medoid']),
     },
@@ -314,10 +311,10 @@ plugin.methods.register_function(
         'data': 'Collection of Distance Matrices to be averaged'
     },
     output_descriptions={
-        'distance_matrix': 'representative distance matrix',
+        'distance_matrix': 'average_method distance matrix',
     },
     parameter_descriptions={
-        'representative': ''
+        'average_method': ''
     },
     name='Beta Average',
     description='Average of a Collection of Distance Matrices'
