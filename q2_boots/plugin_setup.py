@@ -334,8 +334,7 @@ plugin.pipelines.register_function(
         'beta_method': Str % Choices('non-metric-mean',
                                      'non-metric-median',
                                      'medoid'),
-        'replacement': Bool,
-        'random_seed': Int
+        'replacement': Bool
     },
     outputs=[
         ('rarefied_table', Collection[FeatureTable[Frequency]]),

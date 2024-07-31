@@ -144,7 +144,7 @@ class AlphaCollectionTests(TestPluginBase):
         table1 = qiime2.Artifact.import_data(
             "FeatureTable[Frequency]", table1, view_type=pd.DataFrame
         )
-        phylogeny = TreeNode.read(["((F1:5.0,F2:3.0):0.5);"])
+        phylogeny = TreeNode.read(["((F1:1.0,F2:1.0):2.0);"])
         phylogeny = qiime2.Artifact.import_data(
             "Phylogeny[Rooted]", phylogeny)
 
@@ -156,7 +156,7 @@ class AlphaCollectionTests(TestPluginBase):
             replacement=False, phylogeny=phylogeny)
         self.assertEqual(len(observed), 88)
 
-        expected_series = pd.Series([8.5, 3.5],
+        expected_series = pd.Series([4, 3],
                                     index=['S1', 'S2'],
                                     name='faith_pd')
         for alpha_vector in observed.values():

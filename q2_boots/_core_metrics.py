@@ -8,7 +8,7 @@
 
 def core_metrics(ctx, table, sampling_depth, metadata, replacement,
                  n_jobs=1, phylogeny=None, n=100, alpha_method='median',
-                 beta_method='non-metric-median', random_seed=None):
+                 beta_method='non-metric-median'):
 
     bootstrap = ctx.get_action('boots', 'resample')
     observed_features = ctx.get_action("diversity_lib", "observed_features")
@@ -26,8 +26,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, replacement,
 
     bootstrapped_tables, = bootstrap(table=table,
                                      sampling_depth=sampling_depth,
-                                     n=n, replacement=replacement,
-                                     random_seed=random_seed)
+                                     n=n, replacement=replacement)
 
     tables = bootstrapped_tables.values()
 
@@ -46,14 +45,14 @@ def core_metrics(ctx, table, sampling_depth, metadata, replacement,
     dms = {}
     for m in (jaccard, braycurtis):
         beta_results = beta_representative(m, tables, beta_method)
-        res, = beta_average(data=beta_results, representative=beta_method)
+        res, = beta_average(data=beta_results, average_method=beta_method)
         dms[m.__name__] = res
     if phylogeny is not None:
         for m in (unweighted_unifrac, weighted_unifrac):
             beta_results = beta_representative(m, tables, beta_method,
                                                phylogeny, n_threads=n_jobs)
             beta_results, = beta_average(data=beta_results,
-                                         representative=beta_method)
+                                         average_method=beta_method)
             dms[m.__name__] = beta_results
 
     pcoas = {}
