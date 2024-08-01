@@ -6,89 +6,71 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import pandas as pd
+
+import qiime2
+
+from q2_boots._alpha import (_validate_alpha_metric, _get_alpha_metric_action,
+                             _alpha_collection_from_tables)
+from q2_boots._beta import (_validate_beta_metric, _get_beta_metric_action,
+                            _beta_collection_from_tables)
+
+
 def core_metrics(ctx, table, sampling_depth, metadata, replacement,
-                 n_jobs=1, phylogeny=None, n=100, alpha_method='median',
-                 beta_method='non-metric-median'):
+                 n_jobs=1, phylogeny=None, n=100, alpha_average_method='median',
+                 beta_average_method='non-metric-median'):
 
-    bootstrap = ctx.get_action('boots', 'resample')
-    observed_features = ctx.get_action("diversity_lib", "observed_features")
-    pielou_e = ctx.get_action('diversity_lib', 'pielou_evenness')
-    shannon = ctx.get_action('diversity_lib', 'shannon_entropy')
-    braycurtis = ctx.get_action('diversity_lib', 'bray_curtis')
-    jaccard = ctx.get_action('diversity_lib', 'jaccard')
-    pcoa = ctx.get_action('diversity', 'pcoa')
-    emperor_plot = ctx.get_action('emperor', 'plot')
-    alpha_average = ctx.get_action('boots', 'alpha_average')
-    beta_average = ctx.get_action('boots', 'beta_average')
-    faith_pd = ctx.get_action('diversity_lib', 'faith_pd')
-    unweighted_unifrac = ctx.get_action('diversity_lib', 'unweighted_unifrac')
-    weighted_unifrac = ctx.get_action('diversity_lib', 'weighted_unifrac')
+    resample_action = ctx.get_action('boots', 'resample')
+    alpha_average_action = ctx.get_action('boots', 'alpha_average')
+    beta_average_action = ctx.get_action('boots', 'beta_average')
+    pcoa_action = ctx.get_action('diversity', 'pcoa')
+    emperor_plot_action = ctx.get_action('emperor', 'plot')
 
-    bootstrapped_tables, = bootstrap(table=table,
-                                     sampling_depth=sampling_depth,
-                                     n=n, replacement=replacement)
-
-    tables = bootstrapped_tables.values()
-
-    alphas = {}
-    for m in (observed_features, shannon, pielou_e):
-        alpha = alpha_representative(m, tables, alpha_method)
-        res, = alpha_average(data=alpha, average_method=alpha_method)
-        alphas[m.__name__] = res
+    alpha_metrics = ['pielou_e', 'observed_features', 'shannon']
+    beta_metrics = ['braycurtis', 'jaccard']
     if phylogeny is not None:
-        for m in (faith_pd, ):
-            alpha = alpha_representative(m, tables, alpha_method,
-                                         phylogeny=phylogeny)
-            res, = alpha_average(data=alpha, average_method=alpha_method)
-            alphas[m.__name__] = res
+        alpha_metrics.append('faith_pd')
+        beta_metrics.extend(['unweighted_unifrac', 'weighted_unifrac'])
+    # this validation step is unnecessary right now, but sets the stage for
+    # user-provided metrics
+    for alpha_metric in alpha_metrics:
+        _validate_alpha_metric(alpha_metric, phylogeny)
+    for beta_metric in beta_metrics:
+        _validate_beta_metric(beta_metric, phylogeny)
 
-    dms = {}
-    for m in (jaccard, braycurtis):
-        beta_results = beta_representative(m, tables, beta_method)
-        res, = beta_average(data=beta_results, average_method=beta_method)
-        dms[m.__name__] = res
-    if phylogeny is not None:
-        for m in (unweighted_unifrac, weighted_unifrac):
-            beta_results = beta_representative(m, tables, beta_method,
-                                               phylogeny, n_threads=n_jobs)
-            beta_results, = beta_average(data=beta_results,
-                                         average_method=beta_method)
-            dms[m.__name__] = beta_results
+    resampled_tables, = resample_action(table=table,
+                                        sampling_depth=sampling_depth,
+                                        n=n,
+                                        replacement=replacement)
+
+    alpha_vectors = {}
+    for alpha_metric in alpha_metrics:
+        alpha_metric_action = _get_alpha_metric_action(
+            ctx, alpha_metric, phylogeny)
+        alpha_collection = _alpha_collection_from_tables(
+            resampled_tables, alpha_metric_action)
+        avg_alpha_vector, = alpha_average_action(
+            alpha_collection, alpha_average_method)
+        alpha_metric_name = qiime2.Artifact.view(avg_alpha_vector,
+                                                 view_type=pd.Series).name
+        alpha_vectors[alpha_metric_name] = avg_alpha_vector
+
+    beta_dms = {}
+    for beta_metric in beta_metrics:
+        beta_metric_action = _get_beta_metric_action(
+            ctx, beta_metric, phylogeny)
+        beta_collection = _beta_collection_from_tables(
+            resampled_tables, beta_metric_action)
+        avg_beta_dm, = beta_average_action(
+            beta_collection, beta_average_method)
+        beta_dms[beta_metric] = avg_beta_dm
 
     pcoas = {}
-    for key, dm in dms.items():
-        pcoa_results, = pcoa(distance_matrix=dm)
+    emperor_plots = {}
+    for key, dm in beta_dms.items():
+        pcoa_results, = pcoa_action(dm)
         pcoas[key] = pcoa_results
+        emperor_plots[key] = emperor_plot_action(pcoa=pcoa_results,
+                                                 metadata=metadata)[0]
 
-    visualizations = {}
-    for key, pcoa in pcoas.items():
-        visualizations[key] = (emperor_plot(pcoa=pcoa, metadata=metadata)[0])
-
-    return bootstrapped_tables, alphas, dms, pcoas, visualizations
-
-
-def beta_representative(func, tables, method,
-                        phylogeny=None, n_threads=1):
-    metric = []
-    if phylogeny is None:
-        for table in tables:
-            metric.append(func(table=table)[0])
-    else:
-        for table in tables:
-            metric.append(func(table=table, phylogeny=phylogeny,
-                               threads=n_threads)[0])
-
-    return metric
-
-
-def alpha_representative(func, tables, method, phylogeny=None):
-
-    alpha = []
-    if phylogeny is None:
-        for table in tables:
-            alpha.append(func(table=table)[0])
-    else:
-        for table in tables:
-            alpha.append(func(table=table, phylogeny=phylogeny)[0])
-
-    return alpha
+    return resampled_tables, alpha_vectors, beta_dms, pcoas, emperor_plots

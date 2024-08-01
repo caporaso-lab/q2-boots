@@ -42,33 +42,15 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
                     bypass_tips=False, n_threads=1, n=1000,
                     replacement=True, pseudocount=1, alpha=None,
                     variance_adjusted=False):
-    if (metric in METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']):
-        if phylogeny is None:
-            raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
-        beta_action = ctx.get_action("diversity", "beta_phylogenetic")
-        beta_action = functools.partial(beta_action,
-                                        phylogeny=phylogeny,
-                                        threads=n_threads,
-                                        variance_adjusted=variance_adjusted,
-                                        alpha=alpha,
-                                        bypass_tips=bypass_tips)
-    else:
-        if phylogeny is not None:
-            phylogeny = None
-        beta_action = ctx.get_action("diversity", "beta")
-        beta_action = functools.partial(beta_action,
-                                        pseudocount=pseudocount,
-                                        n_jobs=n_threads)
+    _validate_beta_metric(metric, phylogeny)
 
     resample_action = ctx.get_action("boots", "resample")
+    beta_metric_action = _get_beta_metric_action(ctx, metric, phylogeny)
 
     tables, = resample_action(
         table=table, sampling_depth=sampling_depth, n=n,
         replacement=replacement)
-    results = []
-
-    for table in tables.values():
-        results.append(beta_action(table=table, metric=metric)[0])
+    results = _beta_collection_from_tables(tables, beta_metric_action)
 
     return results
 
@@ -115,3 +97,32 @@ def _medoid(a):
     condensed_dms = np.asarray([dm.condensed_form() for dm in a])
     medoid_dm_index = medoid(condensed_dms, axis=0, indexonly=True)
     return a[medoid_dm_index]
+
+
+def _validate_beta_metric(metric, phylogeny):
+    if _is_phylogenetic_beta_metric(metric) and phylogeny is None:
+        raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
+
+
+def _get_beta_metric_action(ctx, metric, phylogeny):
+    if _is_phylogenetic_beta_metric(metric):
+        beta_metric_action = ctx.get_action("diversity", "beta_phylogenetic")
+        beta_metric_action = functools.partial(beta_metric_action,
+                                               phylogeny=phylogeny,
+                                               metric=metric)
+    else:
+        beta_metric_action = ctx.get_action("diversity", "beta")
+        beta_metric_action = functools.partial(beta_metric_action,
+                                               metric=metric)
+    return beta_metric_action
+
+
+def _is_phylogenetic_beta_metric(metric):
+    return metric in METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
+
+
+def _beta_collection_from_tables(tables, beta_metric_action):
+    results = []
+    for table in tables.values():
+        results.append(beta_metric_action(table=table)[0])
+    return results

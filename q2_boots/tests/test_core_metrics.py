@@ -53,7 +53,7 @@ class CoreMetricsTests(TestPluginBase):
             pdt.assert_frame_equal(observed_table, expected_table)
 
         # expected alpha vectors returned
-        self.assertEqual(output[1].keys(),
+        self.assertEqual(set(output[1].keys()),
                          set(['observed_features', 'pielou_evenness',
                               'shannon_entropy']))
         expected_obs_features = pd.Series([2.0, 1.0],
@@ -64,9 +64,9 @@ class CoreMetricsTests(TestPluginBase):
         pdt.assert_series_equal(observed_obs_features, expected_obs_features)
 
         # expected dms, pcoas, and plots returned
-        self.assertEqual(output[2].keys(), set(['jaccard', 'bray_curtis']))
-        self.assertEqual(output[3].keys(), set(['jaccard', 'bray_curtis']))
-        self.assertEqual(output[4].keys(), set(['jaccard', 'bray_curtis']))
+        self.assertEqual(set(output[2].keys()), set(['jaccard', 'braycurtis']))
+        self.assertEqual(set(output[3].keys()), set(['jaccard', 'braycurtis']))
+        self.assertEqual(set(output[4].keys()), set(['jaccard', 'braycurtis']))
         expected_jaccard = skbio.DistanceMatrix([[0, 0.5], [0.5, 0]],
                                                 ids=['S1', 'S2'])
         observed_jaccard = qiime2.Artifact.view(output[2]['jaccard'],
@@ -111,7 +111,7 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(count_other_table_observed, 0)
 
         # expected alpha vectors returned
-        self.assertEqual(output[1].keys(),
+        self.assertEqual(set(output[1].keys()),
                          set(['observed_features', 'pielou_evenness',
                               'shannon_entropy']))
         observed_obs_features = qiime2.Artifact.view(
@@ -121,9 +121,9 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(observed_obs_features['S2'], 1.0)
 
         # expected dms, pcoas, and plots returned
-        self.assertEqual(output[2].keys(), set(['jaccard', 'bray_curtis']))
-        self.assertEqual(output[3].keys(), set(['jaccard', 'bray_curtis']))
-        self.assertEqual(output[4].keys(), set(['jaccard', 'bray_curtis']))
+        self.assertEqual(set(output[2].keys()), set(['jaccard', 'braycurtis']))
+        self.assertEqual(set(output[3].keys()), set(['jaccard', 'braycurtis']))
+        self.assertEqual(set(output[4].keys()), set(['jaccard', 'braycurtis']))
         observed_jaccard = qiime2.Artifact.view(output[2]['jaccard'],
                                                 view_type=skbio.DistanceMatrix)
         self.assertTrue(0.0 < observed_jaccard[('S1', 'S2')] < 1.0)
@@ -146,7 +146,7 @@ class CoreMetricsTests(TestPluginBase):
             pdt.assert_frame_equal(observed_table, expected_table)
 
         # expected alpha vectors returned
-        self.assertEqual(output[1].keys(),
+        self.assertEqual(set(output[1].keys()),
                          set(['observed_features', 'pielou_evenness',
                               'shannon_entropy', 'faith_pd']))
         expected_obs_features = pd.Series([2.0, 1.0],
@@ -164,11 +164,11 @@ class CoreMetricsTests(TestPluginBase):
         pdt.assert_series_equal(observed_faith_pd, expected_faith_pd)
 
         # expected dms, pcoas, and plots returned
-        expected_bdiv_keys = set(['jaccard', 'bray_curtis',
+        expected_bdiv_keys = set(['jaccard', 'braycurtis',
                                   'unweighted_unifrac', 'weighted_unifrac'])
-        self.assertEqual(output[2].keys(), expected_bdiv_keys)
-        self.assertEqual(output[3].keys(), expected_bdiv_keys)
-        self.assertEqual(output[4].keys(), expected_bdiv_keys)
+        self.assertEqual(set(output[2].keys()), expected_bdiv_keys)
+        self.assertEqual(set(output[3].keys()), expected_bdiv_keys)
+        self.assertEqual(set(output[4].keys()), expected_bdiv_keys)
         expected_jaccard = skbio.DistanceMatrix([[0, 0.5], [0.5, 0]],
                                                 ids=['S1', 'S2'])
         observed_jaccard = qiime2.Artifact.view(output[2]['jaccard'],
