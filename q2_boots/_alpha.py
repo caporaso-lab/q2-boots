@@ -29,26 +29,16 @@ def alpha_average(data: pd.Series, average_method: str) -> pd.Series:
 
 def alpha_collection(ctx, table, sampling_depth, metric, n,
                      replacement, phylogeny=None):
-
-    if (metric in METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']):
-        if phylogeny is None:
-            raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
-        alpha_action = ctx.get_action("diversity", "alpha_phylogenetic")
-        alpha_action = functools.partial(alpha_action, phylogeny=phylogeny)
-    else:
-        if phylogeny is not None:
-            phylogeny = None
-        alpha_action = ctx.get_action("diversity", "alpha")
+    _validate_alpha_metric(metric, phylogeny)
 
     resample_action = ctx.get_action("boots", "resample")
+    alpha_metric_action = _get_alpha_metric_action(ctx, metric, phylogeny)
 
     tables, = resample_action(
         table=table, sampling_depth=sampling_depth, n=n,
         replacement=replacement)
-    results = []
 
-    for table in tables.values():
-        results.append(alpha_action(table=table, metric=metric)[0])
+    results = _alpha_collection_from_tables(tables, alpha_metric_action)
 
     return results
 
@@ -65,3 +55,32 @@ def alpha(ctx, table, sampling_depth, metric, n, replacement, phylogeny=None,
     result, = alpha_average_action(sample_data, average_method)
 
     return result
+
+
+def _validate_alpha_metric(metric, phylogeny):
+    if _is_phylogenetic_alpha_metric(metric) and phylogeny is None:
+        raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
+
+
+def _get_alpha_metric_action(ctx, metric, phylogeny):
+    if _is_phylogenetic_alpha_metric(metric):
+        alpha_metric_action = ctx.get_action("diversity", "alpha_phylogenetic")
+        alpha_metric_action = functools.partial(alpha_metric_action,
+                                                phylogeny=phylogeny,
+                                                metric=metric)
+    else:
+        alpha_metric_action = ctx.get_action("diversity", "alpha")
+        alpha_metric_action = functools.partial(alpha_metric_action,
+                                                metric=metric)
+    return alpha_metric_action
+
+
+def _is_phylogenetic_alpha_metric(metric):
+    return metric in (METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL'])
+
+
+def _alpha_collection_from_tables(tables, alpha_metric_action):
+    results = []
+    for table in tables.values():
+        results.append(alpha_metric_action(table=table)[0])
+    return results

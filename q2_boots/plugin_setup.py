@@ -330,10 +330,10 @@ plugin.pipelines.register_function(
         'n_jobs': Int % Range(1, None),
         'n': Int % Range(1, None),
         'sampling_depth': Int % Range(1, None),
-        'alpha_method': Str % Choices('mean', 'median'),
-        'beta_method': Str % Choices('non-metric-mean',
-                                     'non-metric-median',
-                                     'medoid'),
+        'alpha_average_method': Str % Choices('mean', 'median'),
+        'beta_average_method': Str % Choices('non-metric-mean',
+                                             'non-metric-median',
+                                             'medoid'),
         'replacement': Bool
     },
     outputs=[
