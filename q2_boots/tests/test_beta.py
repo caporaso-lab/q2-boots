@@ -142,7 +142,7 @@ class BetaCollectionTests(TestPluginBase):
         with self.assertRaisesRegex(ValueError, 'requires a phylogenetic tree'):
             self.beta_collection_pipeline(
                 table=self.table1, metric='weighted_unifrac', sampling_depth=1,
-                n=10)
+                n=10, replacement=False)
 
     def test_beta_collection_w_replacement(self):
         # At a sampling depth of 2, with self.table1, and when sampling with
@@ -300,14 +300,16 @@ class BetaTests(TestPluginBase):
                                metric='weighted_unifrac',
                                sampling_depth=1,
                                n=10,
-                               average_method='medoid')
+                               average_method='medoid',
+                               replacement=False)
 
         with self.assertRaisesRegex(TypeError, 'xyz'):
             self.beta_pipeline(table=self.table1,
                                metric='jaccard',
                                sampling_depth=1,
                                n=10,
-                               average_method='xyz')
+                               average_method='xyz',
+                               replacement=False)
 
 
 if __name__ == "__main__":

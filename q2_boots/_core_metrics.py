@@ -16,8 +16,8 @@ from q2_boots._beta import (_validate_beta_metric, _get_beta_metric_action,
                             _beta_collection_from_tables)
 
 
-def core_metrics(ctx, table, sampling_depth, metadata, replacement,
-                 n_jobs=1, phylogeny=None, n=100, alpha_average_method='median',
+def core_metrics(ctx, table, sampling_depth, metadata, n, replacement,
+                 n_jobs=1, phylogeny=None, alpha_average_method='median',
                  beta_average_method='non-metric-median'):
 
     resample_action = ctx.get_action('boots', 'resample')

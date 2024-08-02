@@ -38,10 +38,9 @@ def beta_average(data: skbio.DistanceMatrix,
                          "mean, and medoid.")
 
 
-def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
-                    bypass_tips=False, n_threads=1, n=1000,
-                    replacement=True, pseudocount=1, alpha=None,
-                    variance_adjusted=False):
+def beta_collection(ctx, table, metric, sampling_depth, n, replacement,
+                    phylogeny=None, bypass_tips=False, n_jobs=1,
+                    pseudocount=1, alpha=None, variance_adjusted=False):
     _validate_beta_metric(metric, phylogeny)
 
     resample_action = ctx.get_action("boots", "resample")
@@ -55,16 +54,15 @@ def beta_collection(ctx, table, metric, sampling_depth, phylogeny=None,
     return results
 
 
-def beta(ctx, table, metric, sampling_depth, average_method, phylogeny=None,
-         bypass_tips=False, n_threads=1, n=1000, replacement=True,
-         pseudocount=1, alpha=None, variance_adjusted=False):
-
+def beta(ctx, table, metric, sampling_depth, n, replacement,
+         average_method='non-metric-median', phylogeny=None, bypass_tips=False,
+         n_jobs=1, pseudocount=1, alpha=None, variance_adjusted=False):
     beta_collection_action = ctx.get_action('boots', 'beta_collection')
     beta_average_action = ctx.get_action('boots', 'beta_average')
     dms, = beta_collection_action(
         table=table, phylogeny=phylogeny, metric=metric,
         sampling_depth=sampling_depth, n=n, pseudocount=pseudocount,
-        replacement=replacement, n_threads=n_threads,
+        replacement=replacement, n_jobs=n_jobs,
         variance_adjusted=variance_adjusted, alpha=alpha,
         bypass_tips=bypass_tips)
 

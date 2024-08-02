@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations, Str, Choices, Bool, Float,
+                           Citations, Str, Choices, Bool, Float, Threads,
                            Metadata, Visualization)
 
 from q2_types.feature_table import (
@@ -36,8 +36,8 @@ plugin = Plugin(
     short_description=('Bootstrapped and rarefaction-based diversity '
                        'analyses.'),
     description=('A plugin providing bootstrapped and rarefaction-based '
-                 'diversity analyses, designed to mirror the interface of '
-                 'q2-diversity.')
+                 '(i.e., resampled) diversity analyses, designed to mirror the '
+                 'interface of q2-diversity.')
 )
 
 
@@ -86,7 +86,7 @@ plugin.pipelines.register_function(
     input_descriptions=_resample_input_descriptions,
     parameter_descriptions=_resample_parameter_descriptions,
     output_descriptions=_resample_output_descriptions,
-    name='Resample feature table.',
+    name='Resample feature table, returning `n` feature tables.',
     description=('Resample `table` to `sampling_depth` total observations with '
                  'replacement (i.e., bootstrapping) or without replacement '
                  '(i.e., rarefaction) `n` times, to generate `n` resampled '
@@ -95,45 +95,51 @@ plugin.pipelines.register_function(
               'Generate 10 rarefied tables.': _resample_rarefaction_example}
 )
 
-
-n_jobs_description = (
-    'The number of concurrent jobs to use in performing this calculation. '
-    'May not exceed the number of available physical cores. If n_jobs = '
-    '\'auto\', one job will be launched for each identified CPU core on the '
-    'host.'
-)
-
-threads_description = (
-    'The number of CPU threads to use in performing this calculation. '
-    'May not exceed the number of available physical cores. If threads = '
-    '\'auto\', one thread will be created for each identified CPU core on the '
-    'host.'
-)
-
-phylogeny_description = (
-    'Tree containing tip identifiers that correspond to the feature '
-    'identifiers in the provided feature table. The tree can contain tips that '
-    'are not present in the table, but all feature ids in the table must be '
-    'present in this tree.'
-)
-
-random_seed_description = (
-    'A seed to allow multiple runs to have the same outcome if the same seed '
-    'is included.'
-)
-
-_alpha_inputs = {
+_diversity_inputs = {
     'table': FeatureTable[Frequency | RelativeFrequency | PresenceAbsence],
     'phylogeny': Phylogeny[Rooted]
 }
 
-_alpha_input_descriptions = {
+_diversity_input_descriptions = {
     'table': 'The feature table to use in diversity computations.',
     'phylogeny': ('The phylogenetic tree to use in phylogenetic diversity '
                   'calculations. All feature ids in `table` must be present in '
                   'this tree, but this tree can contain feature ids that are '
                   'not present in `table`.')
 }
+
+_alpha_average_parameters = {
+    'average_method': Str % Choices('mean', 'median')
+}
+
+_alpha_average_parameter_descriptions = {
+    'average_method': 'Method to use for averaging.'
+}
+
+_average_alpha_diversity_description = (
+    'The average alpha diversity vector.')
+
+plugin.methods.register_function(
+    function=q2_boots.alpha_average,
+    inputs={
+        'data': Collection[SampleData[AlphaDiversity]]
+    },
+    parameters=_alpha_average_parameters,
+    outputs={
+        'average_alpha_diversity': SampleData[AlphaDiversity]
+    },
+    input_descriptions={
+        'data': 'Alpha diversity vectors to be averaged.'
+    },
+    output_descriptions={
+        'average_alpha_diversity': _average_alpha_diversity_description
+
+    },
+    parameter_descriptions=_alpha_average_parameter_descriptions,
+    name='Average alpha diversity vectors.',
+    description=('Compute the per-sample average across a collection of alpha '
+                 'diversity vectors computed from the same samples.')
+)
 
 _alpha_collection_parameters = {
     'sampling_depth': Int % Range(1, None),
@@ -152,56 +158,25 @@ _alpha_collection_parameter_descriptions = {
     'replacement': _replacement_description
 }
 
-_alpha_average_parameters = {
-    'average_method': Str % Choices('mean', 'median')
-}
-
-_alpha_average_parameter_descriptions = {
-    'average_method': 'Method to use for averaging.'
-}
-
-plugin.methods.register_function(
-    function=q2_boots.alpha_average,
-    inputs={
-        'data': Collection[SampleData[AlphaDiversity]]
-    },
-    parameters=_alpha_average_parameters,
-    outputs={
-        'averaged_alpha_diversities': SampleData[AlphaDiversity]
-    },
-    input_descriptions={
-        'data': 'Alpha diversity vectors to be averaged.'
-    },
-    output_descriptions={
-        'averaged_alpha_diversities':
-        ('Per-sample alpha diversities representing the averages across the '
-         'input data.')
-    },
-    parameter_descriptions=_alpha_average_parameter_descriptions,
-    name='Average alpha diversity values.',
-    description=('Compute the per-sample average across a collection of alpha '
-                 'diversity vectors computed from the same samples.')
-)
-
 plugin.pipelines.register_function(
     function=q2_boots.alpha_collection,
-    inputs=_alpha_inputs,
+    inputs=_diversity_inputs,
     parameters=_alpha_collection_parameters,
     outputs={'alpha_diversities': Collection[SampleData[AlphaDiversity]]},
-    input_descriptions=_alpha_input_descriptions,
+    input_descriptions=_diversity_input_descriptions,
     parameter_descriptions=_alpha_collection_parameter_descriptions,
     output_descriptions={
         'alpha_diversities': ('`n` alpha diversity vectors, each containing '
                               'per-sample alpha diversity scores for the same '
                               'samples.'),
     },
-    name='Iterative alpha diversity.',
+    name='Perform resampled alpha diversity, returning `n` result vectors.',
     description=('Given a single feature table as input, this action resamples '
                  'the feature table `n` times to a total frequency of '
                  '`sampling depth` per sample, and then computes the specified '
                  'alpha diversity metric on each resulting `table`. The '
                  'resulting artifacts can be used, for example, to explore the '
-                 'variance of `n` iterations of resampling.')
+                 'variance across `n` iterations of resampling.')
 )
 
 _alpha_parameters = _alpha_collection_parameters | _alpha_average_parameters
@@ -210,124 +185,146 @@ _alpha_parameter_descriptions = (_alpha_collection_parameter_descriptions |
 
 plugin.pipelines.register_function(
     function=q2_boots.alpha,
-    inputs=_alpha_inputs,
+    inputs=_diversity_inputs,
     parameters=_alpha_parameters,
-    outputs={'sample_data': SampleData[AlphaDiversity]},
-    input_descriptions=_alpha_input_descriptions,
+    outputs={'average_alpha_diversity': SampleData[AlphaDiversity]},
+    input_descriptions=_diversity_input_descriptions,
     parameter_descriptions=_alpha_parameter_descriptions,
     output_descriptions={
-        'sample_data': 'Vector containing per-sample alpha diversities.',
+        'average_alpha_diversity': _average_alpha_diversity_description,
     },
-    name='Bootstrapped or rarefaction-based alpha diversity.',
+    name='Perform resampled alpha diversity, returning average result vector.',
     description=('Given a single feature table as input, this action resamples '
                  'the feature table `n` times to a total frequency of '
                  '`sampling depth` per sample, and then computes the specified '
                  'alpha diversity metric on each resulting `table`. The '
                  'resulting artifacts are then averaged using the method '
-                 'specified by `average_method`, and the resulting averaged '
+                 'specified by `average_method`, and the resulting average '
                  'per-sample alpha diversities are returned.')
 )
 
-_beta_inputs = _alpha_inputs
-_beta_input_descriptions = _alpha_input_descriptions
+_beta_average_parameters = {
+    'average_method': Str % Choices(['non-metric-mean',
+                                     'non-metric-median',
+                                     'medoid'])
+}
 
-plugin.pipelines.register_function(
-    function=q2_boots.beta,
-    inputs=_beta_inputs,
-    parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
-                                        beta_metrics['NONPHYLO']['UNIMPL'] |
-                                        beta_metrics['PHYLO']['IMPL'] |
-                                        beta_metrics['PHYLO']['UNIMPL']),
-                'pseudocount': Int % Range(1, None),
-                'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
-                'n': Int % Range(1, None),
-                'sampling_depth': Int % Range(1, None),
-                'bypass_tips': Bool,
-                'replacement': Bool,
-                'variance_adjusted': Bool,
-                'average_method': Str % Choices(['non-metric-mean',
-                                                 'non-metric-median',
-                                                 'medoid']),
-                'alpha': Float % Range(0, 1, inclusive_end=True)},
-    outputs=[('distance_matrix', DistanceMatrix)],
-    input_descriptions=_beta_input_descriptions,
-    parameter_descriptions={
-        'metric': 'The beta diversity metric to be computed.',
-        'pseudocount': ('A pseudocount to handle zeros for compositional '
-                        'metrics.  This is ignored for other metrics.'),
-    },
-    output_descriptions={'distance_matrix': 'The resulting distance matrix.'},
-    name='Beta diversity',
-    description=("Computes a user-specified beta diversity metric for all "
-                 "pairs of samples in a feature table.")
-)
-
-plugin.pipelines.register_function(
-    function=q2_boots.beta_collection,
-    inputs=_beta_inputs,
-    parameters={'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
-                                        beta_metrics['NONPHYLO']['UNIMPL'] |
-                                        beta_metrics['PHYLO']['IMPL'] |
-                                        beta_metrics['PHYLO']['UNIMPL']),
-                'pseudocount': Int % Range(1, None),
-                'replacement': Bool,
-                'n_threads': Int % Range(1, None) | Str % Choices(['auto']),
-                'n': Int % Range(1, None),
-                'sampling_depth': Int % Range(1, None),
-                'bypass_tips': Bool,
-                'replacement': Bool,
-                'variance_adjusted': Bool,
-                'alpha': Float % Range(0, 1, inclusive_end=True)},
-    outputs={
-        'distance_matrices': Collection[DistanceMatrix]
-    },
-    input_descriptions={
-
-    },
-    output_descriptions={
-
-    },
-    parameter_descriptions={
-
-    },
-    name='Beta Diversity Collection',
-    description='Beta Diversity'
-)
+_beta_average_parameter_descriptions = {
+    'average_method': 'Method to use for averaging.'
+}
 
 plugin.methods.register_function(
     function=q2_boots.beta_average,
     inputs={
         'data': Collection[DistanceMatrix],
     },
-    parameters={
-        'average_method': Str % Choices(['non-metric-mean',
-                                         'non-metric-median',
-                                         'medoid']),
-    },
-    outputs=[
-        ('distance_matrix', DistanceMatrix)
-    ],
+    parameters=_beta_average_parameters,
+    outputs={'average_distance_matrix': DistanceMatrix},
     input_descriptions={
-        'data': 'Collection of Distance Matrices to be averaged'
+        'data': 'Distance matrices to be average.'
     },
     output_descriptions={
-        'distance_matrix': 'average_method distance matrix',
+        'average_distance_matrix': 'The average distance matrix.',
     },
-    parameter_descriptions={
-        'average_method': ''
-    },
-    name='Beta Average',
-    description='Average of a Collection of Distance Matrices'
+    parameter_descriptions=_beta_average_parameter_descriptions,
+    name='Average beta diversity distance matrices.',
+    description=('Compute the average distance matrix across a collection of '
+                 'distance matrices.')
 )
 
-_core_metrics_inputs = _beta_inputs
+_beta_collection_parameters = {
+                'metric': Str % Choices(beta_metrics['NONPHYLO']['IMPL'] |
+                                        beta_metrics['NONPHYLO']['UNIMPL'] |
+                                        beta_metrics['PHYLO']['IMPL'] |
+                                        beta_metrics['PHYLO']['UNIMPL']),
+                'pseudocount': Int % Range(1, None),
+                'replacement': Bool,
+                'n_jobs': Threads,
+                'n': Int % Range(1, None),
+                'sampling_depth': Int % Range(1, None),
+                'bypass_tips': Bool,
+                'variance_adjusted': Bool,
+                'alpha': Float % Range(0, 1, inclusive_end=True)
+}
+
+_n_jobs_description = (
+    'The number of CPU threads to use in performing this calculation. '
+    'May not exceed the number of available physical cores. If threads = '
+    '\'auto\', one thread will be created for each identified CPU core on the '
+    'host.'
+)
+
+_beta_collection_parameter_descriptions = {
+    'metric': 'The beta diversity metric to be computed.',
+    'pseudocount': ('A pseudocount to handle zeros for compositional '
+                    'metrics.  This is ignored for other metrics.'),
+    'replacement': _replacement_description,
+    'n_jobs': _n_jobs_description,
+    'n': _n_description,
+    'sampling_depth': _sampling_depth_description,
+    'bypass_tips': ('Ignore tips of tree in phylogenetic diversity '
+                    'calculations, trading specificity for reduced compute '
+                    'time. This has the effect of collapsing the phylogeny, '
+                    'and is analogous (in concept) to moving from 99% to 97% '
+                    'OTUs.'),
+    'variance_adjusted': ('Perform variance adjustment based on Chang et al. '
+                          'BMC Bioinformatics (2011) for phylogenetic '
+                          'diversity metrics.'),
+    'alpha': ('The alpha value used with the generalized UniFrac metric.')
+}
+
+
+plugin.pipelines.register_function(
+    function=q2_boots.beta_collection,
+    inputs=_diversity_inputs,
+    parameters=_beta_collection_parameters,
+    outputs={'distance_matrices': Collection[DistanceMatrix]},
+    input_descriptions=_diversity_input_descriptions,
+    output_descriptions={
+        'distance_matrices': ('`n` beta diversity distance matrices, each '
+                              'containing distances between all pairs of '
+                              'samples and computed from resampled feature '
+                              'tables.')
+    },
+    parameter_descriptions=_beta_collection_parameter_descriptions,
+    name='Perform resampled beta diversity, returning `n` distance matrices.',
+    description=('Given a single feature table as input, this action resamples '
+                 'the feature table `n` times to a total frequency of '
+                 '`sampling depth` per sample, and then computes the specified '
+                 'beta diversity metric on each resulting `table`. The '
+                 'resulting artifacts can be used, for example, to explore the '
+                 'variance across `n` iterations of resampling.')
+)
+
+_beta_parameters = _beta_collection_parameters | _beta_average_parameters
+_beta_parameter_descriptions = (_beta_collection_parameter_descriptions |
+                                _beta_average_parameter_descriptions)
+
+plugin.pipelines.register_function(
+    function=q2_boots.beta,
+    inputs=_diversity_inputs,
+    parameters=_beta_parameters,
+    outputs=[('average_distance_matrix', DistanceMatrix)],
+    input_descriptions=_diversity_input_descriptions,
+    parameter_descriptions=_beta_parameter_descriptions,
+    output_descriptions={
+        'average_distance_matrix': 'The average distance matrix.'},
+    name='Perform resampled beta diversity, returning average distance matrix.',
+    description=('Given a single feature table as input, this action resamples '
+                 'the feature table `n` times to a total frequency of '
+                 '`sampling depth` per sample, and then computes the specified '
+                 'beta diversity metric on each resulting `table`. The '
+                 'resulting artifacts are then averaged using the method '
+                 'specified by `average_method`, and the resulting average '
+                 'beta diversity distance matrix is returned.')
+)
 
 plugin.pipelines.register_function(
     function=q2_boots.core_metrics,
-    inputs=_core_metrics_inputs,
+    inputs=_diversity_inputs,
     parameters={
         'metadata': Metadata,
-        'n_jobs': Int % Range(1, None),
+        'n_jobs': Threads,
         'n': Int % Range(1, None),
         'sampling_depth': Int % Range(1, None),
         'alpha_average_method': Str % Choices('mean', 'median'),
@@ -337,21 +334,38 @@ plugin.pipelines.register_function(
         'replacement': Bool
     },
     outputs=[
-        ('rarefied_table', Collection[FeatureTable[Frequency]]),
-        ('alpha_diversity', Collection[SampleData[AlphaDiversity]]),
+        ('resampled_tables', Collection[FeatureTable[Frequency]]),
+        ('alpha_diversities', Collection[SampleData[AlphaDiversity]]),
         ('distance_matrices', Collection[DistanceMatrix]),
         ('pcoas', Collection[PCoAResults]),
-        ('visualizations', Collection[Visualization]),
+        ('emperor_plots', Collection[Visualization]),
     ],
-    input_descriptions={
-
-    },
+    input_descriptions=_diversity_input_descriptions,
     parameter_descriptions={
-
+        'metadata': 'The sample metadata used in generating Emperor plots.',
+        'n_jobs': _n_jobs_description,
+        'n': _n_description,
+        'sampling_depth': _sampling_depth_description,
+        'alpha_average_method': 'Method to use for averaging alpha diversity.',
+        'beta_average_method': 'Method to use for averaging beta diversity.',
+        'replacement': _replacement_description
     },
     output_descriptions={
-
+        'resampled_tables': _resampled_tables_description,
+        'alpha_diversities': 'Average alpha diversity vector for each metric.',
+        'distance_matrices': ('Average beta diversity distance matrix for '
+                              'each metric.'),
+        'pcoas': 'PCoA matrix for each beta diversity metric.',
+        'emperor_plots': 'Emperor plot for each beta diversity metric.'
     },
-    name='Core Metrics',
-    description='Bootstrapped Core Metrics'
+    name='Perform resampled "core metrics" analysis.',
+    description=('Given a single feature table as input, this action resamples '
+                 'the feature table `n` times to a total frequency of '
+                 '`sampling depth` per sample, and then computes common alpha '
+                 'and beta diversity on each resulting `table`. The '
+                 'resulting artifacts are then averaged using the method '
+                 'specified by `alpha_average_method` and '
+                 '`beta_average_method` parameters. The resulting average '
+                 'alpha and beta diversity artifacts are returned, along with '
+                 'PCoA matrices and Emperor plots.')
 )
