@@ -24,7 +24,14 @@ from q2_types.ordination import PCoAResults
 
 import q2_boots
 from q2_boots._examples import (_resample_bootstrap_example,
-                                _resample_rarefaction_example)
+                                _resample_rarefaction_example,
+                                _alpha_rarefaction_example,
+                                _alpha_bootstrap_example,
+                                _beta_bootstrap_example,
+                                _beta_rarefaction_example,
+                                _core_metrics_bootstrap_example,
+                                _core_metrics_rarefaction_example)
+
 
 Citations = Citations.load('citations.bib', package='q2_boots')
 
@@ -91,8 +98,10 @@ plugin.pipelines.register_function(
                  'replacement (i.e., bootstrapping) or without replacement '
                  '(i.e., rarefaction) `n` times, to generate `n` resampled '
                  'feature tables.'),
-    examples={'Generate 10 bootstrapped tables.': _resample_bootstrap_example,
-              'Generate 10 rarefied tables.': _resample_rarefaction_example}
+    examples={
+        'Generate 10 bootstrapped tables.': _resample_bootstrap_example,
+        'Generate 10 rarefied tables.': _resample_rarefaction_example
+    }
 )
 
 _diversity_inputs = {
@@ -200,7 +209,11 @@ plugin.pipelines.register_function(
                  'alpha diversity metric on each resulting `table`. The '
                  'resulting artifacts are then averaged using the method '
                  'specified by `average_method`, and the resulting average '
-                 'per-sample alpha diversities are returned.')
+                 'per-sample alpha diversities are returned.'),
+    examples={
+        'Bootstrapped observed features.': _alpha_bootstrap_example,
+        'Rarefaction-based observed features.': _alpha_rarefaction_example
+    }
 )
 
 _beta_average_parameters = {
@@ -293,7 +306,11 @@ plugin.pipelines.register_function(
                  '`sampling depth` per sample, and then computes the specified '
                  'beta diversity metric on each resulting `table`. The '
                  'resulting artifacts can be used, for example, to explore the '
-                 'variance across `n` iterations of resampling.')
+                 'variance across `n` iterations of resampling.'),
+    examples={
+        'Bootstrapped Bray-Curtis.': _beta_bootstrap_example,
+        'Rarefaction-based Bray-Curtis.': _beta_rarefaction_example
+    }
 )
 
 _beta_parameters = _beta_collection_parameters | _beta_average_parameters
@@ -367,5 +384,9 @@ plugin.pipelines.register_function(
                  'specified by `alpha_average_method` and '
                  '`beta_average_method` parameters. The resulting average '
                  'alpha and beta diversity artifacts are returned, along with '
-                 'PCoA matrices and Emperor plots.')
+                 'PCoA matrices and Emperor plots.'),
+    examples={
+        'Bootstrapped core metrics.': _core_metrics_bootstrap_example,
+        'Rarefaction-based core metrics.': _core_metrics_rarefaction_example
+    }
 )
