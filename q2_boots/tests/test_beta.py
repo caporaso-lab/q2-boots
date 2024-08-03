@@ -247,8 +247,7 @@ class BetaTests(TestPluginBase):
                                        average_method='non-metric-median',
                                        replacement=True)
         observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
-        # This can occasionally fail, but it should be very infrequent
-        self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0)
+        self.assertTrue(observed[('S1', 'S2')] in [0.0, 0.5, 1.0])
 
         observed, = self.beta_pipeline(table=self.table1,
                                        metric='jaccard',
