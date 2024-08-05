@@ -51,9 +51,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, n, replacement,
             resampled_tables, alpha_metric_action)
         avg_alpha_vector, = alpha_average_action(
             alpha_collection, alpha_average_method)
-        alpha_metric_name = qiime2.Artifact.view(avg_alpha_vector,
-                                                 view_type=pd.Series).name
-        alpha_vectors[alpha_metric_name] = avg_alpha_vector
+        alpha_vectors[alpha_metric] = avg_alpha_vector
 
     beta_dms = {}
     for beta_metric in beta_metrics:
