@@ -6,10 +6,6 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-import pandas as pd
-
-import qiime2
-
 from q2_boots._alpha import (_validate_alpha_metric, _get_alpha_metric_action,
                              _alpha_collection_from_tables)
 from q2_boots._beta import (_validate_beta_metric, _get_beta_metric_action,
