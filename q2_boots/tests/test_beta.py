@@ -237,28 +237,36 @@ class BetaTests(TestPluginBase):
                                        average_method='medoid',
                                        replacement=True)
         observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
-        # This can occasionally fail, but it should be very infrequent
-        self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0)
+        self.assertTrue(observed[('S1', 'S2')] in [0.0, 0.5, 1.0],
+                        msg=(f"Medoid value ({observed[('S1', 'S2')]}) is "
+                             "not equal to 0.0, 0.5, 1.0."))
 
         observed, = self.beta_pipeline(table=self.table1,
                                        metric='jaccard',
                                        sampling_depth=2,
-                                       n=10,
+                                       n=9,
                                        average_method='non-metric-median',
                                        replacement=True)
         observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
-        self.assertTrue(observed[('S1', 'S2')] in [0.0, 0.5, 1.0])
+        # because n is odd, we should always observe an actual distance
+        # between S1 and S2 as the median (as opposed to the mean of two
+        # actual values)
+        self.assertTrue(observed[('S1', 'S2')] in [0.0, 0.5, 1.0],
+                        msg=(f"Median value ({observed[('S1', 'S2')]}) is "
+                             "not equal to 0.0, 0.5 or 1.0."))
 
         observed, = self.beta_pipeline(table=self.table1,
                                        metric='jaccard',
                                        sampling_depth=2,
-                                       n=10,
+                                       n=20,
                                        average_method='non-metric-mean',
                                        replacement=True)
         observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
         # This can occasionally fail, but it should be very infrequent
-        # (probability should be around 0.25**10)
-        self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0)
+        # (e.g., if all 0.0s or 1.0s were observed as the distances)
+        self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0,
+                        msg=(f"Mean value ({observed[('S1', 'S2')]}) is "
+                             "not in range to (0.0, 1.0)."))
 
     def test_beta_wo_replacement(self):
         # At a sampling depth of 2, with self.table1, and when sampling without
