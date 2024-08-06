@@ -78,9 +78,9 @@ class CoreMetricsTests(TestPluginBase):
                                    metadata=self.metadata,
                                    n_jobs=1,
                                    replacement=True,
-                                   n=100)
+                                   n=99)
         # n tables returned
-        self.assertEqual(len(output[0]), 100)
+        self.assertEqual(len(output[0]), 99)
         possible_table1 = pd.DataFrame(data=[[1.0, 1.0], [0.0, 2.0]],
                                        columns=['F1', 'F2'],
                                        index=['S1', 'S2'])
@@ -104,6 +104,7 @@ class CoreMetricsTests(TestPluginBase):
                 count_possible_table3_observed += 1
             else:
                 count_other_table_observed += 1
+        # the following assertTrue tests may fail occasionally.
         self.assertTrue(count_possible_table1_observed > 0)
         self.assertTrue(count_possible_table2_observed > 0)
         self.assertTrue(count_possible_table3_observed > 0)
@@ -114,8 +115,13 @@ class CoreMetricsTests(TestPluginBase):
                          set(['observed_features', 'pielou_e', 'shannon']))
         observed_obs_features = qiime2.Artifact.view(
             output[1]['observed_features'], view_type=pd.Series)
+        # note that because n is an odd number, the median for S1 will always
+        # be one of the actual values that were observed (as opposed to possibly
+        # being 1.5, if n was an even number).
         self.assertTrue(observed_obs_features['S1'] == 1.0 or
-                        observed_obs_features['S1'] == 2.0)
+                        observed_obs_features['S1'] == 2.0,
+                        msg=f"Median value ({observed_obs_features['S1']}) is "
+                            "not equal to 1.0 or 2.0.")
         self.assertEqual(observed_obs_features['S2'], 1.0)
 
         # expected dms, pcoas, and plots returned
@@ -124,7 +130,12 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(set(output[4].keys()), set(['jaccard', 'braycurtis']))
         observed_jaccard = qiime2.Artifact.view(output[2]['jaccard'],
                                                 view_type=skbio.DistanceMatrix)
-        self.assertTrue(0.0 < observed_jaccard[('S1', 'S2')] < 1.0)
+        # because n is odd, we should always observe an actual distance
+        # between S1 and S2 as the median (as opposed to the mean of two
+        # actual values)
+        self.assertTrue(observed_jaccard[('S1', 'S2')] in [0.0, 0.5, 1.0],
+                        msg=(f"Median value ({observed_jaccard[('S1', 'S2')]}) "
+                             "is not equal to 0.0, 0.5 or 1.0."))
 
     def test_core_metrics_phylogenetic(self):
         output = self.core_metrics(table=self.table1,
