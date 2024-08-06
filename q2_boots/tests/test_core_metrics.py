@@ -54,8 +54,7 @@ class CoreMetricsTests(TestPluginBase):
 
         # expected alpha vectors returned
         self.assertEqual(set(output[1].keys()),
-                         set(['observed_features', 'pielou_evenness',
-                              'shannon_entropy']))
+                         set(['observed_features', 'pielou_e', 'shannon']))
         expected_obs_features = pd.Series([2.0, 1.0],
                                           index=['S1', 'S2'],
                                           name='observed_features')
@@ -112,8 +111,7 @@ class CoreMetricsTests(TestPluginBase):
 
         # expected alpha vectors returned
         self.assertEqual(set(output[1].keys()),
-                         set(['observed_features', 'pielou_evenness',
-                              'shannon_entropy']))
+                         set(['observed_features', 'pielou_e', 'shannon']))
         observed_obs_features = qiime2.Artifact.view(
             output[1]['observed_features'], view_type=pd.Series)
         self.assertTrue(observed_obs_features['S1'] == 1.0 or
@@ -147,8 +145,8 @@ class CoreMetricsTests(TestPluginBase):
 
         # expected alpha vectors returned
         self.assertEqual(set(output[1].keys()),
-                         set(['observed_features', 'pielou_evenness',
-                              'shannon_entropy', 'faith_pd']))
+                         set(['observed_features', 'pielou_e', 'shannon',
+                              'faith_pd']))
         expected_obs_features = pd.Series([2.0, 1.0],
                                           index=['S1', 'S2'],
                                           name='observed_features')
