@@ -6,9 +6,12 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from q2_boots._alpha import (_validate_alpha_metric, _get_alpha_metric_action,
+from q2_boots._resample import resample
+from q2_boots._alpha import (_validate_alpha_metric,
+                             _get_alpha_metric_function,
                              _alpha_collection_from_tables)
-from q2_boots._beta import (_validate_beta_metric, _get_beta_metric_action,
+from q2_boots._beta import (_validate_beta_metric,
+                            _get_beta_metric_function,
                             _beta_collection_from_tables)
 
 
@@ -16,7 +19,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, n, replacement,
                  n_jobs=1, phylogeny=None, alpha_average_method='median',
                  beta_average_method='non-metric-median'):
 
-    resample_action = ctx.get_action('boots', 'resample')
+    resample_function = resample
     alpha_average_action = ctx.get_action('boots', 'alpha_average')
     beta_average_action = ctx.get_action('boots', 'beta_average')
     pcoa_action = ctx.get_action('diversity', 'pcoa')
@@ -34,27 +37,28 @@ def core_metrics(ctx, table, sampling_depth, metadata, n, replacement,
     for beta_metric in beta_metrics:
         _validate_beta_metric(beta_metric, phylogeny)
 
-    resampled_tables, = resample_action(table=table,
-                                        sampling_depth=sampling_depth,
-                                        n=n,
-                                        replacement=replacement)
+    resampled_tables = resample_function(ctx=ctx,
+                                         table=table,
+                                         sampling_depth=sampling_depth,
+                                         n=n,
+                                         replacement=replacement)
 
     alpha_vectors = {}
     for alpha_metric in alpha_metrics:
-        alpha_metric_action = _get_alpha_metric_action(
+        alpha_metric_function = _get_alpha_metric_function(
             ctx, alpha_metric, phylogeny)
         alpha_collection = _alpha_collection_from_tables(
-            resampled_tables, alpha_metric_action)
+            resampled_tables, alpha_metric_function)
         avg_alpha_vector, = alpha_average_action(
             alpha_collection, alpha_average_method)
         alpha_vectors[alpha_metric] = avg_alpha_vector
 
     beta_dms = {}
     for beta_metric in beta_metrics:
-        beta_metric_action = _get_beta_metric_action(
+        beta_metric_function = _get_beta_metric_function(
             ctx, beta_metric, phylogeny)
         beta_collection = _beta_collection_from_tables(
-            resampled_tables, beta_metric_action)
+            resampled_tables, beta_metric_function)
         avg_beta_dm, = beta_average_action(
             beta_collection, beta_average_method)
         beta_dms[beta_metric] = avg_beta_dm
