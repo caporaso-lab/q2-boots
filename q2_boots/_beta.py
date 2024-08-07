@@ -13,7 +13,11 @@ import numpy as np
 import skbio
 from hdmedians import medoid
 
+from q2_diversity import (beta as q2div_beta,
+                          beta_phylogenetic as q2div_beta_phylogenetic)
 from q2_diversity_lib.beta import METRICS
+
+from q2_boots._resample import resample
 
 
 def beta_average(data: skbio.DistanceMatrix,
@@ -43,13 +47,15 @@ def beta_collection(ctx, table, metric, sampling_depth, n, replacement,
                     pseudocount=1, alpha=None, variance_adjusted=False):
     _validate_beta_metric(metric, phylogeny)
 
-    resample_action = ctx.get_action("boots", "resample")
-    beta_metric_action = _get_beta_metric_action(ctx, metric, phylogeny)
+    resample_function = resample
+    beta_metric_function = _get_beta_metric_function(ctx, metric, phylogeny)
 
-    tables, = resample_action(
-        table=table, sampling_depth=sampling_depth, n=n,
-        replacement=replacement)
-    results = _beta_collection_from_tables(tables, beta_metric_action)
+    tables = resample_function(ctx=ctx,
+                               table=table,
+                               sampling_depth=sampling_depth,
+                               n=n,
+                               replacement=replacement)
+    results = _beta_collection_from_tables(tables, beta_metric_function)
 
     return results
 
@@ -57,14 +63,20 @@ def beta_collection(ctx, table, metric, sampling_depth, n, replacement,
 def beta(ctx, table, metric, sampling_depth, n, replacement,
          average_method='non-metric-median', phylogeny=None, bypass_tips=False,
          n_jobs=1, pseudocount=1, alpha=None, variance_adjusted=False):
-    beta_collection_action = ctx.get_action('boots', 'beta_collection')
+    beta_collection_function = beta_collection
     beta_average_action = ctx.get_action('boots', 'beta_average')
-    dms, = beta_collection_action(
-        table=table, phylogeny=phylogeny, metric=metric,
-        sampling_depth=sampling_depth, n=n, pseudocount=pseudocount,
-        replacement=replacement, n_jobs=n_jobs,
-        variance_adjusted=variance_adjusted, alpha=alpha,
-        bypass_tips=bypass_tips)
+    dms = beta_collection_function(ctx=ctx,
+                                   table=table,
+                                   phylogeny=phylogeny,
+                                   metric=metric,
+                                   sampling_depth=sampling_depth,
+                                   n=n,
+                                   pseudocount=pseudocount,
+                                   replacement=replacement,
+                                   n_jobs=n_jobs,
+                                   variance_adjusted=variance_adjusted,
+                                   alpha=alpha,
+                                   bypass_tips=bypass_tips)
 
     result, = beta_average_action(dms, average_method)
     return result
@@ -102,25 +114,27 @@ def _validate_beta_metric(metric, phylogeny):
         raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
 
 
-def _get_beta_metric_action(ctx, metric, phylogeny):
+def _get_beta_metric_function(ctx, metric, phylogeny):
     if _is_phylogenetic_beta_metric(metric):
-        beta_metric_action = ctx.get_action("diversity", "beta_phylogenetic")
-        beta_metric_action = functools.partial(beta_metric_action,
-                                               phylogeny=phylogeny,
-                                               metric=metric)
+        beta_metric_function = q2div_beta_phylogenetic
+        beta_metric_function = functools.partial(beta_metric_function,
+                                                 ctx=ctx,
+                                                 phylogeny=phylogeny,
+                                                 metric=metric)
     else:
-        beta_metric_action = ctx.get_action("diversity", "beta")
-        beta_metric_action = functools.partial(beta_metric_action,
-                                               metric=metric)
-    return beta_metric_action
+        beta_metric_function = q2div_beta
+        beta_metric_function = functools.partial(beta_metric_function,
+                                                 ctx=ctx,
+                                                 metric=metric)
+    return beta_metric_function
 
 
 def _is_phylogenetic_beta_metric(metric):
     return metric in METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL']
 
 
-def _beta_collection_from_tables(tables, beta_metric_action):
+def _beta_collection_from_tables(tables, beta_metric_function):
     results = []
     for table in tables.values():
-        results.append(beta_metric_action(table=table)[0])
+        results.append(beta_metric_function(table=table))
     return results
