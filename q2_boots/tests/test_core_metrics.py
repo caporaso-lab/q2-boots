@@ -49,17 +49,20 @@ class CoreMetricsTests(TestPluginBase):
                                       columns=['F1', 'F2'],
                                       index=['S1', 'S2'])
         for e in output[0].values():
-            observed_table = qiime2.Artifact.view(e, view_type=pd.DataFrame)
+            observed_table = e.view(pd.DataFrame)
             pdt.assert_frame_equal(observed_table, expected_table)
 
         # expected alpha vectors returned
-        self.assertEqual(set(output[1].keys()),
-                         set(['observed_features', 'pielou_e', 'shannon']))
+        skbio_lt_060_alpha_keys = set(
+            ['observed_features', 'pielou_evenness', 'shannon_entropy'])
+        skbio_gte_060_alpha_keys = set(
+            ['observed_features', 'pielou_e', 'shannon'])
+        self.assertTrue(set(output[1].keys()) == skbio_lt_060_alpha_keys or
+                        set(output[1].keys()) == skbio_gte_060_alpha_keys)
         expected_obs_features = pd.Series([2.0, 1.0],
                                           index=['S1', 'S2'],
                                           name='observed_features')
-        observed_obs_features = qiime2.Artifact.view(
-            output[1]['observed_features'], view_type=pd.Series)
+        observed_obs_features = output[1]['observed_features'].view(pd.Series)
         pdt.assert_series_equal(observed_obs_features, expected_obs_features)
 
         # expected dms, pcoas, and plots returned
@@ -68,8 +71,7 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(set(output[4].keys()), set(['jaccard', 'braycurtis']))
         expected_jaccard = skbio.DistanceMatrix([[0, 0.5], [0.5, 0]],
                                                 ids=['S1', 'S2'])
-        observed_jaccard = qiime2.Artifact.view(output[2]['jaccard'],
-                                                view_type=skbio.DistanceMatrix)
+        observed_jaccard = output[2]['jaccard'].view(skbio.DistanceMatrix)
         self.assertEqual(observed_jaccard, expected_jaccard)
 
     def test_core_metrics_w_replacement(self):
@@ -95,7 +97,7 @@ class CoreMetricsTests(TestPluginBase):
         count_possible_table3_observed = 0
         count_other_table_observed = 0
         for e in output[0].values():
-            observed_table = qiime2.Artifact.view(e, view_type=pd.DataFrame)
+            observed_table = e.view(pd.DataFrame)
             if observed_table.equals(possible_table1):
                 count_possible_table1_observed += 1
             elif observed_table.equals(possible_table2):
@@ -111,10 +113,13 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(count_other_table_observed, 0)
 
         # expected alpha vectors returned
-        self.assertEqual(set(output[1].keys()),
-                         set(['observed_features', 'pielou_e', 'shannon']))
-        observed_obs_features = qiime2.Artifact.view(
-            output[1]['observed_features'], view_type=pd.Series)
+        skbio_lt_060_alpha_keys = set(
+            ['observed_features', 'pielou_evenness', 'shannon_entropy'])
+        skbio_gte_060_alpha_keys = set(
+            ['observed_features', 'pielou_e', 'shannon'])
+        self.assertTrue(set(output[1].keys()) == skbio_lt_060_alpha_keys or
+                        set(output[1].keys()) == skbio_gte_060_alpha_keys)
+        observed_obs_features = output[1]['observed_features'].view(pd.Series)
         # note that because n is an odd number, the median for S1 will always
         # be one of the actual values that were observed (as opposed to possibly
         # being 1.5, if n was an even number).
@@ -128,8 +133,7 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(set(output[2].keys()), set(['jaccard', 'braycurtis']))
         self.assertEqual(set(output[3].keys()), set(['jaccard', 'braycurtis']))
         self.assertEqual(set(output[4].keys()), set(['jaccard', 'braycurtis']))
-        observed_jaccard = qiime2.Artifact.view(output[2]['jaccard'],
-                                                view_type=skbio.DistanceMatrix)
+        observed_jaccard = output[2]['jaccard'].view(skbio.DistanceMatrix)
         # because n is odd, we should always observe an actual distance
         # between S1 and S2 as the median (as opposed to the mean of two
         # actual values)
@@ -151,25 +155,27 @@ class CoreMetricsTests(TestPluginBase):
                                       columns=['F1', 'F2'],
                                       index=['S1', 'S2'])
         for e in output[0].values():
-            observed_table = qiime2.Artifact.view(e, view_type=pd.DataFrame)
+            observed_table = e.view(pd.DataFrame)
             pdt.assert_frame_equal(observed_table, expected_table)
 
         # expected alpha vectors returned
-        self.assertEqual(set(output[1].keys()),
-                         set(['observed_features', 'pielou_e', 'shannon',
-                              'faith_pd']))
+        skbio_lt_060_alpha_keys = set(
+            ['observed_features', 'pielou_evenness', 'shannon_entropy',
+             'faith_pd'])
+        skbio_gte_060_alpha_keys = set(
+            ['observed_features', 'pielou_e', 'shannon', 'faith_pd'])
+        self.assertTrue(set(output[1].keys()) == skbio_lt_060_alpha_keys or
+                        set(output[1].keys()) == skbio_gte_060_alpha_keys)
         expected_obs_features = pd.Series([2.0, 1.0],
                                           index=['S1', 'S2'],
                                           name='observed_features')
-        observed_obs_features = qiime2.Artifact.view(
-            output[1]['observed_features'], view_type=pd.Series)
+        observed_obs_features = output[1]['observed_features'].view(pd.Series)
         pdt.assert_series_equal(observed_obs_features, expected_obs_features)
 
         expected_faith_pd = pd.Series([4.0, 3.0],
                                       index=['S1', 'S2'],
                                       name='faith_pd')
-        observed_faith_pd = qiime2.Artifact.view(
-            output[1]['faith_pd'], view_type=pd.Series)
+        observed_faith_pd = output[1]['faith_pd'].view(pd.Series)
         pdt.assert_series_equal(observed_faith_pd, expected_faith_pd)
 
         # expected dms, pcoas, and plots returned
@@ -180,13 +186,12 @@ class CoreMetricsTests(TestPluginBase):
         self.assertEqual(set(output[4].keys()), expected_bdiv_keys)
         expected_jaccard = skbio.DistanceMatrix([[0, 0.5], [0.5, 0]],
                                                 ids=['S1', 'S2'])
-        observed_jaccard = qiime2.Artifact.view(output[2]['jaccard'],
-                                                view_type=skbio.DistanceMatrix)
+        observed_jaccard = output[2]['jaccard'].view(skbio.DistanceMatrix)
         self.assertEqual(observed_jaccard, expected_jaccard)
 
         expected_unweighted_unifrac = skbio.DistanceMatrix(
             [[0, 0.25], [0.25, 0]], ids=['S1', 'S2'])
-        observed_unweighted_unifrac = qiime2.Artifact.view(
-            output[2]['unweighted_unifrac'], view_type=skbio.DistanceMatrix)
+        observed_unweighted_unifrac = \
+            output[2]['unweighted_unifrac'].view(skbio.DistanceMatrix)
         self.assertEqual(observed_unweighted_unifrac,
                          expected_unweighted_unifrac)
