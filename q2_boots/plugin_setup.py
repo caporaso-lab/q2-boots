@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations, Str, Choices, Bool, Float, Threads,
+                           Str, Choices, Bool, Float, Threads,
                            Metadata, Visualization)
 
 from q2_types.feature_table import (
@@ -33,8 +33,6 @@ from q2_boots._examples import (_resample_bootstrap_example,
                                 _core_metrics_rarefaction_example)
 
 
-Citations = Citations.load('citations.bib', package='q2_boots')
-
 plugin = Plugin(
     name='boots',
     version=q2_boots.__version__,
@@ -48,7 +46,12 @@ plugin = Plugin(
 )
 
 
-_feature_table_description = 'The feature table to be resampled.'
+_feature_table_description = 'The input feature table.'
+_phylogeny_description = (
+    'The phylogenetic tree to use in phylogenetic diversity '
+    'calculations. All feature ids in `table` must be present in '
+    'this tree, but this tree can contain feature ids that are '
+    'not present in `table`.')
 _sampling_depth_description = (
     'The total number of observations that each sample in `table` should be '
     'resampled to. Samples where the total number of observations in `table` '
@@ -110,11 +113,8 @@ _diversity_inputs = {
 }
 
 _diversity_input_descriptions = {
-    'table': 'The feature table to use in diversity computations.',
-    'phylogeny': ('The phylogenetic tree to use in phylogenetic diversity '
-                  'calculations. All feature ids in `table` must be present in '
-                  'this tree, but this tree can contain feature ids that are '
-                  'not present in `table`.')
+    'table': _feature_table_description,
+    'phylogeny': _phylogeny_description
 }
 
 _alpha_average_parameters = {
