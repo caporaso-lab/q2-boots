@@ -165,7 +165,7 @@ class BetaCollectionTests(TestPluginBase):
         count_other_dm_observed = 0
 
         for o in observed.values():
-            o = qiime2.Artifact.view(o, skbio.DistanceMatrix)
+            o = o.view(skbio.DistanceMatrix)
             if o == possible_dm1:
                 count_possible_dm1_observed += 1
             elif o == possible_dm2:
@@ -190,7 +190,7 @@ class BetaCollectionTests(TestPluginBase):
             replacement=False)
         self.assertEqual(len(observed), 10)
         for o in observed.values():
-            o = qiime2.Artifact.view(o, skbio.DistanceMatrix)
+            o = o.view(skbio.DistanceMatrix)
             self.assertEqual(o, expected)
 
     def test_beta_collection_phylogenetic(self):
@@ -208,7 +208,7 @@ class BetaCollectionTests(TestPluginBase):
             sampling_depth=2, n=10, replacement=False)
         self.assertEqual(len(observed), 10)
         for o in observed.values():
-            o = qiime2.Artifact.view(o, skbio.DistanceMatrix)
+            o = o.view(skbio.DistanceMatrix)
             self.assertEqual(o, expected)
 
 
@@ -236,7 +236,7 @@ class BetaTests(TestPluginBase):
                                        n=10,
                                        average_method='medoid',
                                        replacement=True)
-        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        observed = observed.view(skbio.DistanceMatrix)
         self.assertTrue(observed[('S1', 'S2')] in [0.0, 0.5, 1.0],
                         msg=(f"Medoid value ({observed[('S1', 'S2')]}) is "
                              "not equal to 0.0, 0.5, 1.0."))
@@ -247,7 +247,7 @@ class BetaTests(TestPluginBase):
                                        n=9,
                                        average_method='non-metric-median',
                                        replacement=True)
-        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        observed = observed.view(skbio.DistanceMatrix)
         # because n is odd, we should always observe an actual distance
         # between S1 and S2 as the median (as opposed to the mean of two
         # actual values)
@@ -261,7 +261,7 @@ class BetaTests(TestPluginBase):
                                        n=20,
                                        average_method='non-metric-mean',
                                        replacement=True)
-        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        observed = observed.view(skbio.DistanceMatrix)
         # This can occasionally fail, but it should be very infrequent
         # (e.g., if all 0.0s or 1.0s were observed as the distances)
         self.assertTrue(0.0 < observed[('S1', 'S2')] < 1.0,
@@ -280,7 +280,7 @@ class BetaTests(TestPluginBase):
                                        n=10,
                                        average_method='medoid',
                                        replacement=False)
-        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        observed = observed.view(skbio.DistanceMatrix)
         self.assertEqual(observed, expected)
 
         observed, = self.beta_pipeline(table=self.table1,
@@ -289,7 +289,7 @@ class BetaTests(TestPluginBase):
                                        n=10,
                                        average_method='non-metric-median',
                                        replacement=False)
-        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        observed = observed.view(skbio.DistanceMatrix)
         self.assertEqual(observed, expected)
 
         observed, = self.beta_pipeline(table=self.table1,
@@ -298,7 +298,7 @@ class BetaTests(TestPluginBase):
                                        n=10,
                                        average_method='non-metric-mean',
                                        replacement=False)
-        observed = qiime2.Artifact.view(observed, skbio.DistanceMatrix)
+        observed = observed.view(skbio.DistanceMatrix)
         self.assertEqual(observed, expected)
 
     def test_invalid(self):

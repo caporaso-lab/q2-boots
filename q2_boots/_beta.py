@@ -19,6 +19,13 @@ from q2_diversity_lib.beta import METRICS
 
 from q2_boots._resample import resample
 
+_METRIC_MOD_DEFAULTS = {
+    'bypass_tips': False,
+    'pseudocount': 1,
+    'alpha': None,
+    'variance_adjusted': False
+}
+
 
 def beta_average(data: skbio.DistanceMatrix,
                  average_method: str) -> skbio.DistanceMatrix:
@@ -42,13 +49,19 @@ def beta_average(data: skbio.DistanceMatrix,
                          "mean, and medoid.")
 
 
-def beta_collection(ctx, table, metric, sampling_depth, n, replacement,
-                    phylogeny=None, bypass_tips=False, n_jobs=1,
-                    pseudocount=1, alpha=None, variance_adjusted=False):
+def beta_collection(
+        ctx, table, metric, sampling_depth, n, replacement,
+        phylogeny=None,
+        bypass_tips=_METRIC_MOD_DEFAULTS['bypass_tips'],
+        pseudocount=_METRIC_MOD_DEFAULTS['pseudocount'],
+        alpha=_METRIC_MOD_DEFAULTS['alpha'],
+        variance_adjusted=_METRIC_MOD_DEFAULTS['variance_adjusted']):
     _validate_beta_metric(metric, phylogeny)
 
     resample_function = resample
-    beta_metric_function = _get_beta_metric_function(ctx, metric, phylogeny)
+    beta_metric_function = _get_beta_metric_function(
+        ctx, metric, phylogeny, bypass_tips, pseudocount, alpha,
+        variance_adjusted)
 
     tables = resample_function(ctx=ctx,
                                table=table,
@@ -61,8 +74,11 @@ def beta_collection(ctx, table, metric, sampling_depth, n, replacement,
 
 
 def beta(ctx, table, metric, sampling_depth, n, replacement,
-         average_method='non-metric-median', phylogeny=None, bypass_tips=False,
-         n_jobs=1, pseudocount=1, alpha=None, variance_adjusted=False):
+         average_method='non-metric-median', phylogeny=None,
+         bypass_tips=_METRIC_MOD_DEFAULTS['bypass_tips'],
+         pseudocount=_METRIC_MOD_DEFAULTS['pseudocount'],
+         alpha=_METRIC_MOD_DEFAULTS['alpha'],
+         variance_adjusted=_METRIC_MOD_DEFAULTS['variance_adjusted']):
     beta_collection_function = beta_collection
     beta_average_action = ctx.get_action('boots', 'beta_average')
     dms = beta_collection_function(ctx=ctx,
@@ -73,7 +89,6 @@ def beta(ctx, table, metric, sampling_depth, n, replacement,
                                    n=n,
                                    pseudocount=pseudocount,
                                    replacement=replacement,
-                                   n_jobs=n_jobs,
                                    variance_adjusted=variance_adjusted,
                                    alpha=alpha,
                                    bypass_tips=bypass_tips)
@@ -114,18 +129,23 @@ def _validate_beta_metric(metric, phylogeny):
         raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
 
 
-def _get_beta_metric_function(ctx, metric, phylogeny):
+def _get_beta_metric_function(
+        ctx, metric, phylogeny,
+        bypass_tips=_METRIC_MOD_DEFAULTS['bypass_tips'],
+        pseudocount=_METRIC_MOD_DEFAULTS['pseudocount'],
+        alpha=_METRIC_MOD_DEFAULTS['alpha'],
+        variance_adjusted=_METRIC_MOD_DEFAULTS['variance_adjusted']):
     if _is_phylogenetic_beta_metric(metric):
         beta_metric_function = q2div_beta_phylogenetic
-        beta_metric_function = functools.partial(beta_metric_function,
-                                                 ctx=ctx,
-                                                 phylogeny=phylogeny,
-                                                 metric=metric)
+        beta_metric_function = functools.partial(
+            beta_metric_function, ctx=ctx, phylogeny=phylogeny, metric=metric,
+            bypass_tips=bypass_tips, alpha=alpha,
+            variance_adjusted=variance_adjusted)
     else:
         beta_metric_function = q2div_beta
-        beta_metric_function = functools.partial(beta_metric_function,
-                                                 ctx=ctx,
-                                                 metric=metric)
+        beta_metric_function = functools.partial(
+            beta_metric_function, ctx=ctx, metric=metric,
+            pseudocount=pseudocount)
     return beta_metric_function
 
 

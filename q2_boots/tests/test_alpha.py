@@ -78,8 +78,7 @@ class AlphaCollectionTests(TestPluginBase):
                                     index=['S1', 'S2'],
                                     name='observed_features')
         for alpha_vector in observed.values():
-            observed_series = qiime2.Artifact.view(alpha_vector,
-                                                   view_type=pd.Series)
+            observed_series = alpha_vector.view(pd.Series)
             pdt.assert_series_equal(observed_series, expected_series)
 
         # at a sampling depth of 2, with table1 as input and sampling with
@@ -101,8 +100,7 @@ class AlphaCollectionTests(TestPluginBase):
         count_possible_series2_observed = 0
         other_series_observed = False
         for alpha_vector in observed.values():
-            observed_series = qiime2.Artifact.view(alpha_vector,
-                                                   view_type=pd.Series)
+            observed_series = alpha_vector.view(pd.Series)
             if observed_series.equals(possible_series1):
                 count_possible_series1_observed += 1
             elif observed_series.equals(possible_series2):
@@ -133,8 +131,7 @@ class AlphaCollectionTests(TestPluginBase):
                                     index=['S1', 'S2'],
                                     name='observed_features')
         for alpha_vector in observed.values():
-            observed_series = qiime2.Artifact.view(alpha_vector,
-                                                   view_type=pd.Series)
+            observed_series = alpha_vector.view(pd.Series)
             pdt.assert_series_equal(observed_series, expected_series)
 
     def test_alpha_collection_phylogenetic(self):
@@ -160,8 +157,7 @@ class AlphaCollectionTests(TestPluginBase):
                                     index=['S1', 'S2'],
                                     name='faith_pd')
         for alpha_vector in observed.values():
-            observed_series = qiime2.Artifact.view(alpha_vector,
-                                                   view_type=pd.Series)
+            observed_series = alpha_vector.view(pd.Series)
             pdt.assert_series_equal(observed_series, expected_series)
 
     def test_alpha_collection_invalid_input(self):
@@ -203,8 +199,7 @@ class AlphaTests(TestPluginBase):
         observed, = self.alpha_pipeline(
             table=table1, sampling_depth=1, metric='observed_features', n=42,
             replacement=True)
-        observed_series = qiime2.Artifact.view(observed,
-                                               view_type=pd.Series)
+        observed_series = observed.view(pd.Series)
 
         expected_series = pd.Series([1., 1.],
                                     index=['S1', 'S2'],
@@ -219,8 +214,7 @@ class AlphaTests(TestPluginBase):
         observed, = self.alpha_pipeline(
             table=table1, sampling_depth=2, metric='observed_features',
             n=99, replacement=True)
-        observed_series = qiime2.Artifact.view(observed,
-                                               view_type=pd.Series)
+        observed_series = observed.view(pd.Series)
         # note that because n is an odd number, the median for S1 will always
         # be one of the actual values that were observed (as opposed to possibly
         # being 1.5, if n was an even number).
@@ -236,8 +230,7 @@ class AlphaTests(TestPluginBase):
         observed, = self.alpha_pipeline(
             table=table1, sampling_depth=2, metric='observed_features',
             n=100, replacement=True, average_method='mean')
-        observed_series = qiime2.Artifact.view(observed,
-                                               view_type=pd.Series)
+        observed_series = observed.view(pd.Series)
         # note that b/c these are <, not <=, we know that identical tables
         # were not always obtained from the resampling step
         self.assertTrue(1.0 < observed_series['S1'] < 2.0)
@@ -256,8 +249,7 @@ class AlphaTests(TestPluginBase):
         observed, = self.alpha_pipeline(
             table=table1, sampling_depth=1, metric='observed_features', n=42,
             replacement=False)
-        observed_series = qiime2.Artifact.view(observed,
-                                               view_type=pd.Series)
+        observed_series = observed.view(pd.Series)
 
         expected_series = pd.Series([1., 1.],
                                     index=['S1', 'S2'],
@@ -270,8 +262,7 @@ class AlphaTests(TestPluginBase):
         observed, = self.alpha_pipeline(
             table=table1, sampling_depth=2, metric='observed_features',
             n=100, replacement=False)
-        observed_series = qiime2.Artifact.view(observed,
-                                               view_type=pd.Series)
+        observed_series = observed.view(pd.Series)
 
         expected_series = pd.Series([2., 1.],
                                     index=['S1', 'S2'],
@@ -284,8 +275,7 @@ class AlphaTests(TestPluginBase):
         observed, = self.alpha_pipeline(
             table=table1, sampling_depth=2, metric='observed_features',
             n=100, replacement=False, average_method='mean')
-        observed_series = qiime2.Artifact.view(observed,
-                                               view_type=pd.Series)
+        observed_series = observed.view(pd.Series)
 
         expected_series = pd.Series([2., 1.],
                                     index=['S1', 'S2'],

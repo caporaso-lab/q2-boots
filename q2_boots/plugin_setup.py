@@ -6,9 +6,8 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
-from qiime2.plugin import (Plugin, Int, Range, Collection,
-                           Citations, Str, Choices, Bool, Float, Threads,
-                           Metadata, Visualization)
+from qiime2.plugin import (Plugin, Int, Range, Collection, Str, Choices, Bool,
+                           Float, Metadata, Visualization)
 
 from q2_types.feature_table import (
     FeatureTable, Frequency, RelativeFrequency, PresenceAbsence
@@ -33,8 +32,6 @@ from q2_boots._examples import (_resample_bootstrap_example,
                                 _core_metrics_rarefaction_example)
 
 
-Citations = Citations.load('citations.bib', package='q2_boots')
-
 plugin = Plugin(
     name='boots',
     version=q2_boots.__version__,
@@ -48,7 +45,12 @@ plugin = Plugin(
 )
 
 
-_feature_table_description = 'The feature table to be resampled.'
+_feature_table_description = 'The input feature table.'
+_phylogeny_description = (
+    'The phylogenetic tree to use in phylogenetic diversity '
+    'calculations. All feature ids in `table` must be present in '
+    'this tree, but this tree can contain feature ids that are '
+    'not present in `table`.')
 _sampling_depth_description = (
     'The total number of observations that each sample in `table` should be '
     'resampled to. Samples where the total number of observations in `table` '
@@ -110,11 +112,8 @@ _diversity_inputs = {
 }
 
 _diversity_input_descriptions = {
-    'table': 'The feature table to use in diversity computations.',
-    'phylogeny': ('The phylogenetic tree to use in phylogenetic diversity '
-                  'calculations. All feature ids in `table` must be present in '
-                  'this tree, but this tree can contain feature ids that are '
-                  'not present in `table`.')
+    'table': _feature_table_description,
+    'phylogeny': _phylogeny_description
 }
 
 _alpha_average_parameters = {
@@ -252,7 +251,6 @@ _beta_collection_parameters = {
                                         beta_metrics['PHYLO']['UNIMPL']),
                 'pseudocount': Int % Range(1, None),
                 'replacement': Bool,
-                'n_jobs': Threads,
                 'n': Int % Range(1, None),
                 'sampling_depth': Int % Range(1, None),
                 'bypass_tips': Bool,
@@ -260,19 +258,11 @@ _beta_collection_parameters = {
                 'alpha': Float % Range(0, 1, inclusive_end=True)
 }
 
-_n_jobs_description = (
-    'The number of CPU threads to use in performing this calculation. '
-    'May not exceed the number of available physical cores. If threads = '
-    '\'auto\', one thread will be created for each identified CPU core on the '
-    'host.'
-)
-
 _beta_collection_parameter_descriptions = {
     'metric': 'The beta diversity metric to be computed.',
     'pseudocount': ('A pseudocount to handle zeros for compositional '
                     'metrics.  This is ignored for other metrics.'),
     'replacement': _replacement_description,
-    'n_jobs': _n_jobs_description,
     'n': _n_description,
     'sampling_depth': _sampling_depth_description,
     'bypass_tips': ('Ignore tips of tree in phylogenetic diversity '
@@ -341,7 +331,6 @@ plugin.pipelines.register_function(
     inputs=_diversity_inputs,
     parameters={
         'metadata': Metadata,
-        'n_jobs': Threads,
         'n': Int % Range(1, None),
         'sampling_depth': Int % Range(1, None),
         'alpha_average_method': Str % Choices('mean', 'median'),
@@ -360,7 +349,6 @@ plugin.pipelines.register_function(
     input_descriptions=_diversity_input_descriptions,
     parameter_descriptions={
         'metadata': 'The sample metadata used in generating Emperor plots.',
-        'n_jobs': _n_jobs_description,
         'n': _n_description,
         'sampling_depth': _sampling_depth_description,
         'alpha_average_method': 'Method to use for averaging alpha diversity.',
