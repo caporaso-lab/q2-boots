@@ -40,7 +40,6 @@ class CoreMetricsTests(TestPluginBase):
         output = self.core_metrics(table=self.table1,
                                    sampling_depth=2,
                                    metadata=self.metadata,
-                                   n_jobs=1,
                                    replacement=False,
                                    n=10)
         # n tables returned
@@ -78,7 +77,6 @@ class CoreMetricsTests(TestPluginBase):
         output = self.core_metrics(table=self.table1,
                                    sampling_depth=2,
                                    metadata=self.metadata,
-                                   n_jobs=1,
                                    replacement=True,
                                    n=99)
         # n tables returned
@@ -146,7 +144,6 @@ class CoreMetricsTests(TestPluginBase):
                                    phylogeny=self.phylogeny,
                                    sampling_depth=2,
                                    metadata=self.metadata,
-                                   n_jobs=1,
                                    replacement=False,
                                    n=10)
         # n tables returned
