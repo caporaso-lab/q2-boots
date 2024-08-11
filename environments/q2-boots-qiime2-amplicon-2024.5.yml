@@ -7,4 +7,4 @@ dependencies:
   - qiime2-amplicon
   - pip
   - pip:
-     - "q2-boots @ git+https://github.com/caporaso-lab/q2-boots.git"
+     - https://github.com/caporaso-lab/q2-boots/archive/refs/tags/2024.5.beta.zip
