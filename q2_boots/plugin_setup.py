@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------------
 
 from qiime2.plugin import (Plugin, Int, Range, Collection, Str, Choices, Bool,
-                           Float, Metadata, Visualization)
+                           Float, Metadata, Visualization, Citations)
 
 from q2_types.feature_table import (
     FeatureTable, Frequency, RelativeFrequency, PresenceAbsence
@@ -31,6 +31,7 @@ from q2_boots._examples import (_resample_bootstrap_example,
                                 _core_metrics_bootstrap_example,
                                 _core_metrics_rarefaction_example)
 
+citations = Citations.load("citations.bib", package='q2_boots')
 
 plugin = Plugin(
     name='boots',
@@ -41,7 +42,8 @@ plugin = Plugin(
                        'analyses.'),
     description=('A plugin providing bootstrapped and rarefaction-based '
                  '(i.e., resampled) diversity analyses, designed to mirror the '
-                 'interface of q2-diversity.')
+                 'interface of q2-diversity.'),
+    citations=[citations['Raspet2024']]
 )
 
 

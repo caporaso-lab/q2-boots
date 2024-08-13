@@ -26,6 +26,6 @@ setup(
     entry_points={
         "qiime2.plugins": ["q2-boots=q2_boots.plugin_setup:plugin"]
     },
-    package_data={},
+    package_data={'q2_boots': ['citations.bib']},
     zip_safe=False,
 )
