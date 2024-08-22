@@ -45,15 +45,14 @@ def alpha_collection(ctx, table, sampling_depth, metric, n,
 
 def alpha(ctx, table, sampling_depth, metric, n, replacement, phylogeny=None,
           average_method='median'):
-
     alpha_collection_action = ctx.get_action("boots", "alpha_collection")
     alpha_average_action = ctx.get_action('boots', 'alpha_average')
-    sample_data = alpha_collection_action(table=table,
-                                          sampling_depth=sampling_depth,
-                                          phylogeny=phylogeny,
-                                          metric=metric,
-                                          n=n,
-                                          replacement=replacement)
+    sample_data, = alpha_collection_action(table=table,
+                                           sampling_depth=sampling_depth,
+                                           phylogeny=phylogeny,
+                                           metric=metric,
+                                           n=n,
+                                           replacement=replacement)
 
     result, = alpha_average_action(sample_data, average_method)
     return result

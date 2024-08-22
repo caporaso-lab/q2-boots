@@ -76,16 +76,16 @@ def beta(ctx, table, metric, sampling_depth, n, replacement,
          variance_adjusted=_METRIC_MOD_DEFAULTS['variance_adjusted']):
     beta_collection_action = ctx.get_action('boots', 'beta_collection')
     beta_average_action = ctx.get_action('boots', 'beta_average')
-    dms = beta_collection_action(table=table,
-                                 phylogeny=phylogeny,
-                                 metric=metric,
-                                 sampling_depth=sampling_depth,
-                                 n=n,
-                                 pseudocount=pseudocount,
-                                 replacement=replacement,
-                                 variance_adjusted=variance_adjusted,
-                                 alpha=alpha,
-                                 bypass_tips=bypass_tips)
+    dms, = beta_collection_action(table=table,
+                                  phylogeny=phylogeny,
+                                  metric=metric,
+                                  sampling_depth=sampling_depth,
+                                  n=n,
+                                  pseudocount=pseudocount,
+                                  replacement=replacement,
+                                  variance_adjusted=variance_adjusted,
+                                  alpha=alpha,
+                                  bypass_tips=bypass_tips)
 
     result, = beta_average_action(dms, average_method)
     return result
