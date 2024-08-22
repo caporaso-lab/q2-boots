@@ -10,11 +10,7 @@ import functools
 
 import pandas as pd
 
-from q2_diversity import (alpha as q2div_alpha,
-                          alpha_phylogenetic as q2div_alpha_phylogenetic)
 from q2_diversity_lib.alpha import METRICS
-
-from q2_boots._resample import resample
 
 
 def alpha_average(data: pd.Series, average_method: str) -> pd.Series:
@@ -35,32 +31,26 @@ def alpha_collection(ctx, table, sampling_depth, metric, n,
                      replacement, phylogeny=None):
     _validate_alpha_metric(metric, phylogeny)
 
-    resample_function = resample
-    alpha_metric_function = _get_alpha_metric_function(ctx, metric, phylogeny)
+    resample_action = ctx.get_action("boots", "resample")
+    alpha_metric_action = _get_alpha_metric_action(ctx, metric, phylogeny)
 
-    tables = resample_function(ctx=ctx,
-                               table=table,
-                               sampling_depth=sampling_depth,
-                               n=n,
-                               replacement=replacement)
+    tables, = resample_action(table=table,
+                              sampling_depth=sampling_depth,
+                              n=n,
+                              replacement=replacement)
 
-    results = _alpha_collection_from_tables(tables, alpha_metric_function)
-
+    results = _alpha_collection_from_tables(tables, alpha_metric_action)
     return results
 
 
 def alpha(ctx, table, sampling_depth, metric, n, replacement, phylogeny=None,
           average_method='median'):
 
-    alpha_collection_function = alpha_collection
+    alpha_collection_action = ctx.get_action("boots", "alpha_collection")
     alpha_average_action = ctx.get_action('boots', 'alpha_average')
-    sample_data = alpha_collection_function(ctx=ctx,
-                                            table=table,
-                                            sampling_depth=sampling_depth,
-                                            phylogeny=phylogeny,
-                                            metric=metric,
-                                            n=n,
-                                            replacement=replacement)
+    sample_data = alpha_collection_action(
+        able=table, sampling_depth=sampling_depth, phylogeny=phylogeny,
+        metric=metric, n=n, eplacement=replacement)
 
     result, = alpha_average_action(sample_data, average_method)
     return result
@@ -71,27 +61,25 @@ def _validate_alpha_metric(metric, phylogeny):
         raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
 
 
-def _get_alpha_metric_function(ctx, metric, phylogeny):
+def _get_alpha_metric_action(ctx, metric, phylogeny):
     if _is_phylogenetic_alpha_metric(metric):
-        alpha_metric_function = q2div_alpha_phylogenetic
-        alpha_metric_function = functools.partial(alpha_metric_function,
-                                                  ctx=ctx,
-                                                  phylogeny=phylogeny,
-                                                  metric=metric)
+        alpha_metric_action = ctx.get_action("diversity", "alpha_phylogenetic")
+        alpha_metric_action = functools.partial(alpha_metric_action,
+                                                phylogeny=phylogeny,
+                                                metric=metric)
     else:
-        alpha_metric_function = q2div_alpha
-        alpha_metric_function = functools.partial(alpha_metric_function,
-                                                  ctx=ctx,
-                                                  metric=metric)
-    return alpha_metric_function
+        alpha_metric_action = ctx.get_action("diversity", "alpha")
+        alpha_metric_action = functools.partial(alpha_metric_action,
+                                                metric=metric)
+    return alpha_metric_action
 
 
 def _is_phylogenetic_alpha_metric(metric):
     return metric in (METRICS['PHYLO']['IMPL'] | METRICS['PHYLO']['UNIMPL'])
 
 
-def _alpha_collection_from_tables(tables, alpha_metric_function):
+def _alpha_collection_from_tables(tables, alpha_metric_action):
     results = []
     for table in tables.values():
-        results.append(alpha_metric_function(table=table))
+        results.append(alpha_metric_action(table=table)[0])
     return results
