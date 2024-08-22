@@ -55,12 +55,14 @@ def beta_collection(
     _validate_beta_metric(metric, phylogeny)
 
     resample_action = ctx.get_action("boots", "resample")
-    beta_metric_action = _get_beta_metric_action(ctx, metric, phylogeny)
+    beta_metric_action = _get_beta_metric_action(
+        ctx, metric, phylogeny, bypass_tips, pseudocount, alpha,
+        variance_adjusted)
 
-    tables = resample_action(table=table,
-                             sampling_depth=sampling_depth,
-                             n=n,
-                             replacement=replacement)
+    tables, = resample_action(table=table,
+                              sampling_depth=sampling_depth,
+                              n=n,
+                              replacement=replacement)
     results = _beta_collection_from_tables(tables, beta_metric_action)
 
     return results
@@ -121,16 +123,25 @@ def _validate_beta_metric(metric, phylogeny):
         raise ValueError(f'Metric {metric} requires a phylogenetic tree.')
 
 
-def _get_beta_metric_action(ctx, metric, phylogeny):
+def _get_beta_metric_action(
+        ctx, metric, phylogeny,
+        bypass_tips=_METRIC_MOD_DEFAULTS['bypass_tips'],
+        pseudocount=_METRIC_MOD_DEFAULTS['pseudocount'],
+        alpha=_METRIC_MOD_DEFAULTS['alpha'],
+        variance_adjusted=_METRIC_MOD_DEFAULTS['variance_adjusted']):
     if _is_phylogenetic_beta_metric(metric):
         beta_metric_action = ctx.get_action("diversity", "beta_phylogenetic")
         beta_metric_action = functools.partial(beta_metric_action,
                                                phylogeny=phylogeny,
-                                               metric=metric)
+                                               metric=metric,
+                                               bypass_tips=bypass_tips,
+                                               alpha=alpha,
+                                               variance_adjusted=variance_adjusted)
     else:
         beta_metric_action = ctx.get_action("diversity", "beta")
         beta_metric_action = functools.partial(beta_metric_action,
-                                               metric=metric)
+                                               metric=metric,
+                                               pseudocount=pseudocount)
     return beta_metric_action
 
 
