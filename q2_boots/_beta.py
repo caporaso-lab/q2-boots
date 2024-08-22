@@ -131,12 +131,13 @@ def _get_beta_metric_action(
         variance_adjusted=_METRIC_MOD_DEFAULTS['variance_adjusted']):
     if _is_phylogenetic_beta_metric(metric):
         beta_metric_action = ctx.get_action("diversity", "beta_phylogenetic")
-        beta_metric_action = functools.partial(beta_metric_action,
-                                               phylogeny=phylogeny,
-                                               metric=metric,
-                                               bypass_tips=bypass_tips,
-                                               alpha=alpha,
-                                               variance_adjusted=variance_adjusted)
+        beta_metric_action = functools.partial(
+            beta_metric_action,
+            phylogeny=phylogeny,
+            metric=metric,
+            bypass_tips=bypass_tips,
+            alpha=alpha,
+            variance_adjusted=variance_adjusted)
     else:
         beta_metric_action = ctx.get_action("diversity", "beta")
         beta_metric_action = functools.partial(beta_metric_action,
