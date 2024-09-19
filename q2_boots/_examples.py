@@ -99,13 +99,13 @@ def _beta_bootstrap_example(use):
         use.UsageAction(plugin_id='boots',
                         action_id='beta'),
         use.UsageInputs(table=table,
-                        metric='braycurtis',
+                        metric='bray_curtis',
                         sampling_depth=20,
                         n=10,
                         replacement=True,
                         average_method='medoid'),
         use.UsageOutputNames(
-            average_distance_matrix='braycurtis_bootstrapped')
+            average_distance_matrix='bray_curtis_bootstrapped')
     )
 
 
@@ -117,12 +117,12 @@ def _beta_rarefaction_example(use):
                         action_id='beta'),
         use.UsageInputs(table=table,
                         sampling_depth=20,
-                        metric='braycurtis',
+                        metric='bray_curtis',
                         n=10,
                         replacement=False,
                         average_method='medoid'),
         use.UsageOutputNames(
-            average_distance_matrix='braycurtis_rarefaction')
+            average_distance_matrix='bray_curtis_rarefaction')
     )
 
 

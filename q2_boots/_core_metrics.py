@@ -26,7 +26,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, n, replacement,
     emperor_plot_action = ctx.get_action('emperor', 'plot')
 
     alpha_metrics = ['pielou_e', 'observed_features', 'shannon']
-    beta_metrics = ['braycurtis', 'jaccard']
+    beta_metrics = ['bray_curtis', 'jaccard']
     if phylogeny is not None:
         alpha_metrics.append('faith_pd')
         beta_metrics.extend(['unweighted_unifrac', 'weighted_unifrac'])
