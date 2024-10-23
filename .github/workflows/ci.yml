@@ -20,7 +20,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: q2-boots-qiime2-amplicon-2024.10
-        environment-file: environments/q2-boots-qiime2-amplicon-2024.10.yml
+        environment-file: environment-files/q2-boots-qiime2-amplicon-2024.10.yml
         auto-activate-base: false
 
     - name: Install plugin
