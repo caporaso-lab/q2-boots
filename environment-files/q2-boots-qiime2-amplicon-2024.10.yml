@@ -1,4 +1,3 @@
-name: q2-boots-qiime2-amplicon-2024.10
 channels:
 - https://packages.qiime2.org/qiime2/2024.10/amplicon/passed
 - conda-forge
