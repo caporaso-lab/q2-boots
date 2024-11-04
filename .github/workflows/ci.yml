@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-test-qiime2-amplicon-2024-10:
+  build-and-test-qiime2-amplicon-2025-4:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -19,8 +19,8 @@ jobs:
     - name: Set up Conda
       uses: conda-incubator/setup-miniconda@v3
       with:
-        activate-environment: q2-boots-qiime2-amplicon-2024.10
-        environment-file: environment-files/q2-boots-qiime2-amplicon-2024.10.yml
+        activate-environment: q2-boots-qiime2-amplicon-2025.4
+        environment-file: environment-files/q2-boots-qiime2-amplicon-2025.4.yml
         auto-activate-base: false
 
     - name: Install plugin
