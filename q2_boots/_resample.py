@@ -11,9 +11,9 @@ def resample(ctx, table, sampling_depth, n, replacement):
     resampled_tables = []
 
     for i in range(n):
-        resampled_table = rarefy_action(table=table,
-                                        sampling_depth=sampling_depth,
-                                        with_replacement=replacement)[0]
+        resampled_table, = rarefy_action(table=table,
+                                         sampling_depth=sampling_depth,
+                                         with_replacement=replacement)
         resampled_tables.append(resampled_table)
 
     return {f'resampled-table-{i}': t for i, t in enumerate(resampled_tables)}
