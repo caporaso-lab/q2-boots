@@ -43,7 +43,7 @@ plugin = Plugin(
     description=('A plugin providing bootstrapped and rarefaction-based '
                  '(i.e., resampled) diversity analyses, designed to mirror the '
                  'interface of q2-diversity.'),
-    citations=[citations['Raspet2024']]
+    citations=[citations['Raspet2025']]
 )
 
 
