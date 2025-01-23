@@ -7,3 +7,4 @@ dependencies:
   - pip
   - pip:
      - "q2-boots @ git+https://github.com/caporaso-lab/q2-boots.git"
+     - hdmedians
