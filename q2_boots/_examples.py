@@ -200,19 +200,6 @@ def _kmer_diversity_bootstrap_example(use):
     table = use.init_artifact('table', table_factory)
     sequences = use.init_artifact('sequences', sequences_factory)
     metadata = use.init_metadata('metadata', metadata_factory)
-
-    # There seems to be a bug in the handling of this example, but I'm not yet
-    # sure what it is. First, the Collection[Visualization] is not being handled
-    # correctly. On the command line, the --o-emperor_plots value is
-    # bootstrap_emperor_plots.qzv, though it is a directory and the expected
-    # files are inside of it.
-    # Additionally, setting the return value of use.action to `core_metrics, `
-    # fails when calling `qiime dev refresh-cache`. As a result, the variable
-    # I'm setting the return value to here differs from those used in the
-    # previous examples. That, in turn, is triggering flake8 to complain about
-    # unused variables. So, some stuff to unpack here 🥁, but the following
-    # mostly works. (Queue *Hal fixing light bulb* video.)
-    # This all goes for `_core_metrics_rarefaction_example` as well.
     kmer_diversity = use.action(  # noqa: F841
         use.UsageAction(plugin_id='boots',
                         action_id='kmer_diversity'),
