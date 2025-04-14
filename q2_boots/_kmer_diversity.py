@@ -6,6 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 
+import numpy as np
 from skbio import OrdinationResults
 from qiime2 import Metadata
 from q2_boots._alpha import (_validate_alpha_metric, _get_alpha_metric_action,
@@ -74,6 +75,11 @@ def kmer_diversity(ctx, table, sequences, sampling_depth, metadata, n,
     for pcoa, name in zip(pcoas.values(), beta_metrics):
         pc_result = pcoa.view(OrdinationResults)
         prop_explained = pc_result.proportion_explained[:pc_dimensions].values
+        # replace nan with 0.0 (indicating no variation explained) - this
+        # prevents failure in situations of extreme low diversity (like the
+        # usage example), and only impacts the scatter plot (not the actual
+        # ordination results being produced by the action)
+        prop_explained = np.nan_to_num(prop_explained)
         pc_result = pcoa.view(Metadata).to_dataframe().iloc[:, :pc_dimensions]
         pc_result.columns = ['{0} {1} ({2}%)'.format(name, c, int(p * 100)) for
                              c, p in zip(pc_result.columns, prop_explained)]

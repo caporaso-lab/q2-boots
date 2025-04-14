@@ -32,7 +32,8 @@ from q2_boots._examples import (_resample_bootstrap_example,
                                 _beta_bootstrap_example,
                                 _beta_rarefaction_example,
                                 _core_metrics_bootstrap_example,
-                                _core_metrics_rarefaction_example)
+                                _core_metrics_rarefaction_example,
+                                _kmer_diversity_bootstrap_example)
 
 citations = Citations.load("citations.bib", package='q2_boots')
 
@@ -468,7 +469,7 @@ plugin.pipelines.register_function(
         'scatter_plot': ('Scatter plot including alpha diversity and '
                          'pcoa results for all selected metrics.')
     },
-    name='Perform resampled "core metrics" analysis.',
+    name='Perform resampled "core metrics" analysis on kmerized features.',
     description=('Given a single feature table as input, this action resamples '
                  'the feature table `n` times to a total frequency of '
                  '`sampling depth` per sample. It then splits all input '
@@ -480,5 +481,6 @@ plugin.pipelines.register_function(
                  'alpha and beta diversity artifacts are returned, along with '
                  'a scatter plot integrated all alpha diversity metrics and '
                  'the PCoA axes for all beta diversity metrics.'),
-    examples={}
+    examples={'Bootstrapped kmer diversity': _kmer_diversity_bootstrap_example},
+    citations=[citations['Bokulich2024']]
 )
