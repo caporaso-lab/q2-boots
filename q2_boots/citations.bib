@@ -43,35 +43,54 @@
 }
 
 @ARTICLE{Bokulich2024,
-  title    = "{Integrating sequence composition information into microbial
-              diversity analyses with k-mer frequency counting}",
-  author   = "Bokulich, Nicholas Andrew",
-  journal  = "bioRxiv",
-  pages    = "2024.08.13.607770",
-  abstract = "K-mer frequency information in biological sequences is used for a
-              wide range of applications, including taxonomy classification,
-              sequence similarity estimation, and supervised learning. However,
-              in spite of its widespread utility, k-mer counting has been
-              largely neglected for diversity estimation. This work examines the
-              application of k-mer counting for alpha and beta diversity as well
-              as supervised classification from microbiome marker-gene
-              sequencing datasets (16S rRNA gene and full-length fungal ITS
-              sequences). Results demonstrate a close correspondence with
-              phylogenetically aware diversity metrics, and advantages for using
-              k-mer-based metrics for measuring microbial biodiversity in
-              microbiome sequencing surveys. K-mer counting appears to be a
-              suitable and efficient strategy for feature processing prior to
-              diversity estimation as well as supervised learning in microbiome
-              surveys. This allows incorporation of subsequence-level
-              information into diversity estimation without the computational
-              cost of pairwise sequence alignment. K-mer counting is proposed as
-              a complementary approach for feature processing prior to diversity
-              estimation and supervised learning analyses, enabling large-scale
-              reference-free profiling of microbiomes in biogeography, ecology,
-              and biomedical data. A method for k-mer counting from marker-gene
-              sequence data is implemented in the QIIME 2 plugin q2-kmerizer
-              https://github.com/bokulich-lab/q2-kmerizer.",
-  month    =  aug,
-  year     =  2024,
-  language = "en"
+  title     = "{Integrating sequence composition information into microbial
+               diversity analyses with k-mer frequency counting}",
+  author    = "Bokulich, Nicholas A",
+  journal   = "mSystems",
+  publisher = "American Society for Microbiology",
+  volume    =  10,
+  number    =  3,
+  pages     = "e0155024",
+  abstract  = "k-mer frequency information in biological sequences is used for a
+               wide range of applications, including taxonomy classification,
+               sequence similarity estimation, and supervised learning. However,
+               in spite of its widespread utility, k-mer counting has been
+               largely neglected for diversity estimation. This work examines
+               the application of k-mer counting for alpha and beta diversity as
+               well as supervised classification from microbiome marker-gene
+               sequencing data sets (16S rRNA gene and full-length fungal
+               internal transcribed spacer [ITS] sequences). Results demonstrate
+               a close correspondence with phylogenetically aware diversity
+               metrics, and advantages for using k-mer-based metrics for
+               measuring microbial biodiversity in microbiome sequencing
+               surveys. k-mer counting appears to be a suitable and efficient
+               strategy for feature processing prior to diversity estimation as
+               well as supervised learning in microbiome surveys. This allows
+               the incorporation of subsequence-level information into diversity
+               estimation without the computational cost of pairwise sequence
+               alignment. k-mer counting is proposed as a complementary approach
+               for feature processing prior to diversity estimation and
+               supervised learning analyses, enabling large-scale reference-free
+               profiling of microbiomes in biogeography, ecology, and biomedical
+               data. A method for k-mer counting from marker-gene sequence data
+               is implemented in the QIIME 2 plugin q2-kmerizer
+               (https://github.com/bokulich-lab/q2-kmerizer). IMPORTANCE: k-mers
+               are all of the subsequences of length k that comprise a sequence.
+               Comparing the frequency of k-mers in DNA sequences yields
+               valuable information about the composition of these sequences and
+               their similarity. This work demonstrates that k-mer frequencies
+               from marker-gene sequence surveys can be used to inform diversity
+               estimates and machine learning predictions that incorporate
+               sequence composition information. Alpha and beta diversity
+               estimates based on k-mer frequencies closely correspond to
+               phylogenetically aware diversity metrics, suggesting that
+               k-mer-based diversity estimates are useful proxy measurements
+               especially when reliable phylogenies are not available, as is
+               often the case for some DNA sequence targets such as for internal
+               transcribed spacer sequences.",
+  month     =  mar,
+  year      =  2025,
+  keywords  = "alpha diversity; beta diversity; marker-gene sequencing;
+               microbiome; supervised learning",
+  language  = "en"
 }
