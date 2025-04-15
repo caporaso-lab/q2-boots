@@ -13,6 +13,7 @@ project:
     q2doc-usage-target: https://use.qiime2.org/en/latest/
     q2doc-library-target: https://library.qiime2.org
     q2doc-amplicon-target: https://amplicon-docs.readthedocs.io/en/latest/
+    q2doc-gut-to-soil-target: https://gut-to-soil-tutorial.readthedocs.io/en/latest/
 
   plugins:
     - type: executable

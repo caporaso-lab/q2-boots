@@ -17,7 +17,6 @@ conda activate q2-boots-docs
 q2doc refresh-cache
 ```
 
-
 ### Autogenerate plugin documentation
 
 Then, create the auto-generated documentation.
@@ -26,7 +25,6 @@ This will only need to be run the first time you build your documentation, or so
 ```
 make autodoc
 ```
-
 
 ### Build the book
 

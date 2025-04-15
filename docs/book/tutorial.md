@@ -1,7 +1,10 @@
-(tutorial)=
-# Tutorial
+(gut-to-soil-tutorial)=
+# Gut-to-soil axis tutorial 💩🌱
 
-:::{note}
-This document was built with its own conda environment.
-You can download the environment file that was used from the download link on the top-right of this article.
-:::
+```{embed} xref:q2doc-gut-to-soil-target#gut-to-soil-16s-tutorial
+```
+
+<!--
+ Looking for the source of this tutorial?
+ It's cross-referenced from https://github.com/caporaso-lab/gut-to-soil-tutorial.
+-->

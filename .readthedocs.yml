@@ -11,13 +11,15 @@ build:
     python: "mambaforge-latest"
   jobs:
     create_environment:
-      - conda env create -p .env/ --file environment-files/readthedocs.yml
+      - conda env create -p .env/ --file docs/environment-files/readthedocs.yml
     build:
       html:
+        - cd docs
         - PATH=$(pwd)/.env/bin/:$PATH q2doc refresh-cache
+        - PATH=$(pwd)/.env/bin/:$PATH make autodoc
         - PATH=$(pwd)/.env/bin/:$PATH make html
         - mkdir -p $READTHEDOCS_OUTPUT
         - cp -a book/_build/* $READTHEDOCS_OUTPUT/
 
 conda:
-  environment: environment-files/readthedocs.yml
+  environment: docs/environment-files/readthedocs.yml
