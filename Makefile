@@ -43,7 +43,7 @@ _build-preview:
 	cd docs/book && Q2DOC_PREVIEW= jupyter book build --html
 
 autodoc:
-	q2doc autodoc --singlepage --plugin boots --output plugin-reference book
+	cd docs/book && q2doc autodoc --singlepage --plugin boots --output plugin-reference .
 
 html: _copy-env-file _build-html _copy-data
 

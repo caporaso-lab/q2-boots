@@ -4,6 +4,7 @@ channels:
 - bioconda
 dependencies:
   - qiime2-amplicon
+  - nodejs
   - pip
   - pip:
     - q2doc@git+https://github.com/qiime2/q2doc@dev
