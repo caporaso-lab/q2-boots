@@ -12,6 +12,7 @@ from ._alpha import alpha, alpha_collection, alpha_average
 from ._version import get_versions
 from ._beta import beta, beta_collection, beta_average
 from ._core_metrics import core_metrics
+from ._kmer_diversity import kmer_diversity
 from . import _version
 
 __all__ = ['resample',
@@ -21,7 +22,8 @@ __all__ = ['resample',
            'beta_average'
            'beta_collection',
            'beta',
-           'core_metrics']
+           'core_metrics',
+           'kmer_diversity']
 
 __version__ = get_versions()['version']
 del get_versions
