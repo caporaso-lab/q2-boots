@@ -1,0 +1,23 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the OS, Python version, and other tools you might need
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "mambaforge-latest"
+  jobs:
+    create_environment:
+      - conda env create -p .env/ --file environment-files/readthedocs.yml
+    build:
+      html:
+        - PATH=$(pwd)/.env/bin/:$PATH q2doc refresh-cache
+        - PATH=$(pwd)/.env/bin/:$PATH make html
+        - mkdir -p $READTHEDOCS_OUTPUT
+        - cp -a book/_build/* $READTHEDOCS_OUTPUT/
+
+conda:
+  environment: environment-files/readthedocs.yml
