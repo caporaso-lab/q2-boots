@@ -36,7 +36,7 @@ citations = Citations.load("citations.bib", package='q2_boots')
 plugin = Plugin(
     name='boots',
     version=q2_boots.__version__,
-    website='https://github.com/caporaso-lab/q2-boots',
+    website='https://library.qiime2.org/plugins/caporaso-lab/q2-boots',
     package='q2_boots',
     short_description=('Bootstrapped and rarefaction-based diversity '
                        'analyses.'),
