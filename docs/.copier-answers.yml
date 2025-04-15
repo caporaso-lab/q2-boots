@@ -1,0 +1,9 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: ab7ebff
+_src_path: https://github.com/gregcaporaso/q2docs-template
+author_website: https://cap-lab.bio
+book_author: Caporaso Lab
+book_id: q2-boots-docs
+book_title: q2-boots Documentation
+book_type: Plugin documentation
+plugin_name: boots
