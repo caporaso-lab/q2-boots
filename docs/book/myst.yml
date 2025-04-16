@@ -22,12 +22,9 @@ project:
   toc:
     - file: intro.md
     - file: tutorial.md
-
-    - title: References
+    - title: Plugin Reference
       children:
-        - title: Plugin Reference
-          children:
-              - pattern: plugin-reference/plugins/*.md
+        - pattern: plugin-reference/plugins/*.md
         - title: Artifact Classes and Formats
           children:
             - pattern: plugin-reference/artifacts/*.md
