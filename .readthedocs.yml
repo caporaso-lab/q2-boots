@@ -12,8 +12,8 @@ build:
   jobs:
     create_environment:
       - conda env create -p .env/ --file docs/environment-files/readthedocs.yml
-      - qiime dev refresh-cache
-      - qiime info
+      - PATH=$(pwd)/.env/bin/:$PATH qiime dev refresh-cache
+      - PATH=$(pwd)/.env/bin/:$PATH qiime info
     build:
       html:
         - PATH=$(pwd)/.env/bin/:$PATH q2doc refresh-cache
