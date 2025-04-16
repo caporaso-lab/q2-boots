@@ -22,7 +22,6 @@ project:
   toc:
     - file: intro.md
     - file: tutorial.md
-
     - title: References
       children:
         - title: Plugin Reference

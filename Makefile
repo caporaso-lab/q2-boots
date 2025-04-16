@@ -44,6 +44,7 @@ _build-preview:
 
 autodoc:
 	cd docs/book && q2doc autodoc --singlepage --plugin boots --output plugin-reference .
+	ls -al
 
 html: _copy-env-file _build-html _copy-data
 
