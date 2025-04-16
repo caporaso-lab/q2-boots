@@ -5,6 +5,7 @@ channels:
 dependencies:
   - qiime2-amplicon
   - nodejs
+  - tree
   - pip
   - pip:
     - q2doc@git+https://github.com/qiime2/q2doc@dev
