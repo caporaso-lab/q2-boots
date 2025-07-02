@@ -1,17 +1,16 @@
-# Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-# Required
 version: 2
 
-# Set the OS, Python version, and other tools you might need
 build:
   os: ubuntu-24.04
   tools:
     python: "mambaforge-latest"
   jobs:
     create_environment:
-      - conda env create -p .env/ --file docs/environment-files/readthedocs.yml
+      - conda env create -p .env/ --file environment-files/development-q2-boots-environment.yml
+      - conda install -p .env/ -c conda-forge nodejs
+      - conda run -p .env/ pip install 'q2doc@git+https://github.com/qiime2/q2doc@dev'
+      - conda run -p .env/ pip install 'jupyter-book==2.0.0a1'
+      - conda run -p .env/ pip install .
     build:
       html:
         - PATH=$(pwd)/.env/bin/:$PATH q2doc refresh-cache
@@ -21,4 +20,4 @@ build:
         - cp -a docs/book/_build/* $READTHEDOCS_OUTPUT/
 
 conda:
-  environment: docs/environment-files/readthedocs.yml
+  environment: environment-files/development-q2-boots-environment.yml
