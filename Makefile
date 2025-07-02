@@ -23,7 +23,7 @@ distclean: ;
 
 # doc build targets and helpers
 _copy-env-file:
-	cp docs/environment-files/readthedocs.yml docs/book/_static/environment.yml
+	cp environment-files/development-q2-boots-environment.yml docs/book/_static/environment.yml
 
 _copy-data:
 	@if [ -d "docs/book/data/" ]; then \
