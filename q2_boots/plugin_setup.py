@@ -343,7 +343,9 @@ plugin.pipelines.register_function(
         'beta_average_method': Str % Choices('non-metric-mean',
                                              'non-metric-median',
                                              'medoid'),
-        'replacement': Bool
+        'replacement': Bool,
+        'pc_dimensions': Int,
+        'color_by': Str
     },
     outputs=[
         ('resampled_tables', Collection[FeatureTable[Frequency]]),
@@ -351,6 +353,7 @@ plugin.pipelines.register_function(
         ('distance_matrices', Collection[DistanceMatrix]),
         ('pcoas', Collection[PCoAResults]),
         ('emperor_plots', Collection[Visualization]),
+        ('scatter_plot', Visualization),
     ],
     input_descriptions=_diversity_input_descriptions,
     parameter_descriptions={
@@ -359,7 +362,11 @@ plugin.pipelines.register_function(
         'sampling_depth': _sampling_depth_description,
         'alpha_average_method': 'Method to use for averaging alpha diversity.',
         'beta_average_method': 'Method to use for averaging beta diversity.',
-        'replacement': _replacement_description
+        'replacement': _replacement_description,
+        'pc_dimensions': 'Number of principal coordinate dimensions to keep '
+                         'for plotting.',
+        'color_by': 'Categorical measure from the input Metadata that '
+                    'should be used for color-coding the scatterplot.'
     },
     output_descriptions={
         'resampled_tables': _resampled_tables_description,
@@ -367,7 +374,9 @@ plugin.pipelines.register_function(
         'distance_matrices': ('Average beta diversity distance matrix for '
                               'each metric.'),
         'pcoas': 'PCoA matrix for each beta diversity metric.',
-        'emperor_plots': 'Emperor plot for each beta diversity metric.'
+        'emperor_plots': 'Emperor plot for each beta diversity metric.',
+        'scatter_plot': ('Scatter plot including alpha diversity and '
+                         'pcoa results for all selected metrics.')
     },
     name='Perform resampled "core metrics" analysis.',
     description=('Given a single feature table as input, this action resamples '

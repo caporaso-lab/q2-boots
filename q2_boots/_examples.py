@@ -167,7 +167,8 @@ def _core_metrics_bootstrap_example(use):
             alpha_diversities='bootstrap_alpha_diversities',
             distance_matrices='bootstrap_distance_matrices',
             pcoas='bootstrap_pcoas',
-            emperor_plots='bootstrap_emperor_plots'
+            emperor_plots='bootstrap_emperor_plots',
+            scatter_plot='scatter_plot'
             )
     )
 
@@ -191,7 +192,8 @@ def _core_metrics_rarefaction_example(use):
             alpha_diversities='rarefaction_alpha_diversities',
             distance_matrices='rarefaction_distance_matrices',
             pcoas='rarefaction_pcoas',
-            emperor_plots='rarefaction_emperor_plots'
+            emperor_plots='rarefaction_emperor_plots',
+            scatter_plot='scatter_plot'
             )
     )
 

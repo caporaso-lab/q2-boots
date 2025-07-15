@@ -74,7 +74,7 @@ class KmerDiversityTests(TestPluginBase):
         observed_obs_features = output[2]['observed_features'].view(pd.Series)
         pdt.assert_series_equal(observed_obs_features, expected_obs_features)
 
-        # expected dms, pcoas, and plots returned
+        # expected dms and pcoas returned
         self.assertEqual(set(output[3].keys()), set(['jaccard', 'braycurtis']))
         self.assertEqual(set(output[4].keys()), set(['jaccard', 'braycurtis']))
 
