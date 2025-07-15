@@ -67,6 +67,15 @@ _replacement_description = (
     'Resample `table` with replacement (i.e., bootstrap) or without '
     'replacement (i.e., rarefaction).')
 _resampled_tables_description = 'The `n` resampled tables.'
+_pc_dimensions_description = (
+    'Number of principal coordinate dimensions to present in the 2D '
+    'scatterplot.')
+_color_by_description = (
+    'Categorical measure from the input Metadata that should be used for '
+    'color-coding the 2D scatterplot.')
+_scatter_plot_description = (
+    '2D scatter plot including alpha diversity and pcoa results for all '
+    'selected metrics.')
 
 # Resampling
 
@@ -363,10 +372,8 @@ plugin.pipelines.register_function(
         'alpha_average_method': 'Method to use for averaging alpha diversity.',
         'beta_average_method': 'Method to use for averaging beta diversity.',
         'replacement': _replacement_description,
-        'pc_dimensions': 'Number of principal coordinate dimensions to keep '
-                         'for plotting.',
-        'color_by': 'Categorical measure from the input Metadata that '
-                    'should be used for color-coding the scatterplot.'
+        'pc_dimensions': _pc_dimensions_description,
+        'color_by': _color_by_description
     },
     output_descriptions={
         'resampled_tables': _resampled_tables_description,
@@ -375,8 +382,7 @@ plugin.pipelines.register_function(
                               'each metric.'),
         'pcoas': 'PCoA matrix for each beta diversity metric.',
         'emperor_plots': 'Emperor plot for each beta diversity metric.',
-        'scatter_plot': ('Scatter plot including alpha diversity and '
-                         'pcoa results for all selected metrics.')
+        'scatter_plot': _scatter_plot_description
     },
     name='Perform resampled "core metrics" analysis.',
     description=('Given a single feature table as input, this action resamples '
@@ -387,7 +393,9 @@ plugin.pipelines.register_function(
                  'specified by `alpha_average_method` and '
                  '`beta_average_method` parameters. The resulting average '
                  'alpha and beta diversity artifacts are returned, along with '
-                 'PCoA matrices and Emperor plots.'),
+                 'PCoA matrices, Emperor plots, and a 2D scatter plot '
+                 'including alpha diversity values and PCoA of all beta '
+                 'diversity metrics.'),
     examples={
         'Bootstrapped core metrics.': _core_metrics_bootstrap_example,
         'Rarefaction-based core metrics.': _core_metrics_rarefaction_example
@@ -463,10 +471,8 @@ plugin.pipelines.register_function(
         'norm': 'Normalization procedure applied to TF-IDF scores. Ignored '
                 'if tfidf=False. l2: Sum of squares of vector elements is 1. '
                 'l1: Sum of absolute values of vector elements is 1.',
-        'pc_dimensions': 'Number of principal coordinate dimensions to keep '
-                         'for plotting.',
-        'color_by': 'Categorical measure from the input Metadata that '
-                    'should be used for color-coding the scatterplot.'
+        'pc_dimensions': _pc_dimensions_description,
+        'color_by': _color_by_description
     },
     output_descriptions={
         'resampled_tables': _resampled_tables_description,
@@ -475,8 +481,7 @@ plugin.pipelines.register_function(
         'distance_matrices': ('Average beta diversity distance matrix for '
                               'each metric.'),
         'pcoas': 'PCoA matrix for each beta diversity metric.',
-        'scatter_plot': ('Scatter plot including alpha diversity and '
-                         'pcoa results for all selected metrics.')
+        'scatter_plot': _scatter_plot_description
     },
     name='Perform resampled "core metrics" analysis on kmerized features.',
     description=('Given a single feature table as input, this action resamples '
