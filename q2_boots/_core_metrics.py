@@ -53,6 +53,7 @@ def core_metrics(ctx, table, sampling_depth, metadata, n, replacement,
         avg_alpha_vector, = alpha_average_action(
             alpha_collection, alpha_average_method)
         alpha_vectors[alpha_metric] = avg_alpha_vector
+        metadata = avg_alpha_vector.view(Metadata).merge(metadata)
 
     beta_dms = {}
     for beta_metric in beta_metrics:
