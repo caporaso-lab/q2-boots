@@ -8,6 +8,7 @@
 
 import qiime2
 from qiime2.plugin.testing import TestPluginBase
+from qiime2.plugin import Visualization
 import pandas as pd
 import pandas.testing as pdt
 import skbio
@@ -72,6 +73,9 @@ class CoreMetricsTests(TestPluginBase):
                                                 ids=['S1', 'S2'])
         observed_jaccard = output[2]['jaccard'].view(skbio.DistanceMatrix)
         self.assertEqual(observed_jaccard, expected_jaccard)
+
+        # vizard scatter plot returned
+        self.assertEqual(output[5].type, Visualization)
 
     def test_core_metrics_w_replacement(self):
         output = self.core_metrics(table=self.table1,
@@ -139,6 +143,9 @@ class CoreMetricsTests(TestPluginBase):
                         msg=(f"Median value ({observed_jaccard[('S1', 'S2')]}) "
                              "is not equal to 0.0, 0.5 or 1.0."))
 
+        # vizard scatter plot returned
+        self.assertEqual(output[5].type, Visualization)
+
     def test_core_metrics_phylogenetic(self):
         output = self.core_metrics(table=self.table1,
                                    phylogeny=self.phylogeny,
@@ -192,3 +199,6 @@ class CoreMetricsTests(TestPluginBase):
             output[2]['unweighted_unifrac'].view(skbio.DistanceMatrix)
         self.assertEqual(observed_unweighted_unifrac,
                          expected_unweighted_unifrac)
+
+        # vizard scatter plot returned
+        self.assertEqual(output[5].type, Visualization)
