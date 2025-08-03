@@ -180,18 +180,17 @@ jobs:
           activate-environment: test-env
           miniforge-version: latest
 
-      - name: Try installing new release env file
-        shell: bash
+      - name: Try installing new release env and check version info
         run: |
           git checkout automated/release-${{ env.RELEASE_TAG }}-env-file-updates
           ENV_PATH='environment-files/${{ env.PACKAGE_NAME }}-qiime2-${{ env.TARGET_DISTRO }}-${{ env.RELEASED_EPOCH }}-release-${{ env.RELEASE_TAG }}.yml'
           conda env create -n test-release-env -f $ENV_PATH
 
-      - name: Activate and check version info
-        run: |
           source "$(conda info --base)/etc/profile.d/conda.sh"
           conda activate test-release-env
           conda list
+
+          echo "INSTALL_SUCCESS=true" >> $GITHUB_ENV
 
       - name: Get job ID
         if: always()
@@ -206,8 +205,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           JOB_URL: ${{ steps.get-job-id.outputs.html_url }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          INSTALL_SUCCESS: ${{ env.INSTALL_SUCCESS }}
         run: |
-          if conda env list | grep -q test-release-env; then
+          if [[ "$INSTALL_SUCCESS" == "true" ]]; then
             gh pr comment "$PR_NUMBER" \
               --body ":white_check_mark: **Environment install test passed!**"
           else
