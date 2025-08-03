@@ -29,6 +29,8 @@ test:
   requires:
   - qiime2 >={{ qiime2 }}
   - q2-types >={{ q2_types }}
+  - q2-kmerizer >={{ q2_kmerizer }}
+  - q2-diversity >={{ q2_diversity }}
   - q2-feature-table >={{ q2_feature_table }}
   - pytest
   imports:
