@@ -182,15 +182,24 @@ jobs:
 
       - name: Try installing new release env and check version info
         run: |
+          set -e
           git checkout automated/release-${{ env.RELEASE_TAG }}-env-file-updates
-          ENV_PATH='environment-files/${{ env.PACKAGE_NAME }}-qiime2-${{ env.TARGET_DISTRO }}-${{ env.RELEASED_EPOCH }}-release-${{ env.RELEASE_TAG }}.yml'
-          conda env create -n test-release-env -f $ENV_PATH
+          ENV_PATH="environment-files/${{ env.PACKAGE_NAME }}-qiime2-${{ env.TARGET_DISTRO }}-${{ env.RELEASED_EPOCH }}-release-${{ env.RELEASE_TAG }}.yml"
+
+          conda env create -n test-release-env -f "$ENV_PATH"
 
           source "$(conda info --base)/etc/profile.d/conda.sh"
-          conda activate test-release-env
-          conda list
 
-          echo "INSTALL_SUCCESS=true" >> $GITHUB_ENV
+          echo "Activating test-release-env..."
+          if conda activate test-release-env; then
+            echo "Activation succeeded."
+            conda list
+            echo "INSTALL_SUCCESS=true" >> $GITHUB_ENV
+          else
+            echo "Activation failed!"
+            echo "INSTALL_SUCCESS=false" >> $GITHUB_ENV
+            exit 1
+          fi
 
       - name: Get job ID
         if: always()
