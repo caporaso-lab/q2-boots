@@ -129,7 +129,8 @@ class BetaCollectionTests(TestPluginBase):
 
     def setUp(self):
         super().setUp()
-        self.beta_collection_pipeline = self.plugin.pipelines['beta_collection']
+        self.beta_collection_pipeline = \
+            self.plugin.pipelines['beta_collection']
 
         table1 = pd.DataFrame(data=[[1, 1], [0, 4]],
                               columns=['F1', 'F2'],
@@ -139,7 +140,9 @@ class BetaCollectionTests(TestPluginBase):
         )
 
     def test_beta_collection_invalid_input(self):
-        with self.assertRaisesRegex(ValueError, 'requires a phylogenetic tree'):
+        with self.assertRaisesRegex(
+            ValueError, 'requires a phylogenetic tree'
+                ):
             self.beta_collection_pipeline(
                 table=self.table1, metric='weighted_unifrac', sampling_depth=1,
                 n=10, replacement=False)
@@ -204,7 +207,8 @@ class BetaCollectionTests(TestPluginBase):
                                         ids=['S1', 'S2'])
 
         observed, = self.beta_collection_pipeline(
-            table=self.table1, metric='unweighted_unifrac', phylogeny=phylogeny,
+            table=self.table1, metric='unweighted_unifrac',
+            phylogeny=phylogeny,
             sampling_depth=2, n=10, replacement=False)
         self.assertEqual(len(observed), 10)
         for o in observed.values():
@@ -302,7 +306,9 @@ class BetaTests(TestPluginBase):
         self.assertEqual(observed, expected)
 
     def test_invalid(self):
-        with self.assertRaisesRegex(ValueError, 'requires a phylogenetic tree'):
+        with self.assertRaisesRegex(
+            ValueError, 'requires a phylogenetic tree'
+                ):
             self.beta_pipeline(table=self.table1,
                                metric='weighted_unifrac',
                                sampling_depth=1,
