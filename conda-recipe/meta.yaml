@@ -29,6 +29,7 @@ test:
   requires:
   - qiime2 >={{ qiime2 }}
   - q2-types >={{ q2_types }}
+  - q2-feature-table >={{ q2_feature_table }}
   - pytest
   imports:
   - q2_boots
