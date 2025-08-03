@@ -1,0 +1,9 @@
+channels:
+- https://packages.qiime2.org/qiime2/2025.7/amplicon/released
+- conda-forge
+- bioconda
+dependencies:
+- qiime2-amplicon
+- pip
+- pip:
+  - q2-boots@git+https://github.com/caporaso-lab/q2-boots.git@2025.7.beta
