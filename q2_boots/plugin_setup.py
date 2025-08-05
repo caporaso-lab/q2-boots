@@ -45,8 +45,8 @@ plugin = Plugin(
     short_description=('Bootstrapped and rarefaction-based diversity '
                        'analyses.'),
     description=('A plugin providing bootstrapped and rarefaction-based '
-                 '(i.e., resampled) diversity analyses, designed to mirror the '
-                 'interface of q2-diversity.'),
+                 '(i.e., resampled) diversity analyses, designed to mirror '
+                 'the interface of q2-diversity.'),
     citations=[citations['Raspet2025']]
 )
 
@@ -111,9 +111,10 @@ plugin.pipelines.register_function(
     parameter_descriptions=_resample_parameter_descriptions,
     output_descriptions=_resample_output_descriptions,
     name='Resample feature table, returning `n` feature tables.',
-    description=('Resample `table` to `sampling_depth` total observations with '
-                 'replacement (i.e., bootstrapping) or without replacement '
-                 '(i.e., rarefaction) `n` times, to generate `n` resampled '
+    description=('Resample `table` to `sampling_depth` total observations '
+                 'with replacement (i.e., bootstrapping) '
+                 'or without replacement (i.e., rarefaction) '
+                 '`n` times, to generate `n` resampled '
                  'feature tables.'),
     examples={
         'Generate 10 bootstrapped tables.': _resample_bootstrap_example,
@@ -194,12 +195,14 @@ plugin.pipelines.register_function(
                               'samples.'),
     },
     name='Perform resampled alpha diversity, returning `n` result vectors.',
-    description=('Given a single feature table as input, this action resamples '
-                 'the feature table `n` times to a total frequency of '
-                 '`sampling depth` per sample, and then computes the specified '
-                 'alpha diversity metric on each resulting `table`. The '
-                 'resulting artifacts can be used, for example, to explore the '
-                 'variance across `n` iterations of resampling.')
+    description=('Given a single feature table as input, '
+                 'this action resamples the feature table `n` times '
+                 'to a total frequency of `sampling depth` per sample, '
+                 'and then computes the specified alpha diversity metric '
+                 'on each resulting `table`. '
+                 'The resulting artifacts can be used, for example, '
+                 'to explore the variance across `n` iterations of resampling.'
+                 )
 )
 
 _alpha_parameters = _alpha_collection_parameters | _alpha_average_parameters
@@ -217,11 +220,11 @@ plugin.pipelines.register_function(
         'average_alpha_diversity': _average_alpha_diversity_description,
     },
     name='Perform resampled alpha diversity, returning average result vector.',
-    description=('Given a single feature table as input, this action resamples '
-                 'the feature table `n` times to a total frequency of '
-                 '`sampling depth` per sample, and then computes the specified '
-                 'alpha diversity metric on each resulting `table`. The '
-                 'resulting artifacts are then averaged using the method '
+    description=('Given a single feature table as input, this action '
+                 'resamples the feature table `n` times to a total frequency '
+                 'of `sampling depth` per sample, and then computes the '
+                 'specified alpha diversity metric on each resulting `table`. '
+                 'The resulting artifacts are then averaged using the method '
                  'specified by `average_method`, and the resulting average '
                  'per-sample alpha diversities are returned.'),
     examples={
@@ -306,12 +309,12 @@ plugin.pipelines.register_function(
     },
     parameter_descriptions=_beta_collection_parameter_descriptions,
     name='Perform resampled beta diversity, returning `n` distance matrices.',
-    description=('Given a single feature table as input, this action resamples '
-                 'the feature table `n` times to a total frequency of '
-                 '`sampling depth` per sample, and then computes the specified '
-                 'beta diversity metric on each resulting `table`. The '
-                 'resulting artifacts can be used, for example, to explore the '
-                 'variance across `n` iterations of resampling.'),
+    description=('Given a single feature table as input, this action '
+                 'resamples the feature table `n` times to a total frequency '
+                 'of `sampling depth` per sample, and then computes the '
+                 'specified beta diversity metric on each resulting `table`. '
+                 'The resulting artifacts can be used, for example, to '
+                 'explore the variance across `n` iterations of resampling.'),
     examples={
         'Bootstrapped Bray-Curtis.': _beta_bootstrap_example,
         'Rarefaction-based Bray-Curtis.': _beta_rarefaction_example
@@ -331,12 +334,13 @@ plugin.pipelines.register_function(
     parameter_descriptions=_beta_parameter_descriptions,
     output_descriptions={
         'average_distance_matrix': 'The average distance matrix.'},
-    name='Perform resampled beta diversity, returning average distance matrix.',
-    description=('Given a single feature table as input, this action resamples '
-                 'the feature table `n` times to a total frequency of '
-                 '`sampling depth` per sample, and then computes the specified '
-                 'beta diversity metric on each resulting `table`. The '
-                 'resulting artifacts are then averaged using the method '
+    name='Perform resampled beta diversity, '
+         'returning average distance matrix.',
+    description=('Given a single feature table as input, this action '
+                 'resamples the feature table `n` times to a total frequency '
+                 'of `sampling depth` per sample, and then computes the '
+                 'specified beta diversity metric on each resulting `table`. '
+                 'The resulting artifacts are then averaged using the method '
                  'specified by `average_method`, and the resulting average '
                  'beta diversity distance matrix is returned.')
 )
@@ -385,10 +389,10 @@ plugin.pipelines.register_function(
         'scatter_plot': _scatter_plot_description
     },
     name='Perform resampled "core metrics" analysis.',
-    description=('Given a single feature table as input, this action resamples '
-                 'the feature table `n` times to a total frequency of '
-                 '`sampling depth` per sample, and then computes common alpha '
-                 'and beta diversity on each resulting `table`. The '
+    description=('Given a single feature table as input, this action '
+                 'resamples the feature table `n` times to a total frequency '
+                 'of `sampling depth` per sample, and then computes common '
+                 'alpha and beta diversity on each resulting `table`. The '
                  'resulting artifacts are then averaged using the method '
                  'specified by `alpha_average_method` and '
                  '`beta_average_method` parameters. The resulting average '
@@ -484,9 +488,9 @@ plugin.pipelines.register_function(
         'scatter_plot': _scatter_plot_description
     },
     name='Perform resampled "core metrics" analysis on kmerized features.',
-    description=('Given a single feature table as input, this action resamples '
-                 'the feature table `n` times to a total frequency of '
-                 '`sampling depth` per sample. It then splits all input '
+    description=('Given a single feature table as input, this action '
+                 'resamples the feature table `n` times to a total frequency '
+                 'of `sampling depth` per sample. It then splits all input '
                  'sequences into kmers, and computes common alpha '
                  'and beta diversity on each resulting kmer table. The '
                  'resulting artifacts are then averaged using the method '
@@ -495,6 +499,8 @@ plugin.pipelines.register_function(
                  'alpha and beta diversity artifacts are returned, along with '
                  'a scatter plot integrated all alpha diversity metrics and '
                  'the PCoA axes for all beta diversity metrics.'),
-    examples={'Bootstrapped kmer diversity': _kmer_diversity_bootstrap_example},
+    examples={
+        'Bootstrapped kmer diversity': _kmer_diversity_bootstrap_example
+        },
     citations=[citations['Bokulich2024']]
 )

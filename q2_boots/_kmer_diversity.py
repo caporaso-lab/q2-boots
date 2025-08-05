@@ -16,7 +16,8 @@ from q2_boots._beta import (_validate_beta_metric, _get_beta_metric_action,
 
 
 def kmer_diversity(ctx, table, sequences, sampling_depth, metadata, n,
-                   replacement, kmer_size=16, tfidf=False, max_df=1.0, min_df=1,
+                   replacement, kmer_size=16, tfidf=False,
+                   max_df=1.0, min_df=1,
                    max_features=None, alpha_average_method='median',
                    beta_average_method='non-metric-median', pc_dimensions=3,
                    color_by=None, norm='None',

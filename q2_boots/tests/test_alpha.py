@@ -216,8 +216,8 @@ class AlphaTests(TestPluginBase):
             n=99, replacement=True)
         observed_series = observed.view(pd.Series)
         # note that because n is an odd number, the median for S1 will always
-        # be one of the actual values that were observed (as opposed to possibly
-        # being 1.5, if n was an even number).
+        # be one of the actual values that were observed (as opposed to
+        # possibly being 1.5, if n was an even number).
         self.assertTrue(observed_series['S1'] == 1.0 or
                         observed_series['S1'] == 2.0)
         self.assertEqual(observed_series['S2'], 1.0)
@@ -257,7 +257,7 @@ class AlphaTests(TestPluginBase):
         pdt.assert_series_equal(observed_series, expected_series)
 
         # at a sampling depth of 2, with table1 as input, sampling without
-        # replacement, and averaging with median, there is one possible outcome.
+        # replacement and averaging with median, there is one possible outcome.
         # confirm that we observe it.
         observed, = self.alpha_pipeline(
             table=table1, sampling_depth=2, metric='observed_features',

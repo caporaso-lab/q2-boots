@@ -163,3 +163,6 @@ cython_debug/
 docs/book/_static/environment.yml
 docs/book/plugin-reference/
 docs/book/q2doc.bib
+
+# Version file from versioningit
+_version.py

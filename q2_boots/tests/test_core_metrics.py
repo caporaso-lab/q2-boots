@@ -123,8 +123,8 @@ class CoreMetricsTests(TestPluginBase):
                         set(output[1].keys()) == skbio_gte_060_alpha_keys)
         observed_obs_features = output[1]['observed_features'].view(pd.Series)
         # note that because n is an odd number, the median for S1 will always
-        # be one of the actual values that were observed (as opposed to possibly
-        # being 1.5, if n was an even number).
+        # be one of the actual values that were observed (as opposed to
+        # possibly being 1.5, if n was an even number).
         self.assertTrue(observed_obs_features['S1'] == 1.0 or
                         observed_obs_features['S1'] == 2.0,
                         msg=f"Median value ({observed_obs_features['S1']}) is "
@@ -140,8 +140,8 @@ class CoreMetricsTests(TestPluginBase):
         # between S1 and S2 as the median (as opposed to the mean of two
         # actual values)
         self.assertTrue(observed_jaccard[('S1', 'S2')] in [0.0, 0.5, 1.0],
-                        msg=(f"Median value ({observed_jaccard[('S1', 'S2')]}) "
-                             "is not equal to 0.0, 0.5 or 1.0."))
+                        msg=(f"Median value ({observed_jaccard[('S1', 'S2')]})"
+                             " is not equal to 0.0, 0.5 or 1.0."))
 
         # vizard scatter plot returned
         self.assertEqual(output[5].type, Visualization)
