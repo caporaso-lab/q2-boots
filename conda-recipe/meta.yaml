@@ -32,6 +32,7 @@ test:
   - q2-kmerizer >={{ q2_kmerizer }}
   - q2-diversity >={{ q2_diversity }}
   - q2-feature-table >={{ q2_feature_table }}
+  - q2-vizard >={{ q2_vizard }}
   - pytest
   imports:
   - q2_boots
