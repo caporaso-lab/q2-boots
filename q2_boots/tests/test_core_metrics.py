@@ -10,6 +10,7 @@ import qiime2
 from qiime2.plugin.testing import TestPluginBase
 from qiime2.plugin import Visualization
 import pandas as pd
+import numpy.testing as npt
 import pandas.testing as pdt
 import skbio
 
@@ -197,8 +198,12 @@ class CoreMetricsTests(TestPluginBase):
             [[0, 0.25], [0.25, 0]], ids=['S1', 'S2'])
         observed_unweighted_unifrac = \
             output[2]['unweighted_unifrac'].view(skbio.DistanceMatrix)
-        self.assertEqual(observed_unweighted_unifrac,
-                         expected_unweighted_unifrac)
+        # Floating point error seemingly induced by going from
+        # unifrac_binaries=1.4 to unifrac_binaries=1.5 made this necessary
+        self.assertEqual(observed_unweighted_unifrac.ids,
+                         expected_unweighted_unifrac.ids)
+        npt.assert_allclose(observed_unweighted_unifrac.data,
+                            expected_unweighted_unifrac.data)
 
         # vizard scatter plot returned
         self.assertEqual(output[5].type, Visualization)
