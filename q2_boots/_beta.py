@@ -12,6 +12,7 @@ import warnings
 import numpy as np
 import skbio
 from hdmedians import medoid
+import kmedoids
 
 from q2_diversity_lib.beta import METRICS
 
@@ -113,9 +114,11 @@ def _per_cell_average(a, average_method):
 
 
 def _medoid(a):
+    # i dont think I need to condense for kmedoids
     condensed_dms = np.asarray([dm.condensed_form() for dm in a])
-    medoid_dm_index = medoid(condensed_dms, axis=0, indexonly=True)
-    return a[medoid_dm_index]
+    medoid_dm_index = kmedoids.fasterpam(condensed_dms, medoids=1)
+    print(medoid_dm_index)
+    return a[medoid_dm_index.medoids[0]]
 
 
 def _validate_beta_metric(metric, phylogeny):
