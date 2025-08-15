@@ -68,6 +68,7 @@ class BetaAverageTests(TestCase):
 
     def test_medoid(self):
         observed = beta_average(self.dms, "medoid")
+        print(observed)
         exp = skbio.DistanceMatrix([[0, 6, 2],
                                     [6, 0, 3],
                                     [2, 3, 0]], ids=('S1', 'S2', 'S3'))
