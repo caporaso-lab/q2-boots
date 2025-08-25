@@ -4,6 +4,7 @@ channels:
 - bioconda
 dependencies:
   - qiime2-amplicon
+  - hdmedians
   - pip
   - pip:
      - q2-boots@git+https://github.com/caporaso-lab/q2-boots.git@2024.10.beta
