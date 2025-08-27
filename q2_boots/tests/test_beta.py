@@ -9,6 +9,7 @@
 from unittest import TestCase, main
 
 import pandas as pd
+import numpy.testing as npt
 import qiime2
 
 import skbio
@@ -213,7 +214,10 @@ class BetaCollectionTests(TestPluginBase):
         self.assertEqual(len(observed), 10)
         for o in observed.values():
             o = o.view(skbio.DistanceMatrix)
-            self.assertEqual(o, expected)
+            self.assertEqual(o.ids, expected.ids)
+            # Floating point error seemingly induced by going from
+            # unifrac_binaries=1.4 to unifrac_binaries=1.5 made this necessary
+            npt.assert_allclose(o.data, expected.data)
 
 
 class BetaTests(TestPluginBase):
